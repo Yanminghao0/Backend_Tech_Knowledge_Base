@@ -267,147 +267,105 @@ SETRANGE key 0 "hi"  // 缩短字符串
 
 ## 持久化机制
 
-### Q3: RDB vs AOF？（⭐⭐⭐⭐⭐）
+### Q2: RDB和AOF的区别及优缺点？（⭐⭐⭐⭐⭐）
 
 **RDB（Redis Database）**：
+```redis
+# RDB配置
+save 900 1        # 900秒内至少1个key变化则持久化
+save 300 10       # 300秒内至少10个key变化则持久化
+save 60 10000     # 60秒内至少10000个key变化则持久化
+stop-writes-on-bgsave-error yes  # 持久化出错是否停止写入
+rdbcompression yes               # 是否压缩RDB文件
+rdbchecksum yes                  # 是否校验RDB文件
+dbfilename dump.rdb              # RDB文件名
+dir ./                           # RDB文件存储路径
+
+# 手动触发RDB
+SAVE       # 同步，阻塞Redis服务器
+BGSAVE     # 异步，fork子进程执行
 ```
-定义：
-  - 快照持久化
-  - 把内存数据保存到磁盘
-  - 二进制格式
 
-触发方式：
-  1. 手动触发：
-     SAVE：阻塞主进程
-     BGSAVE：fork子进程（推荐）
-  
-  2. 自动触发：
-     save 900 1    # 900秒内至少1次修改
-     save 300 10   # 300秒内至少10次修改
-     save 60 10000 # 60秒内至少10000次修改
+**工作原理**：
+```
+1. Redis调用fork()，创建子进程
+2. 子进程将数据写入临时RDB文件
+3. 写入完成后，替换旧RDB文件
+4. 整个过程主进程不阻塞（BGSAVE）
 
-流程：
-  1. fork子进程
-  2. 子进程写RDB文件（temp.rdb）
-  3. 替换旧RDB文件
-  4. 子进程退出
-
-优点：
-  ✅ 文件小（二进制）
-  ✅ 恢复快（直接加载）
-  ✅ 性能好（子进程）
-  ✅ 适合全量备份
-
-缺点：
-  ❌ 数据完整性差（间隔保存）
-  ❌ 可能丢失最后一次快照后的数据
-  ❌ fork子进程耗时（数据量大）
-  ❌ 不适合实时性要求高的场景
-
-配置：
-# redis.conf
-save 900 1
-save 300 10
-save 60 10000
-dbfilename dump.rdb
-dir /var/lib/redis
+示意图：
+[Redis主进程] → fork() → [子进程] → 写入临时文件 → 替换旧文件
+    ↑                               ↓
+  处理命令                        完成持久化
 ```
 
 **AOF（Append Only File）**：
-```
-定义：
-  - 追加日志
-  - 记录每个写操作
-  - 文本格式
+```redis
+# AOF配置
+enable appendonly yes             # 开启AOF
+appendfilename "appendonly.aof"   # AOF文件名
+dir ./                           # AOF文件存储路径
 
-触发方式：
-  appendfsync always    # 每个命令都fsync（慢）
-  appendfsync everysec  # 每秒fsync（推荐）
-  appendfsync no        # 由OS决定（快但不安全）
+# 同步策略
+appendfsync everysec             # 每秒同步（默认）
+# appendfsync always             # 每次写入都同步
+# appendfsync no                 # 由操作系统决定
 
-流程：
-  1. 命令写入AOF缓冲区
-  2. 根据appendfsync策略fsync到磁盘
-  3. 定期AOF重写（压缩）
+# 重写配置
+auto-aof-rewrite-percentage 100  # AOF文件增长百分比
+auto-aof-rewrite-min-size 64mb   # AOF文件最小重写大小
 
-AOF重写：
-  - 为什么重写？
-    SET key 1
-    SET key 2
-    SET key 3
-    → 优化为：SET key 3
-  
-  - 如何重写？
-    1. fork子进程
-    2. 子进程遍历内存数据，生成新AOF
-    3. 主进程继续写旧AOF + AOF重写缓冲区
-    4. 子进程完成后，主进程追加缓冲区到新AOF
-    5. 替换旧AOF
-  
-  - 触发条件：
-    auto-aof-rewrite-percentage 100  # 增长100%
-    auto-aof-rewrite-min-size 64mb   # 至少64MB
-
-优点：
-  ✅ 数据完整性好（每秒/每次fsync）
-  ✅ 故障恢复能力强
-  ✅ 文本格式，可读可修改
-  ✅ append方式，不怕断电
-
-缺点：
-  ❌ 文件大（记录每个命令）
-  ❌ 恢复慢（重放命令）
-  ❌ 性能略差（fsync）
-
-配置：
-# redis.conf
-appendonly yes
-appendfilename "appendonly.aof"
-appendfsync everysec
-auto-aof-rewrite-percentage 100
-auto-aof-rewrite-min-size 64mb
+# 手动触发重写
+BGREWRITEAOF
 ```
 
-**RDB vs AOF对比**：
+**工作原理**：
+```
+1. 所有写命令追加到aof_buf缓冲区
+2. 根据同步策略将缓冲区内容写入AOF文件
+3. AOF文件过大时，触发重写（BGREWRITEAOF）
+4. 重写过程与RDB类似，生成优化后的新AOF文件
 
-| 对比项 | RDB | AOF |
-|--------|-----|-----|
-| 文件大小 | 小 | 大 |
+示意图：
+写命令 → aof_buf → [everysec/always/no] → AOF文件 → 重写优化
+```
+
+**RDB vs AOF 详细对比**：
+| 特性 | RDB | AOF |
+|------|-----|-----|
+| 数据完整性 | 差（可能丢失几分钟数据） | 好（最多丢失1秒数据） |
+| 文件大小 | 小（压缩二进制） | 大（文本命令） |
 | 恢复速度 | 快 | 慢 |
-| 数据完整性 | 差 | 好 |
-| 性能影响 | 小 | 中 |
-| 文件格式 | 二进制 | 文本 |
-| 适用场景 | 全量备份 | 实时性高 |
+| 写入性能 | 好（fork子进程，主进程不阻塞） | 一般（频繁IO操作） |
+| 重写机制 | SAVE/BGSAVE | BGREWRITEAOF |
+| 数据格式 | 二进制 | 文本命令 |
+| 兼容性 | 低（版本间不兼容） | 高（命令兼容） |
 
-**混合持久化（Redis 4.0+）**：
+**最佳实践**：
 ```
-定义：
-  - RDB + AOF
-  - AOF文件包含：RDB快照 + 增量AOF
-  - 兼具两者优点
+# 生产环境推荐配置
+1. 同时开启RDB和AOF
+   - RDB用于快速恢复
+   - AOF用于保证数据完整性
 
-配置：
-aof-use-rdb-preamble yes
+2. 同步策略选择everysec
+   - 平衡性能和安全性
 
-流程：
-  1. AOF重写时，先写入RDB快照
-  2. 再追加增量AOF命令
-  
-文件格式：
-  [RDB快照]
-  [AOF命令1]
-  [AOF命令2]
-  ...
+3. 定期备份RDB文件
+   - 防止AOF文件损坏
 
-优点：
-  ✅ 恢复快（RDB快照）
-  ✅ 数据完整（AOF增量）
-  ✅ 文件小（RDB快照 + 少量AOF）
+4. 监控AOF文件大小
+   - 及时处理重写
+```
 
-推荐配置：
-appendonly yes
-aof-use-rdb-preamble yes
-appendfsync everysec
+**故障恢复流程**：
+```
+1. Redis启动时，优先加载AOF文件
+2. 如果AOF文件不存在，加载RDB文件
+3. 如果两者都存在，以AOF为准（数据更完整）
+
+命令验证：
+redis-server --appendonly yes --dbfilename dump.rdb
 ```
 
 ---

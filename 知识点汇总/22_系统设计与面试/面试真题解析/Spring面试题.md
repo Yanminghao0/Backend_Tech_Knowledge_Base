@@ -964,6 +964,154 @@ public class LogAspect {
 
 ## Spring事务管理
 
+### Q3: 事务传播行为和隔离级别？（⭐⭐⭐⭐⭐）
+
+**事务传播行为（Propagation）**：
+```java
+// 传播行为定义
+public enum Propagation {
+    REQUIRED(0),          // 默认：如果当前有事务则加入，否则新建
+    SUPPORTS(1),          // 如果当前有事务则加入，否则非事务执行
+    MANDATORY(2),         // 必须在事务中运行，否则抛异常
+    REQUIRES_NEW(3),      // 无论当前是否有事务，都新建事务
+    NOT_SUPPORTED(4),     // 以非事务方式运行，若当前有事务则挂起
+    NEVER(5),             // 必须在非事务中运行，否则抛异常
+    NESTED(6);            // 如果当前有事务，则嵌套事务执行
+}
+
+// 代码示例
+@Service
+public class OrderService {
+    @Autowired
+    private PaymentService paymentService;
+
+    // REQUIRED（默认）
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void createOrder() {
+        // 保存订单
+        saveOrder();
+        // 调用支付服务（加入当前事务）
+        paymentService.processPayment();
+    }
+
+    // REQUIRES_NEW
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void createOrderWithNewTx() {
+        saveOrder();
+        // 支付服务在新事务中执行
+        paymentService.processPaymentNewTx();
+    }
+
+    // NESTED
+    @Transactional(propagation = Propagation.NESTED)
+    public void createOrderWithNestedTx() {
+        saveOrder();
+        // 嵌套事务，可独立回滚
+        paymentService.processPaymentNestedTx();
+    }
+}
+
+@Service
+public class PaymentService {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void processPayment() { ... }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processPaymentNewTx() { ... }
+
+    @Transactional(propagation = Propagation.NESTED)
+    public void processPaymentNestedTx() { ... }
+}
+
+**传播行为对比场景**：
+| 场景 | REQUIRED | REQUIRES_NEW | NESTED |
+|------|----------|--------------|--------|
+| 外层无事务 | 新建事务 | 新建事务 | 新建事务 |
+| 外层有事务 | 加入事务 | 新建独立事务 | 嵌套子事务 |
+| 内层回滚影响 | 整体回滚 | 仅内层回滚 | 仅子事务回滚 |
+| 保存点支持 | ❌ | ❌ | ✅ |
+
+**事务隔离级别（Isolation）**：
+```java
+// 隔离级别定义
+public enum Isolation {
+    DEFAULT(-1),          // 数据库默认
+    READ_UNCOMMITTED(1),  // 读未提交
+    READ_COMMITTED(2),    // 读已提交（Oracle默认）
+    REPEATABLE_READ(4),   // 可重复读（MySQL默认）
+    SERIALIZABLE(8);      // 串行化
+}
+
+// 代码示例
+@Service
+public class UserService {
+    // 读已提交隔离级别
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public User getUserById(Long id) {
+        return userDao.selectById(id);
+    }
+
+    // 可重复读隔离级别
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<User> queryUsers() {
+        List<User> firstRead = userDao.findAll();
+        // 即使其他事务修改数据，第二次读取结果仍与第一次一致
+        List<User> secondRead = userDao.findAll();
+        return secondRead;
+    }
+}
+```
+
+**隔离级别问题解决**：
+| 隔离级别 | 脏读 | 不可重复读 | 幻读 |
+|----------|------|------------|------|
+| READ_UNCOMMITTED | ✅ | ✅ | ✅ |
+| READ_COMMITTED | ❌ | ✅ | ✅ |
+| REPEATABLE_READ | ❌ | ❌ | ✅ |
+| SERIALIZABLE | ❌ | ❌ | ❌ |
+
+**MySQL与Spring隔离级别对应**：
+```
+MySQL默认：REPEATABLE_READ
+Spring默认：依赖数据库（即REPEATABLE_READ）
+
+解决幻读：
+1. MySQL REPEATABLE_READ通过MVCC+间隙锁解决幻读
+2. Spring可显式指定SERIALIZABLE彻底避免
+```
+
+**实战问题排查**：
+```java
+// 常见事务失效场景
+@Service
+public class OrderService {
+    // 问题1：非public方法
+    @Transactional
+    void saveOrder() { ... }  // 事务不生效
+
+    // 问题2：自调用
+    public void createOrder() {
+        this.saveOrderWithTx();  // 事务不生效
+    }
+
+    @Transactional
+    public void saveOrderWithTx() { ... }
+
+    // 问题3：异常被捕获
+    @Transactional
+    public void processOrder() {
+        try {
+            // 业务逻辑
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            // 未抛出异常，事务不回滚
+        }
+    }
+}
+```
+
+---
+
 ### Q8: Spring事务传播机制？（⭐⭐⭐⭐⭐）
 
 **7种传播行为**：
@@ -1022,7 +1170,7 @@ public void methodB() {
   
 场景：
   - 强制要求在事务中执行
-  - 防止被非事务方法调用
+  - 防止非事务方法调用
 ```
 
 **4. REQUIRES_NEW**：

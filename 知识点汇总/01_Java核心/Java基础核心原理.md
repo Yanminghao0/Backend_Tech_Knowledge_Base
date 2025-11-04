@@ -65,10 +65,10 @@
 │  ┌──────────────────── JRE (Java Runtime Environment) ──────────────┐ │
 │  │                                                                   │ │
 │  │  ┌─────────────── JVM (Java Virtual Machine) ──────────────┐    │ │
-│  │  │                                                          │    │ │
-│  │  │  - 类加载器 (ClassLoader)                                │    │ │
-│  │  │  - 执行引擎 (Execution Engine)                           │    │ │
-│  │  │  - 运行时数据区 (Runtime Data Area)                      │    │ │
+│  │  │                                                        │     │ │
+│  │  │  - 类加载器 (ClassLoader)                               │     │ │
+│  │  │  - 执行引擎 (Execution Engine)                          │     │ │
+│  │  │  - 运行时数据区 (Runtime Data Area)                      │     │ │
 │  │  │  - 本地方法接口 (Native Interface)                       │    │ │
 │  │  │                                                          │    │ │
 │  │  └──────────────────────────────────────────────────────────┘    │ │

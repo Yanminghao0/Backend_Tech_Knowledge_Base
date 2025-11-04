@@ -199,83 +199,142 @@ get过程：
 
 **详细源码分析**：
 ```java
-// put方法核心逻辑
-final V putVal(K key, V value, boolean onlyIfAbsent) {
-    int hash = spread(key.hashCode());
-    
-    for (Node<K,V>[] tab = table;;) {
-        Node<K,V> f; int n, i, fh;
-        
-        // 1. 如果数组为空，初始化
-        if (tab == null || (n = tab.length) == 0)
-            tab = initTable();
-        
-        // 2. 如果桶为空，CAS插入
-        else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
-            if (casTabAt(tab, i, null, new Node<K,V>(hash, key, value, null)))
-                break;
-        }
-        
-        // 3. 如果在扩容，帮助扩容
-        else if ((fh = f.hash) == MOVED)
-            tab = helpTransfer(tab, f);
-        
-        // 4. 否则，synchronized加锁插入
-        else {
-            V oldVal = null;
-            synchronized (f) {  // 锁住头节点
-                // 插入逻辑...
+// JDK 1.8 ConcurrentHashMap关键源码
+public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
+    implements ConcurrentMap<K,V>, Serializable {
+
+    // 核心数据结构
+    transient volatile Node<K,V>[] table;
+
+    // 扩容时的临时表
+    private transient volatile Node<K,V>[] nextTable;
+
+    // 控制表初始化和扩容的标志
+    private transient volatile int sizeCtl;
+
+    // Node节点
+    static class Node<K,V> implements Map.Entry<K,V> {
+        final int hash;
+        final K key;
+        volatile V val;
+        volatile Node<K,V> next;
+        // ...
+    }
+
+    // 红黑树节点
+    static final class TreeNode<K,V> extends Node<K,V> {
+        TreeNode<K,V> parent;  // red-black tree links
+        TreeNode<K,V> left;
+        TreeNode<K,V> right;
+        TreeNode<K,V> prev;    // needed to unlink next upon deletion
+        boolean red;
+        // ...
+    }
+
+    // put方法实现
+    public V put(K key, V value) {
+        return putVal(key, value, false);
+    }
+
+    final V putVal(K key, V value, boolean onlyIfAbsent) {
+        if (key == null || value == null) throw new NullPointerException();
+        int hash = spread(key.hashCode());
+        int binCount = 0;
+        for (Node<K,V>[] tab = table;;) {
+            Node<K,V> f;
+            int n, i, fh;
+            if (tab == null || (n = tab.length) == 0)
+                tab = initTable();
+            else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
+                if (casTabAt(tab, i, null, new Node<K,V>(hash, key, value, null)))
+                    break;  // no lock when adding to empty bin
+            }
+            else if ((fh = f.hash) == MOVED)
+                tab = helpTransfer(tab, f);
+            else {
+                V oldVal = null;
+                synchronized (f) {
+                    if (tabAt(tab, i) == f) {
+                        if (fh >= 0) {
+                            binCount = 1;
+                            for (Node<K,V> e = f;; ++binCount) {
+                                K ek;
+                                if (e.hash == hash &&
+                                    ((ek = e.key) == key ||
+                                     (ek != null && key.equals(ek)))) {
+                                    oldVal = e.val;
+                                    if (!onlyIfAbsent)
+                                        e.val = value;
+                                    break;
+                                }
+                                Node<K,V> pred = e;
+                                if ((e = e.next) == null) {
+                                    pred.next = new Node<K,V>(hash, key, value, null);
+                                    break;
+                                }
+                            }
+                        }
+                        else if (f instanceof TreeBin) {
+                            Node<K,V> p;
+                            binCount = 2;
+                            if ((p = ((TreeBin<K,V>)f).putTreeVal(hash, key, value)) != null) {
+                                oldVal = p.val;
+                                if (!onlyIfAbsent)
+                                    p.val = value;
+                            }
+                        }
+                    }
+                }
+                if (binCount != 0) {
+                    if (binCount >= TREEIFY_THRESHOLD)
+                        treeifyBin(tab, i);
+                    if (oldVal != null)
+                        return oldVal;
+                    break;
+                }
             }
         }
+        addCount(1L, binCount);
+        return null;
     }
-    
-    addCount(1L, binCount);
-    return null;
-}
 
-// get方法（无锁）
-public V get(Object key) {
-    Node<K,V>[] tab; Node<K,V> e, p; int n, eh; K ek;
-    int h = spread(key.hashCode());
-    
-    if ((tab = table) != null && (n = tab.length) > 0 &&
-        (e = tabAt(tab, (n - 1) & h)) != null) {
-        
-        // 直接读取（volatile）
-        if ((eh = e.hash) == h) {
-            if ((ek = e.key) == key || (ek != null && key.equals(ek)))
-                return e.val;
+    // get方法实现
+    public V get(Object key) {
+        Node<K,V>[] tab;
+        Node<K,V> e, p;
+        int n, eh;
+        K ek;
+        int h = spread(key.hashCode());
+        if ((tab = table) != null && (n = tab.length) > 0 &&
+            (e = tabAt(tab, (n - 1) & h)) != null) {
+            if ((eh = e.hash) == h) {
+                if ((ek = e.key) == key || (ek != null && key.equals(ek)))
+                    return e.val;
+            }
+            else if (eh < 0)
+                return (p = e.find(h, key)) != null ? p.val : null;
+            while ((e = e.next) != null) {
+                if (e.hash == h &&
+                    ((ek = e.key) == key || (ek != null && key.equals(ek))))
+                    return e.val;
+            }
         }
-        // 树节点
-        else if (eh < 0)
-            return (p = e.find(h, key)) != null ? p.val : null;
-        
-        // 遍历链表
-        while ((e = e.next) != null) {
-            if (e.hash == h &&
-                ((ek = e.key) == key || (ek != null && key.equals(ek))))
-                return e.val;
-        }
+        return null;
     }
-    return null;
 }
 ```
 
-**为什么get不需要加锁？**
-```java
-static class Node<K,V> implements Map.Entry<K,V> {
-    final int hash;
-    final K key;
-    volatile V val;      // volatile保证可见性
-    volatile Node<K,V> next;  // volatile保证可见性
-}
+**JDK 1.7 vs JDK 1.8 核心改进**：
+| 特性 | JDK 1.7 | JDK 1.8 |
+|------|---------|---------|
+| 数据结构 | Segment数组 + HashEntry数组 + 链表 | 数组 + 链表 + 红黑树 |
+| 锁机制 | 分段锁（ReentrantLock） | CAS + synchronized |
+| 并发度 | Segment数量（默认16） | 理论上为数组长度 |
+| 扩容方式 | 单个Segment扩容 | 整体扩容 |
+| 查询性能 | O(n) | O(log n)（链表转红黑树后） |
+| 内存占用 | 较高 | 较低 |
 
-原因：
-1. val和next都是volatile
-2. 写操作立即可见
-3. 读操作能看到最新值
-4. 不需要加锁 ✅
-```
+---
 
 **size()方法如何实现？**
 ```java

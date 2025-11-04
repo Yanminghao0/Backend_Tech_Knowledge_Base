@@ -25,6 +25,86 @@
 
 ---
 
+### 2. LangChain4j详解 ⭐⭐⭐⭐⭐ 必学
+📄 [LangChain4j详解.md](./LangChain4j详解.md)
+
+**核心内容**：
+- ✅ **LangChain4j框架**：Java生态最强大的AI应用开发框架
+- ✅ **LLM集成**：OpenAI、Claude、通义千问、本地模型（Ollama）
+- ✅ **向量存储**：Milvus、Pinecone、内存向量存储
+- ✅ **RAG实现**：文档加载、切分、向量化、检索生成
+- ✅ **Function Calling**：工具定义、工具调用、多工具协调
+- ✅ **AI Agent**：基础Agent、ReAct Agent、自主Agent
+- ✅ **对话记忆**：内存记忆、持久化记忆、记忆管理
+- ✅ **高级特性**：流式响应、提示词模板、链式调用
+
+**适合场景**：
+- AI应用开发
+- 智能助手
+- RAG系统
+- AI Agent开发
+
+---
+
+### 3. Spring AI详解 ⭐⭐⭐⭐⭐ 必学
+📄 [Spring AI详解.md](./Spring%20AI详解.md)
+
+**核心内容**：
+- ✅ **Spring AI框架**：Spring官方AI框架，与Spring生态深度集成
+- ✅ **LLM集成**：OpenAI、Claude、通义千问、本地模型（Ollama）
+- ✅ **向量数据库**：Milvus、PostgreSQL（pgvector）、Redis（RediSearch）
+- ✅ **RAG实现**：文档加载、切分、向量化、检索生成
+- ✅ **Function Calling**：工具定义、工具调用
+- ✅ **AI Agent**：基础Agent、ReAct Agent
+- ✅ **Prompt管理**：提示词模板、版本管理、A/B测试
+- ✅ **Spring生态集成**：Spring Boot、Spring Cloud、Spring Data
+
+**适合场景**：
+- Spring生态项目
+- 微服务中的AI应用
+- 企业级AI应用
+- 需要Spring深度集成的场景
+
+---
+
+### 4. Agent-Flex详解 ⭐⭐⭐⭐ 推荐
+📄 [Agent-Flex详解.md](./Agent-Flex详解.md)
+
+**核心内容**：
+- ✅ **Agent-Flex框架**：阿里云开源的AI Agent框架
+- ✅ **Agent开发**：基础Agent、ReAct Agent、Plan-and-Execute Agent
+- ✅ **工具系统**：工具定义、工具注册、工具链编排、工具组合
+- ✅ **记忆管理**：短期记忆（对话上下文）、长期记忆（知识库）、记忆检索
+- ✅ **多Agent协同**：Agent通信、任务分工、Agent编排
+- ✅ **Spring Boot集成**：自动配置、依赖注入、配置管理
+
+**适合场景**：
+- AI Agent开发
+- 复杂的多步骤任务
+- 需要工具调用的场景
+- 多Agent协同场景
+
+---
+
+### 5. Spring Cloud Alibaba AI详解 ⭐⭐⭐⭐ 推荐
+📄 [Spring Cloud Alibaba AI详解.md](./Spring%20Cloud%20Alibaba%20AI详解.md)
+
+**核心内容**：
+- ✅ **Spring Cloud Alibaba AI**：Spring Cloud Alibaba生态的AI能力集成
+- ✅ **通义千问集成**：对话模型、向量化模型、图像生成模型
+- ✅ **向量数据库**：阿里云向量数据库、Milvus集成
+- ✅ **RAG实现**：文档加载、切分、向量化、检索生成
+- ✅ **Spring Cloud Alibaba集成**：Nacos配置中心、Sentinel流量控制、Gateway路由、链路追踪
+- ✅ **微服务支持**：服务发现、配置管理、流量控制、链路追踪
+
+**适合场景**：
+- Spring Cloud Alibaba微服务项目
+- 需要通义千问集成的场景
+- 微服务中的AI应用
+- 企业级AI应用
+
+---
+
 ## 🎯 AI技术学习路线
 
 ```mermaid

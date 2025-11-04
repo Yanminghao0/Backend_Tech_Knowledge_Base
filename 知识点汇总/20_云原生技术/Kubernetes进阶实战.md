@@ -1057,8 +1057,35 @@ metrics:
       averageValue: "1000"
 ```
 
-### 6.4 VPA（垂直自动扩缩容）
+**电商订单服务HPA配置实践**：
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: order-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: order-service
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+```
 
+### 6.4 VPA（垂直自动扩缩容）
 ```yaml
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
@@ -1162,6 +1189,38 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 kubectl create ns monitoring
 kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
 ```
+
+### 8.3 Prometheus告警规则配置
+
+**电商订单服务告警规则**：
+```yaml
+groups:
+- name: order-service-alerts
+  rules:
+  - alert: HighCpuUsage
+    expr: avg(rate(container_cpu_usage_seconds_total{pod=~"order-service-.*"}[5m])) by (pod) > 0.8
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High CPU usage detected"
+      description: "Pod {{ $labels.pod }} has high CPU usage for 3 minutes (current value: {{ $value }})
+  - alert: HighMemoryUsage
+    expr: avg(container_memory_usage_bytes{pod=~"order-service-.*"} / container_spec_memory_limit_bytes{pod=~"order-service-.*"} * 100) by (pod) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage detected"
+      description: "Pod {{ $labels.pod }} has high memory usage (current value: {{ $value }}%)"
+```
+
+**告警规则最佳实践**：
+1. **设置合理的for时间**：避免瞬时峰值触发告警
+2. **使用标签管理告警**：便于分类和筛选
+3. **添加详细的描述**：包含当前值和上下文信息
+4. **分级告警**：根据严重程度设置不同级别
+5. **定期审核规则**：根据实际情况调整阈值
 
 ---
 

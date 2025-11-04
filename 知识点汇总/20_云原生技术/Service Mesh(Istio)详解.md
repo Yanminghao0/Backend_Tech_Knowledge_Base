@@ -219,6 +219,62 @@ spec:
         subset: v3
 ```
 
+#### 企业级配置示例：基于用户代理的路由
+
+```yaml
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: order-service-vs
+spec:
+  hosts:
+  - order-service
+  http:
+  - route:
+    - destination:
+        host: order-service
+        subset: v1
+      weight: 90
+    - destination:
+        host: order-service
+        subset: v2
+      weight: 10
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*Chrome.*"
+    route:
+    - destination:
+        host: order-service
+        subset: v2
+```
+
+#### 故障注入配置
+
+```yaml
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: payment-service-vs
+spec:
+  hosts:
+  - payment-service
+  http:
+  - fault:
+      delay:
+        percentage:
+          value: 50
+        fixedDelay: 3s
+      abort:
+        percentage:
+          value: 10
+        httpStatus: 503
+    route:
+    - destination:
+        host: payment-service
+        subset: v1
+```
+
 ### 3.3 DestinationRule（目标策略）
 
 #### 定义服务子集
@@ -250,3 +306,57 @@ kind: DestinationRule
 metadata:
   name: reviews
 spec:
+  host: reviews
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN  # 可选: ROUND_ROBIN, LEAST_CONN, RANDOM, PASSTHROUGH
+```
+
+#### 企业级配置示例：连接池与TLS设置
+
+```yaml
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: order-service-dr
+spec:
+  host: order-service
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+    trafficPolicy:
+      connectionPool:
+        http:
+          maxRequestsPerConnection: 10
+          http1MaxPendingRequests: 100
+        tcp:
+          maxConnections: 100
+  - name: v2
+    labels:
+      version: v2
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+```
+
+### 3.4 Gateway（入口网关）
+
+#### 企业级网关配置示例
+
+```yaml
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: order-service-gateway
+spec:
+  selector:
+    istio: ingressgateway # 使用默认的入口网关
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "order.example.com"
+```
