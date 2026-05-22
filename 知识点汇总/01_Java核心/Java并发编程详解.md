@@ -17,6 +17,8 @@
 9. [并发容器深度解析](#9-并发容器深度解析)
 10. [并发实战案例](#10-并发实战案例)
 11. [并发编程常见问题](#11-并发编程常见问题)
+12. [虚拟线程（Virtual Threads）](#12-虚拟线程virtual-threads-jdk-21) ⭐ JDK 21
+13. [结构化并发与作用域值](#13-结构化并发与作用域值-jdk-21) ⭐ JDK 21+
 
 ---
 
@@ -2594,6 +2596,373 @@ public class ConcurrencyDebugging {
 
 ---
 
+## 12. 虚拟线程（Virtual Threads）⭐ JDK 21
+
+### 12.1 虚拟线程核心概念
+
+虚拟线程是JDK 21正式发布的重量级特性，是Project Loom的核心成果。
+
+**传统平台线程 vs 虚拟线程**：
+```
+┌──────────────────┬──────────────────────┬──────────────────────┐
+│ 特性             │ 平台线程              │ 虚拟线程              │
+├──────────────────┼──────────────────────┼──────────────────────┤
+│ 映射关系         │ 1:1 映射OS线程        │ M:N 映射（多对多）    │
+│ 创建成本         │ 高（~1MB栈）          │ 极低（~KB级）         │
+│ 数量上限         │ 几千~几万             │ 百万级                │
+│ 调度方式         │ OS调度               │ JVM调度（ForkJoinPool）│
+│ 阻塞行为         │ 阻塞OS线程            │ 自动卸载，释放载体线程│
+│ 适用场景         │ CPU密集型             │ IO密集型              │
+│ 线程池           │ 需要线程池复用         │ 不需要池化，按需创建  │
+└──────────────────┴──────────────────────┴──────────────────────┘
+```
+
+### 12.2 创建虚拟线程
+
+```java
+/**
+ * 虚拟线程的创建方式
+ */
+public class VirtualThreadDemo {
+
+    // 方式1：Thread.startVirtualThread（最简洁）
+    public void method1() {
+        Thread vt = Thread.startVirtualThread(() -> {
+            System.out.println("虚拟线程: " + Thread.currentThread());
+        });
+    }
+
+    // 方式2：Thread.ofVirtual()
+    public void method2() {
+        Thread vt = Thread.ofVirtual()
+            .name("my-vt")
+            .start(() -> {
+                System.out.println("Hello Virtual Thread");
+            });
+
+        // 也可以先创建再启动
+        Thread unstarted = Thread.ofVirtual()
+            .name("my-vt-2")
+            .unstarted(() -> System.out.println("稍后启动"));
+        unstarted.start();
+    }
+
+    // 方式3：Executors.newVirtualThreadPerTaskExecutor
+    public void method3() throws Exception {
+        // 每个任务分配一个虚拟线程（不需要池化）
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            var future1 = executor.submit(() -> fetchData("url1"));
+            var future2 = executor.submit(() -> fetchData("url2"));
+            var future3 = executor.submit(() -> fetchData("url3"));
+
+            String result1 = future1.get();
+            String result2 = future2.get();
+            String result3 = future3.get();
+        }
+    }
+
+    // 方式4：虚拟线程工厂
+    public void method4() {
+        ThreadFactory factory = Thread.ofVirtual()
+            .name("worker-vt-", 0)
+            .factory();
+
+        Thread vt = factory.newThread(() -> {
+            System.out.println("工厂创建的虚拟线程");
+        });
+        vt.start();
+    }
+
+    private String fetchData(String url) {
+        // 模拟IO操作
+        return "data from " + url;
+    }
+}
+```
+
+### 12.3 虚拟线程原理
+
+```
+虚拟线程调度模型：
+
+┌─────────────────────────────────────────────┐
+│               JVM调度器                      │
+│         (ForkJoinPool载体线程池)              │
+│                                              │
+│  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐   │
+│  │载体   │  │载体   │  │载体   │  │载体   │   │
+│  │线程1  │  │线程2  │  │线程3  │  │线程4  │   │
+│  └──┬───┘  └──┬───┘  └──┬───┘  └──┬───┘   │
+│     │         │         │         │         │
+│  ┌──┴──┐   ┌──┴──┐   ┌──┴──┐   ┌──┴──┐   │
+│  │VT-1 │   │VT-2 │   │VT-3 │   │VT-4 │   │
+│  │VT-5 │   │VT-6 │   │VT-7 │   │VT-8 │   │
+│  │VT-9 │   │VT-10│   │VT-11│   │VT-12│   │
+│  │...  │   │...  │   │...  │   │...  │   │
+│  └─────┘   └─────┘   └─────┘   └─────┘   │
+│                                              │
+│  虚拟线程数量可达百万级                        │
+│  载体线程数=CPU核心数                          │
+└─────────────────────────────────────────────┘
+
+挂起与恢复机制：
+1. 虚拟线程执行IO操作时（如Socket.read()）
+2. JVM自动将虚拟线程从载体线程上卸载
+3. 载体线程可以执行其他虚拟线程
+4. IO操作完成后，虚拟线程被调度到某个载体线程上恢复执行
+```
+
+### 12.4 虚拟线程最佳实践
+
+```java
+/**
+ * 虚拟线程最佳实践与陷阱
+ */
+public class VirtualThreadBestPractice {
+
+    // ✅ 正确：IO密集型任务使用虚拟线程
+    public void goodUsage() throws Exception {
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            // 并发调用多个远程服务
+            List<Future<String>> futures = urls.stream()
+                .map(url -> executor.submit(() -> httpGet(url)))
+                .toList();
+
+            for (Future<String> future : futures) {
+                System.out.println(future.get());
+            }
+        }
+    }
+
+    // ❌ 错误：CPU密集型任务不要使用虚拟线程
+    public void badUsage() throws Exception {
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            // CPU密集计算 → 使用平台线程
+            executor.submit(() -> fibonacci(50)); // ❌ 浪费虚拟线程优势
+        }
+    }
+
+    // ❌ 错误：不要池化虚拟线程
+    public void noPoolVirtualThreads() {
+        // 虚拟线程本身就是轻量级的，不需要池化
+        // 每个任务创建新的虚拟线程即可
+        // ❌ 不要把虚拟线程放入固定大小的线程池
+        var pool = Executors.newFixedThreadPool(100); // 使用平台线程池
+        // ✅ 使用 newVirtualThreadPerTaskExecutor
+    }
+
+    // ⚠️ 注意：synchronized会钉住载体线程（Pin）
+    public void pinningProblem() {
+        // JDK 21中，synchronized块内的阻塞操作会导致载体线程被钉住
+        // 解决方案1：使用ReentrantLock替代synchronized
+        // 解决方案2：JDK 22+已优化synchronized的Pinning问题
+
+        // ❌ 可能导致Pinning
+        synchronized (this) {
+            blockingIO(); // 载体线程被钉住
+        }
+
+        // ✅ 使用ReentrantLock
+        lock.lock();
+        try {
+            blockingIO(); // 不会钉住载体线程
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    // ⚠️ 注意：ThreadLocal在虚拟线程中的使用
+    public void threadLocalWarning() {
+        // 虚拟线程数量可能非常大（百万级）
+        // 每个虚拟线程都有ThreadLocal副本 → 内存可能溢出！
+        // ✅ 尽量避免在虚拟线程中使用ThreadLocal
+        // ✅ 考虑使用Scoped Values（JDK 21+）
+    }
+
+    // ✅ 实战：微服务并发调用
+    public String aggregateServices(List<String> serviceUrls) throws Exception {
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<Future<ServiceResult>> futures = serviceUrls.stream()
+                .map(url -> executor.submit(() -> callService(url)))
+                .toList();
+
+            return futures.stream()
+                .map(f -> {
+                    try { return f.get(); }
+                    catch (Exception e) { return ServiceResult.error(e); }
+                })
+                .filter(ServiceResult::isSuccess)
+                .map(ServiceResult::getData)
+                .collect(Collectors.joining(","));
+        }
+    }
+
+    private String httpGet(String url) { return ""; }
+    private long fibonacci(int n) { return 0; }
+    private void blockingIO() {}
+    private ServiceResult callService(String url) { return null; }
+
+    static class ServiceResult {
+        boolean success; String data;
+        static ServiceResult error(Exception e) { return null; }
+        boolean isSuccess() { return success; }
+        String getData() { return data; }
+    }
+    private final ReentrantLock lock = new ReentrantLock();
+}
+```
+
+### 12.5 虚拟线程 vs 响应式编程
+
+```
+┌──────────────────┬──────────────────────┬──────────────────────┐
+│ 特性             │ 虚拟线程              │ 响应式编程            │
+│                  │                      │ (WebFlux/Reactor)    │
+├──────────────────┼──────────────────────┼──────────────────────┤
+│ 编程模型         │ 同步阻塞（传统风格）  │ 异步非阻塞            │
+│ 学习成本         │ 低                    │ 高                    │
+│ 调试难度         │ 简单（栈跟踪清晰）    │ 困难（回调链复杂）    │
+│ 内存占用         │ 低（KB级/线程）       │ 低（事件驱动）        │
+│ 吞吐量           │ 高（IO密集型）        │ 高（IO密集型）        │
+│ 生态兼容         │ 完全兼容现有库        │ 需要响应式库支持      │
+│ 推荐场景         │ 新项目首选            │ 已有响应式架构        │
+└──────────────────┴──────────────────────┴──────────────────────┘
+
+结论：对于新项目，推荐使用虚拟线程 + Spring Boot 3.2+（内置虚拟线程支持）
+```
+
+---
+
+## 13. 结构化并发与作用域值 ⭐ JDK 21+
+
+### 13.1 结构化并发（Structured Concurrency）
+
+结构化并发是JDK 21+引入的预览API（JDK 22/23继续预览），用于管理多个并发任务的生命周期。
+
+```java
+/**
+ * 结构化并发示例
+ * 需要启用：--enable-preview（JDK 21-23）
+ */
+public class StructuredConcurrencyDemo {
+
+    // 传统方式：手动管理并发任务
+    public Response traditionalApproach() throws Exception {
+        Future<User> userFuture = executor.submit(() -> fetchUser());
+        Future<Order> orderFuture = executor.submit(() -> fetchOrder());
+
+        // 问题：如果fetchUser失败，fetchOrder仍在运行（浪费资源）
+        User user = userFuture.get();
+        Order order = orderFuture.get();
+        return new Response(user, order);
+    }
+
+    // 结构化并发：自动管理任务生命周期
+    public Response structuredApproach() throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+            // 子任务1：获取用户
+            Subtask<User> userTask = scope.fork(() -> fetchUser());
+            // 子任务2：获取订单
+            Subtask<Order> orderTask = scope.fork(() -> fetchOrder());
+
+            // 等待所有任务完成或任一任务失败
+            scope.join();
+            // 如果任一任务失败，抛出异常
+            scope.throwIfFailed();
+
+            return new Response(userTask.get(), orderTask.get());
+        }
+        // 作用域结束时，未完成的子任务自动取消
+    }
+
+    // ShutdownOnSuccess：任一成功即返回
+    public String raceApproach() throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnSuccess<String>()) {
+            scope.fork(() -> fetchFromCache());
+            scope.fork(() -> fetchFromDB());
+            scope.fork(() -> fetchFromRemote());
+
+            scope.join();
+
+            return scope.result();  // 返回第一个成功的结果
+        }
+    }
+
+    record Response(User user, Order order) {}
+}
+```
+
+**结构化并发的核心思想**：
+```
+1. 任务的生命周期被限定在语法作用域内
+2. 子任务不能超出父任务的范围
+3. 父任务等待所有子任务完成
+4. 异常自动传播，取消自动级联
+5. 线程转储清晰展示任务层次关系
+```
+
+### 13.2 作用域值（Scoped Values）
+
+作用域值是ThreadLocal的改进方案，解决了ThreadLocal的内存泄漏和可变性问题。
+
+```java
+/**
+ * 作用域值（Scoped Values）
+ * JDK 21+ 预览特性
+ */
+public class ScopedValuesDemo {
+
+    // 声明作用域值
+    private static final ScopedValue<User> CURRENT_USER = ScopedValue.newInstance();
+    private static final ScopedValue<String> REQUEST_ID = ScopedValue.newInstance();
+
+    // 使用作用域值
+    public void handleRequest() {
+        User user = authenticate();
+        String requestId = generateRequestId();
+
+        // 绑定作用域值（自动清理，无需remove()）
+        ScopedValue.where(CURRENT_USER, user)
+            .where(REQUEST_ID, requestId)
+            .run(() -> {
+                // 在此作用域内可以访问绑定的值
+                processBusiness();
+            });
+        // 作用域结束，值自动失效
+    }
+
+    public void processBusiness() {
+        // 获取当前用户
+        User currentUser = CURRENT_USER.get();
+        // 获取请求ID
+        String reqId = REQUEST_ID.get();
+
+        // 支持嵌套（内层可以覆盖外层的值）
+        ScopedValue.where(CURRENT_USER, adminUser()).run(() -> {
+            User admin = CURRENT_USER.get(); // 返回admin用户
+        });
+
+        // 嵌套作用域结束后恢复原值
+        User original = CURRENT_USER.get(); // 仍然是原始用户
+    }
+
+    // 作用域值 vs ThreadLocal对比
+    // ThreadLocal问题：
+    // ❌ 忘记remove()导致内存泄漏
+    // ❌ 可变性导致数据不一致
+    // ❌ 虚拟线程场景下大量副本导致内存压力
+    // ❌ 子线程无法自动继承
+
+    // ScopedValue优势：
+    // ✅ 作用域结束自动清理（无需手动remove）
+    // ✅ 不可变（绑定后不能修改，更安全）
+    // ✅ 虚拟线程友好（轻量级继承机制）
+    // ✅ 支持结构化并发（自动传播到子任务）
+}
+```
+
+---
+
 ## 📚 参考资料
 
 - 📖 《Java并发编程实战》- Brian Goetz
@@ -2637,6 +3006,16 @@ public class ConcurrencyDebugging {
    - 伪共享
    - 内存泄漏
 
+7. **虚拟线程（JDK 21）** ⭐
+   - 轻量级线程，M:N调度模型
+   - 适合IO密集型，不要池化
+   - 注意synchronized Pin问题和ThreadLocal内存问题
+   - 替代响应式编程的新选择
+
+8. **结构化并发与作用域值（JDK 21+）**
+   - StructuredTaskScope：自动管理并发任务生命周期
+   - ScopedValue：ThreadLocal的改进方案，不可变、自动清理
+
 ---
 
-*最后更新：2025-10-28*
+*最后更新：2026-05-22*

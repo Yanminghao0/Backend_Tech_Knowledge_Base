@@ -1,6 +1,6 @@
 # Spring核心源码解析
 
-> 深入理解Spring IoC、AOP、事务管理等核心机制
+> 深入理解Spring IoC、AOP、事务管理等核心机制，涵盖Spring 5.x与Spring 6.x核心变化
 
 ---
 
@@ -12,6 +12,7 @@
 4. [Spring MVC原理](#4-spring-mvc原理)
 5. [Spring Bean生命周期](#5-spring-bean生命周期)
 6. [常见问题与解决方案](#6-常见问题与解决方案)
+7. [Spring 6.x核心变化](#7-spring-6x-核心变化) ⭐ 新增
 
 ---
 
@@ -1388,4 +1389,249 @@ public class UserService {
 
 ---
 
-*最后更新：2025-10-27*
+## 7. Spring 6.x 核心变化 ⭐
+
+### 7.1 Jakarta EE迁移
+
+Spring 6.0（2022.11）是基于Spring Framework 6.0的重大升级：
+
+```
+核心变化：
+┌──────────────────────┬───────────────────┬────────────────────┐
+│ 特性                 │ Spring 5.x        │ Spring 6.x         │
+├──────────────────────┼───────────────────┼────────────────────┤
+│ 基线JDK              │ JDK 8+            │ JDK 17+            │
+│ Servlet API          │ javax.*           │ jakarta.*          │
+│ JPA API              │ javax.persistence │ jakarta.persistence│
+│ Validation API       │ javax.validation  │ jakarta.validation │
+│ 最低Servlet版本      │ Servlet 3.1       │ Servlet 6.0        │
+│ 最低JPA版本          │ JPA 2.0           │ JPA 3.0            │
+│ AOT编译              │ 不支持             │ 原生支持           │
+│ GraalVM Native       │ 不支持             │ 支持               │
+│ 虚拟线程             │ 不支持             │ 支持               │
+└──────────────────────┴───────────────────┴────────────────────┘
+```
+
+**javax → jakarta迁移影响**：
+```java
+// Spring 5.x
+import javax.servlet.http.HttpServletRequest;
+import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
+
+// Spring 6.x
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.persistence.Entity;
+import jakarta.validation.constraints.NotNull;
+
+// 迁移建议：
+// 1. 全局替换 javax.servlet → jakarta.servlet
+// 2. 全局替换 javax.persistence → jakarta.persistence
+// 3. 全局替换 javax.validation → jakarta.validation
+// 4. 升级依赖到Jakarta EE 9+版本
+```
+
+### 7.2 AOT（Ahead-Of-Time）编译
+
+Spring 6引入了AOT编译支持，为GraalVM Native Image做准备：
+
+```java
+/**
+ * AOT编译核心原理
+ * 
+ * 传统Spring应用启动流程：
+ * 1. 扫描类路径 → 发现@Configuration/@Bean等
+ * 2. 运行时解析条件注解（@ConditionalOnClass等）
+ * 3. 反射创建Bean
+ * 4. 依赖注入
+ * 
+ * AOT编译流程（构建时）：
+ * 1. 构建时执行Bean定义发现和条件评估
+ * 2. 生成优化后的Bean定义代码
+ * 3. 生成反射提示（Reflection Hints）
+ * 4. 生成代理类
+ * 5. 输出可直接运行的优化代码
+ */
+
+// AOT处理示例
+@Configuration
+public class AotConfig {
+    
+    // AOT编译时，Spring会提前解析这些Bean定义
+    @Bean
+    @ConditionalOnClass(DataSource.class)
+    public DataSource dataSource() {
+        return new HikariDataSource();
+    }
+}
+```
+
+**AOT编译的优势与限制**：
+```
+优势：
+✅ 启动速度极快（毫秒级）
+✅ 内存占用低
+✅ 适合云原生/Serverless场景
+✅ 不需要运行时反射
+
+限制：
+❌ 不支持运行时动态创建Bean
+❌ 不支持动态条件注解
+❌ 需要显式注册反射提示
+❌ 部分第三方库可能不兼容
+```
+
+### 7.3 GraalVM Native Image支持
+
+```java
+/**
+ * GraalVM Native Image示例
+ */
+// 1. 添加依赖（Spring Boot 3.x）
+// <dependency>
+//     <groupId>org.springframework.boot</groupId>
+//     <artifactId>spring-boot-starter</artifactId>
+// </dependency>
+// <dependency>
+//     <groupId>org.springframework.boot</groupId>
+//     <artifactId>spring-boot-starter-aot</artifactId>
+// </dependency>
+
+// 2. 注册反射提示（对于需要反射的类）
+@Configuration
+public class NativeHints implements RuntimeHintsRegistrar {
+    
+    @Override
+    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+        // 注册需要反射的类
+        hints.reflection()
+            .registerType(MyDto.class, MemberCategory.INVOKE_PUBLIC_METHODS);
+        
+        // 注册需要序列化的类
+        hints.serialization()
+            .registerType(MyDto.class);
+        
+        // 注册资源
+        hints.resources()
+            .registerPattern("my-config/*.xml");
+    }
+}
+
+// 3. 构建Native Image
+// mvn -Pnative native:compile
+// 或使用Spring Boot 3.x的Buildpacks
+// mvn spring-boot:build-image -Pnative
+
+// 4. 运行
+// ./target/myapp  （启动时间通常<100ms）
+```
+
+### 7.4 虚拟线程支持
+
+```java
+/**
+ * Spring 6.1+ 虚拟线程支持
+ */
+// 方式1：配置属性（Spring Boot 3.2+）
+// application.yml:
+// spring:
+//   threads:
+//     virtual:
+//       enabled: true
+
+// 方式2：编程式配置
+@Configuration
+public class VirtualThreadConfig {
+    
+    @Bean
+    public AsyncTaskExecutor applicationTaskExecutor() {
+        return new SimpleAsyncTaskExecutor("vt-");
+        // Spring Boot 3.2+ 开启spring.threads.virtual.enabled=true时
+        // SimpleAsyncTaskExecutor自动使用虚拟线程
+    }
+    
+    @Bean
+    public TomcatProtocolHandlerCustomizer<?> protocolHandlerCustomizer() {
+        // Tomcat请求处理使用虚拟线程
+        return protocolHandler -> {
+            protocolHandler.setExecutor(
+                Executors.newVirtualThreadPerTaskExecutor()
+            );
+        };
+    }
+}
+
+// 异步请求处理也支持虚拟线程
+@RestController
+public class ApiController {
+    
+    @GetMapping("/api/data")
+    public CompletableFuture<String> getData() {
+        return CompletableFuture.supplyAsync(() -> {
+            // 使用虚拟线程执行IO操作
+            return fetchDataFromRemote();
+        }, Executors.newVirtualThreadPerTaskExecutor());
+    }
+}
+```
+
+### 7.5 其他Spring 6.x重要变化
+
+```java
+/**
+ * Spring 6.x其他重要变化
+ */
+
+// 1. URI构建增强
+// 新增UriBuilderFactory，统一URI构建方式
+UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("/api");
+URI uri = builder.buildAndExpand("users").toUri();
+
+// 2. 声明式HTTP客户端（@HttpExchange）
+// Spring 6.1引入，类似Feign但更轻量
+@HttpExchange("/api/users")
+public interface UserClient {
+    
+    @GetExchange("/{id}")
+    User getUser(@PathVariable Long id);
+    
+    @PostExchange
+    User createUser(@RequestBody User user);
+    
+    @PutExchange("/{id}")
+    User updateUser(@PathVariable Long id, @RequestBody User user);
+    
+    @DeleteExchange("/{id}")
+    void deleteUser(@PathVariable Long id);
+}
+
+// 注册HTTP接口客户端
+@Configuration
+public class HttpInterfaceConfig {
+    
+    @Bean
+    UserClient userClient() {
+        WebClient webClient = WebClient.builder()
+            .baseUrl("http://user-service")
+            .build();
+        
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory
+            .builderFor(WebClientAdapter.create(webClient))
+            .build();
+        
+        return factory.createClient(UserClient.class);
+    }
+}
+
+// 3. @Nullable注解变化
+// Spring 6使用jetbrains.annotations.Nullable替代jdk.internal
+// 建议：方法参数和返回值使用@Nullable标注可空
+
+// 4. 废弃的API清理
+// 大量Spring 5.x废弃的API在Spring 6中移除
+// 包括：commons-logging桥接、过时的MVC配置等
+```
+
+---
+
+*最后更新：2026-05-22*

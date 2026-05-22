@@ -28,6 +28,18 @@
 - ✅ **数据库分布式锁**：表设计、实现方案
 - ✅ **最佳实践**：方案选型、性能优化
 
+### 3. 分布式事务框架详解 ⭐⭐ 核心
+📄 [分布式事务框架详解.md](./分布式事务框架详解.md)
+
+**核心内容**：
+- ✅ **分布式事务概述**：定义与挑战、典型应用场景
+- ✅ **核心理论基础**：CAP定理、BASE理论、ACID特性
+- ✅ **主流解决方案**：2PC、3PC、TCC、Saga、本地消息表
+- ✅ **框架实现对比**：Seata、Hmily等框架选型
+- ✅ **Seata实战**：AT模式配置与实现
+- ✅ **Hmily实战**：TCC模式实现方案
+- ✅ **最佳实践**：方案选型、性能优化
+
 ---
 
 ## 🎯 学习路径
@@ -36,23 +48,29 @@
 graph TD
     A[分布式系统] --> B[分布式事务]
     A --> C[分布式锁]
+    A --> D[分布式事务框架]
     
-    B --> D[CAP理论]
-    D --> E[BASE理论]
-    E --> F[解决方案]
-    F --> G[2PC/3PC]
-    F --> H[TCC]
-    F --> I[Saga]
-    F --> J[本地消息表]
-    F --> K[Seata]
+    B --> E[CAP理论]
+    E --> F[BASE理论]
+    F --> G[解决方案]
+    G --> H[2PC/3PC]
+    G --> I[TCC]
+    G --> J[Saga]
+    G --> K[本地消息表]
+    G --> L[Seata]
     
-    C --> L[Redis锁]
-    C --> M[ZK锁]
-    C --> N[DB锁]
-    L --> O[Redisson]
+    C --> M[Redis锁]
+    C --> N[ZK锁]
+    C --> O[DB锁]
+    M --> P[Redisson]
     
-    style F fill:#99ccff
-    style O fill:#ccffcc
+    D --> Q[Seata AT/TCC/Saga/XA]
+    D --> R[Hmily TCC]
+    D --> S[框架选型与最佳实践]
+    
+    style G fill:#99ccff
+    style P fill:#ccffcc
+    style S fill:#ffcc99
 ```
 
 **推荐顺序**：
@@ -405,5 +423,5 @@ lock.unlock();
 
 ---
 
-*最后更新：2025-10-27*
+*最后更新：2026-05-22*
 

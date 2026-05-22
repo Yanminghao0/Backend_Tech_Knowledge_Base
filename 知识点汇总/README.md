@@ -10,84 +10,143 @@
 知识点汇总/
 ├── 00_综合/                    # 综合技术资料
 │   ├── Java高级工程师技术清单.md
-│   ├── 归档/                   # 历史文档归档 🆕
-│   │   ├── 2025-10-27_v2.0升级完成.md
-│   │   ├── 2025-10-27_目录重新编号说明.md
-│   │   ├── 2025-10-27_Java基础完成.md
-│   │   └── README.md
+│   ├── 面试薪资提升指南.md
+│   ├── 归档/                   # 历史文档归档
 │   └── README.md
 ├── 01_Java核心/                # Java核心技术 ⭐ 基础必学
-│   ├── Java基础核心原理.md
-│   ├── JVM虚拟机详解.md
-│   ├── Java并发编程详解.md
+│   ├── Java基础核心原理.md      # 面向对象、集合、IO、反射、泛型
+│   ├── JVM虚拟机详解.md         # 内存模型、GC算法、ZGC
+│   ├── Java并发编程详解.md      # 线程、锁、JUC、虚拟线程(JDK21)
+│   ├── 线程变量传递机制详解.md   # ThreadLocal、InheritableThreadLocal
 │   └── README.md
 ├── 02_Spring生态/              # Spring框架 ⭐ 框架基础
-│   ├── Spring核心源码解析.md
-│   ├── Spring Boot核心原理.md
+│   ├── Spring核心源码解析.md    # IoC、AOP、Spring 6.x核心变化
+│   ├── Spring Boot核心原理.md   # 自动配置、启动流程
 │   └── README.md
 ├── 03_数据库/                  # 数据库核心机制
-│   ├── MySQL核心机制详解.md
-│   ├── MySQL查询核心机制详解.md
+│   ├── MySQL核心机制详解.md     # MVCC、事务、Buffer Pool
+│   ├── MySQL查询核心机制详解.md  # 查询优化、IN查询优化
+│   ├── MySQL分库分表实战.md     # ShardingSphere、分片策略
+│   ├── MongoDB核心原理.md       # 文档存储、聚合管道
 │   └── README.md
 ├── 04_缓存/                    # 缓存核心机制
-│   ├── Redis核心机制详解.md
+│   ├── Redis核心机制详解.md     # 数据结构、持久化、集群
+│   ├── 缓存架构设计与实战.md    # 多级缓存、一致性方案
 │   └── README.md
 ├── 05_消息队列/                # 消息队列核心机制
-│   ├── RocketMQ核心机制详解.md
+│   ├── RocketMQ核心机制详解.md  # CommitLog、事务消息
+│   ├── Kafka核心机制详解.md     # KRaft、消费者组
+│   ├── RabbitMQ核心机制.md      # Exchange、消息确认
 │   └── README.md
-├── 06_微服务/                  # 微服务架构（注册中心+RPC） 🆕
-│   ├── Nacos核心机制详解.md
-│   ├── Spring Cloud Alibaba全家桶.md
-│   ├── Dubbo与gRPC详解.md
+├── 06_微服务/                  # 微服务架构 🆕
+│   ├── 核心组件/                # Nacos、Spring Cloud Alibaba、Gateway
+│   ├── 服务治理/                # Sentinel、熔断器、服务网格
+│   ├── 通信协议/                # Dubbo、gRPC、通信模式
+│   ├── 数据一致性/              # Saga、分布式事务
+│   ├── 可观测性/                # 分布式追踪、可观测性
+│   ├── 事件驱动/                # 事件驱动架构
+│   ├── 任务调度/                # 分布式任务调度
+│   ├── 设计模式/                # 微服务设计模式
+│   ├── 部署运维/                # 部署策略
+│   ├── 测试/                   # 微服务测试
 │   └── README.md
 ├── 07_分布式系统/              # 分布式核心
-│   ├── 分布式事务详解.md
-│   ├── 分布式锁详解.md
+│   ├── 分布式事务详解.md        # 2PC、TCC、Saga、Seata
+│   ├── 分布式锁详解.md          # Redis、Redisson、Zookeeper
+│   ├── 分布式事务框架详解.md    # Seata AT/TCC/Saga模式
 │   └── README.md
 ├── 08_网络通信/                # 网络与IO
-│   ├── HTTP协议与网络编程.md
-│   ├── Netty核心原理详解.md
+│   ├── HTTP协议与网络编程.md    # HTTP/HTTPS、性能优化
+│   ├── Netty核心原理详解.md     # Reactor、EventLoop、Pipeline
 │   └── README.md
 ├── 09_搜索引擎/                # 搜索引擎
-│   ├── Elasticsearch核心原理.md
+│   ├── Elasticsearch核心原理.md # 倒排索引、DSL查询
 │   └── README.md
 ├── 10_容器化/                  # 容器与编排
 │   ├── Docker与Kubernetes详解.md
 │   └── README.md
 ├── 11_性能优化/                # 性能优化与调优
-│   ├── JVM调优实战.md
-│   ├── 性能监控与系统优化.md
+│   ├── JVM调优实战.md          # G1/ZGC调优、内存分析
+│   ├── 性能监控与系统优化.md    # APM、性能测试
 │   └── README.md
 ├── 12_AI集成/                  # AI应用开发 🆕
-│   ├── Java AI开发实战.md
+│   ├── Java AI开发实战.md      # LangChain4j、RAG、向量数据库
 │   ├── LangChain4j详解.md
 │   ├── Spring AI详解.md
-│   ├── Agent-Flex详解.md
+│   ├── Spring AI智能推荐系统实战.md
 │   ├── Spring Cloud Alibaba AI详解.md
+│   ├── Agent-Flex详解.md
+│   ├── Flink实时用户行为分析.md
 │   └── README.md
 ├── 13_安全认证/                # 安全认证授权 🆕
 │   ├── Spring Security与JWT实战.md
+│   ├── OAuth2.0实战案例.md
 │   └── README.md
 ├── 14_架构设计/                # 架构设计与技术选型 🆕
 │   ├── 架构设计与技术选型方法论.md
 │   └── README.md
 ├── 15_MCP协议/                 # MCP协议详解 🆕
 │   ├── MCP协议核心原理与实战.md
+│   ├── Function Calling机制和工作原理.md
+│   ├── MCP vs Function Calling详细对比.md
 │   └── README.md
-├── 生产环境问题排查/            # 生产环境问题排查实战 🆕
-│   ├── README.md
-│   ├── 01_性能问题排查.md
-│   ├── 02_错误日志分析.md
-│   ├── 03_系统故障排查.md
-│   ├── 04_数据库问题排查.md
-│   ├── 05_缓存问题排查.md
-│   ├── 06_消息队列问题排查.md
-│   ├── 07_网络问题排查.md
-│   ├── 08_内存泄漏排查.md
-│   ├── 09_CPU高负载排查.md
-│   ├── 10_磁盘IO问题排查.md
-│   ├── 11_分布式系统问题排查.md
-│   └── 12_常见问题速查手册.md
+├── 16_设计模式/                # GoF 23种设计模式 🆕
+│   ├── 创建型模式/              # 单例、工厂、抽象工厂、建造者、原型
+│   ├── 结构型模式/              # 适配器、桥接、组合、装饰器、外观、享元、代理、过滤器
+│   ├── 行为型模式/              # 命令、责任链、观察者、迭代器、解释器、中介者等
+│   └── README.md
+├── 17_算法与数据结构/           # 算法与数据结构 🆕
+│   ├── 数据结构/                # 数组、链表、栈、队列、树、图、堆等
+│   ├── 排序算法/                # 冒泡、选择、插入、归并、快速、堆排序等
+│   ├── 查找算法/                # 顺序、二分、哈希、BST查找
+│   ├── 图论算法/                # DFS、BFS、Dijkstra、Floyd、拓扑排序
+│   ├── 动态规划/                # 线性DP、背包、区间DP、树形DP
+│   ├── 回溯算法/                # 排列组合、N皇后、数独
+│   ├── 贪心算法/                # 活动选择、最小生成树、霍夫曼编码
+│   ├── 分治算法/                # 归并排序、快速排序、最近点对
+│   ├── 字符串算法/              # KMP、BM、Rabin-Karp、AC自动机
+│   ├── 数学算法/                # 质数、GCD、快速幂、矩阵
+│   └── README.md
+├── 19_DevOps与CICD/            # DevOps与CI/CD 🆕
+│   ├── Jenkins流水线实战.md
+│   ├── GitLab CICD配置.md
+│   ├── 自动化测试体系.md
+│   ├── 监控告警体系.md
+│   ├── 日志收集与分析.md
+│   └── README.md
+├── 20_云原生技术/              # 云原生技术 🆕
+│   ├── Kubernetes进阶实战.md
+│   ├── Service Mesh核心概念.md
+│   ├── Service Mesh(Istio)详解.md
+│   └── README.md
+├── 21_低代码开发/              # 低代码平台 🆕
+│   ├── 企业级低代码平台架构.md
+│   ├── 低代码表单引擎实战.md
+│   └── README.md
+├── 22_系统设计与面试/           # 系统设计与面试 🆕
+│   ├── 系统设计方法论.md
+│   ├── 高并发系统设计.md
+│   ├── 经典系统设计案例/         # 短链接、秒杀、IM、Feed流等10个案例
+│   ├── 面试真题解析/             # Java、Spring、Redis、DB、分布式
+│   └── README.md
+├── 23_源码解读/                # 主流框架源码解读 🆕
+│   ├── 04_集合框架源码解读/     # HashMap、ArrayList、LinkedList等
+│   ├── 05_并发包源码解读/       # AQS、ReentrantLock、CHM、线程池等
+│   ├── 06_Spring源码解读/       # IoC、AOP、Boot启动、事务等
+│   ├── 08_MyBatis源码解读/     # SqlSession、Mapper、缓存
+│   ├── 10_数据访问层源码解读/   # HikariCP
+│   ├── 11_Netty源码解读/       # 架构、EventLoop、Pipeline、零拷贝
+│   ├── 12_Tomcat源码解读/      # 启动、Connector、Container
+│   ├── 13_Dubbo源码解读/       # SPI、服务暴露、负载均衡、集群容错
+│   └── README.md
+├── 24_技术动态/                # 技术动态追踪 🆕
+│   └── 月度技术综述/            # 2025.11、2026.5
+├── 25_Java AI框架/             # Java AI框架专题 🆕
+│   ├── LangChain4J、Spring AI、Djl.ai等6大框架
+│   └── AI框架对比分析.md
+├── 26_生产环境问题排查/         # 生产排查实战 🆕
+│   ├── 性能/错误/系统/DB/缓存/MQ/网络/内存/CPU/磁盘/分布式
+│   └── README.md
 └── README.md                   # 本文档
 ```
 
@@ -764,6 +823,26 @@ graph TB
 - 📋 梳理150+个待补充文档
 - 🎯 制定四阶段补充计划
 - 💡 提供详细的行动建议
+
+### 2026-05-22 v4.0（全局梳理与完善）🎉
+**全局梳理：26大模块系统化审查与完善**
+
+**修复问题**：
+- ✅ 删除重复的`生产环境问题排查/`（无编号目录），统一到`26_生产环境问题排查/`
+- ✅ 修复`17_算法/数据结构`编号冲突（06_树/06_二叉树、07_堆/07_二叉搜索树、09_堆重复）
+- ✅ 删除`26_生产环境问题排查/13_网络问题排查.md`（与06_重复）
+
+**完善内容**：
+- ✅ 充实`19_DevOps与CICD`4个骨架文档（自动化测试/监控告警/日志收集/GitLab CI/CD）
+- ✅ 新增`24_技术动态/2026年5月技术综述.md`
+- ✅ 更新`24_技术动态/README.md`，添加已发布综述索引
+- ✅ 更新主README目录结构，反映完整的26大模块
+
+**文档统计**：
+- 📊 技术领域：26个
+- 📄 文档数量：230+篇深度技术文档
+- 📖 总行数：250,000+行技术文档
+- 🎯 覆盖率：Java后端全栈 + AI应用 + 系统设计 + 源码解读
 
 ### 2025-10-27 v3.1（P0级别文档框架）🆕
 **新增4个P0级别核心文档框架**

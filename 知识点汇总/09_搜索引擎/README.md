@@ -299,6 +299,107 @@ CPU：16-32核
 
 ---
 
+## 🆕 Elasticsearch 8.x 新特性
+
+### 安全默认开启
+- ✅ **安全自动配置**：首次启动自动生成证书和密码，默认开启安全认证
+- ✅ **HTTPS默认启用**：节点间通信和REST API默认使用HTTPS
+- ✅ **安全索引**：系统索引受保护，禁止直接写入
+
+### 向量搜索（kNN Search）
+- ✅ **原生向量搜索**：8.x内置kNN（K近邻）搜索能力
+- ✅ **语义搜索**：结合Embedding模型实现语义检索
+- ✅ **混合搜索**：关键词+语义混合检索，提升召回率
+
+```json
+// 向量搜索示例
+PUT /products
+{
+  "mappings": {
+    "properties": {
+      "name": { "type": "text" },
+      "embedding": { 
+        "type": "dense_vector",
+        "dims": 768,
+        "index": true,
+        "similarity": "cosine"
+      }
+    }
+  }
+}
+
+GET /products/_search
+{
+  "knn": {
+    "field": "embedding",
+    "query_vector": [0.1, 0.2, ...],
+    "k": 10,
+    "num_candidates": 100
+  }
+}
+```
+
+### 其他8.x增强
+- ✅ **新Java客户端**：Elasticsearch Java Client替代High Level REST Client
+- ✅ **搜索模板增强**：更灵活的参数化搜索
+- ✅ **数据流自动化**：简化时序数据管理
+- ✅ **快照生命周期管理**：自动管理快照创建和清理
+
+### Spring Data Elasticsearch 5.x适配
+```java
+// 使用新的Elasticsearch Java Client
+@Configuration
+public class EsConfig {
+    @Bean
+    public ElasticsearchClient elasticsearchClient() {
+        RestClient restClient = RestClient.builder(
+            new HttpHost("localhost", 9200, "https")
+        ).setHttpClientConfigCallback(builder -> 
+            builder.setSSLContext(sslContext)
+        ).build();
+        
+        ElasticsearchTransport transport = new RestClientTransport(
+            restClient, new JacksonJsonpMapper()
+        );
+        return new ElasticsearchClient(transport);
+    }
+}
+```
+
+---
+
+## 🆕 Elasticsearch与AI搜索
+
+### RAG（检索增强生成）架构
+```
+用户查询 → Embedding模型 → ES向量搜索 → 检索结果 → LLM生成回答
+```
+
+- ✅ **语义检索**：通过向量相似度匹配语义相关文档
+- ✅ **混合检索**：BM25关键词+向量语义双路召回
+- ✅ **重排序**：使用Cross-Encoder对候选结果精排
+- ✅ **上下文窗口**：控制传给LLM的文档数量和质量
+
+### ES + LangChain集成
+```java
+// LangChain4j与Elasticsearch集成示例
+ElasticsearchEmbeddingStore store = ElasticsearchEmbeddingStore.builder()
+    .serverUrl("https://localhost:9200")
+    .userName("elastic")
+    .password("password")
+    .indexName("knowledge-base")
+    .dimension(768)
+    .build();
+
+// 存储文档向量
+store.add(embedding);
+
+// 相似度搜索
+List<EmbeddingMatch<TextSegment>> matches = store.findRelevant(queryEmbedding, 5);
+```
+
+---
+
 ## 🔗 相关资源
 
 - 📖 《Elasticsearch权威指南》
@@ -308,5 +409,5 @@ CPU：16-32核
 
 ---
 
-*最后更新：2025-10-27*
+*最后更新：2026-05-22*
 

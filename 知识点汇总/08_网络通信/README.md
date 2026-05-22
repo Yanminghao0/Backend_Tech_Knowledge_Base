@@ -384,6 +384,90 @@ pipeline.addLast(new HeartbeatHandler());
 
 ---
 
+## 🆕 HTTP/3与QUIC协议
+
+### HTTP/3核心特性
+- ✅ **QUIC传输协议**：基于UDP的可靠传输，替代TCP+TLS
+- ✅ **0-RTT连接建立**：首次1-RTT，后续0-RTT恢复连接
+- ✅ **连接迁移**：网络切换（如WiFi切4G）不断开连接
+- ✅ **无队头阻塞**：每个Stream独立可靠传输
+- ✅ **内置TLS 1.3**：加密成为标配
+
+### HTTP/2 vs HTTP/3 对比
+
+| 维度 | HTTP/2 | HTTP/3 |
+|------|--------|--------|
+| **传输层** | TCP | QUIC(UDP) |
+| **队头阻塞** | TCP层存在 | 完全消除 |
+| **连接建立** | TCP握手+TLS握手(2-3 RTT) | QUIC握手(1-RTT/0-RTT) |
+| **连接迁移** | 不支持 | 支持 |
+| **拥塞控制** | 内核TCP | 用户态QUIC |
+
+### Java中使用HTTP/3
+```xml
+<!-- Jetty HTTP/3 Client -->
+<dependency>
+    <groupId>org.eclipse.jetty.http3</groupId>
+    <artifactId>jetty-http3-client</artifactId>
+</dependency>
+
+<!-- Netty HTTP/3 (Incubator) -->
+<dependency>
+    <groupId>io.netty.incubator</groupId>
+    <artifactId>netty-incubator-codec-http3</artifactId>
+</dependency>
+```
+
+### 服务端配置
+```nginx
+# Nginx配置HTTP/3（1.25.0+）
+server {
+    listen 443 quic reuseport;
+    listen 443 ssl;
+    http2 on;
+    
+    ssl_certificate cert.pem;
+    ssl_certificate_key key.pem;
+    
+    add_header Alt-Svc 'h3=":443"; ma=86400';
+}
+```
+
+---
+
+## 🆕 Virtual Thread与网络编程
+
+### Virtual Thread在微服务网络通信中的应用
+Java 21正式引入Virtual Thread（虚拟线程），对网络编程产生深远影响：
+
+- ✅ **简化异步编程**：用同步风格编写高并发网络代码
+- ✅ **减少线程池管理**：无需手动管理I/O线程池
+- ✅ **提升吞吐量**：每个连接一个虚拟线程，不再受限平台线程数
+
+### 传统IO vs Virtual Thread
+```java
+// 传统方式：需要Reactor模型+EventLoop
+EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+EventLoopGroup workerGroup = new NioEventLoopGroup();
+
+// Virtual Thread方式：每个连接一个虚拟线程
+try (var server = ServerSocketChannel.open()) {
+    server.bind(new InetSocketAddress(8080));
+    while (true) {
+        var client = server.accept();
+        Thread.startVirtualThread(() -> handleClient(client));
+    }
+}
+```
+
+### 在Netty中的应用
+Netty 4.2+ 开始探索Virtual Thread集成，当前建议：
+- I/O密集型服务：Virtual Thread + 同步阻塞API
+- 高性能RPC：继续使用Netty EventLoop模型
+- 混合方案：Virtual Thread处理业务逻辑，Netty处理I/O
+
+---
+
 ## 🔗 相关资源
 
 - 📖 《Netty实战》- Norman Maurer
@@ -394,5 +478,5 @@ pipeline.addLast(new HeartbeatHandler());
 
 ---
 
-*最后更新：2025-10-27*
+*最后更新：2026-05-22*
 

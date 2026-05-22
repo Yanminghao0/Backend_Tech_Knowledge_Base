@@ -33,6 +33,56 @@
 
 ---
 
+### 2. Kafka核心机制详解 ⭐ 新增
+📄 [Kafka核心机制详解.md](./Kafka核心机制详解.md)
+
+**核心内容**：
+- ✅ **架构设计**：Broker、Topic、Partition、Consumer Group
+- ✅ **消息存储**：零拷贝、页缓存、分段日志、稀疏索引
+- ✅ **生产者机制**：分区策略、ACK机制、幂等性、事务
+- ✅ **消费者机制**：Offset管理、Rebalance、消费者组
+- ✅ **高可用机制**：ISR、副本同步、Leader选举
+- ✅ **KRaft模式**：移除ZooKeeper依赖的新架构
+
+**核心特性**：
+- 🚀 极高吞吐量：单机百万级TPS
+- 💾 消息持久化：磁盘顺序写
+- 🔄 水平扩展：分区机制
+- 📊 流式处理：Kafka Streams
+
+**适合场景**：
+- 日志收集与分析
+- 大数据流处理
+- 事件流平台
+- 高吞吐消息场景
+
+---
+
+### 3. RabbitMQ核心机制 ⭐ 新增
+📄 [RabbitMQ核心机制.md](./RabbitMQ核心机制.md)
+
+**核心内容**：
+- ✅ **架构设计**：AMQP协议、Broker、Virtual Host
+- ✅ **交换机类型**：Direct、Topic、Fanout、Headers
+- ✅ **消息路由机制**：绑定规则、死信路由
+- ✅ **高级特性**：消息确认、持久化、流量控制
+- ✅ **可靠性保障**：生产者确认、消费者ACK、幂等处理
+- ✅ **集群与高可用**：镜像队列、仲裁队列
+
+**核心特性**：
+- 🐰 轻量级：Erlang开发，低延迟
+- 🔀 灵活路由：多种交换机类型
+- 🛡️ 可靠性：完善的确认机制
+- 🔌 丰富插件：管理界面、延迟队列等
+
+**适合场景**：
+- 业务消息传递
+- 复杂路由场景
+- 即时通讯
+- 中小规模应用
+
+---
+
 ## 🎯 消息队列使用场景
 
 ### 1️⃣ 异步处理
@@ -365,6 +415,81 @@ public class OrderConsumer implements RocketMQListener<Order> {
 
 ---
 
+## 🆕 Kafka KRaft模式
+
+### KRaft模式概述
+Kafka 2.8+ 引入KRaft（Kafka Raft）模式，3.3版本正式生产可用，彻底移除ZooKeeper依赖。
+
+**核心变化**：
+- ✅ **移除ZooKeeper**：元数据管理由Kafka自身Raft协议完成
+- ✅ **Controller Quorum**：多个Controller节点组成仲裁组，保证元数据一致性
+- ✅ **统一日志格式**：元数据以日志形式存储，与普通消息日志一致
+- ✅ **更快的分区恢复**：Controller直接管理分区状态，恢复速度提升
+
+### KRaft vs ZooKeeper模式对比
+
+| 维度 | ZooKeeper模式 | KRaft模式 |
+|------|-------------|----------|
+| **依赖** | 需额外维护ZK集群 | 无外部依赖 |
+| **分区上限** | 数万级 | 数百万级 |
+| **Controller故障切换** | 需ZK选举，秒级 | Raft选举，毫秒级 |
+| **运维复杂度** | 高（两套系统） | 低（单一系统） |
+| **元数据更新** | 需全量同步 | 增量同步 |
+
+### KRaft集群配置示例
+```properties
+# KRaft模式配置
+process.roles=broker,controller
+node.id=1
+controller.quorum.voters=1@host1:9093,2@host2:9093,3@host3:9093
+controller.listener.names=CONTROLLER
+listeners=PLAINTEXT://:9092,CONTROLLER://:9093
+inter.broker.listener.name=PLAINTEXT
+```
+
+### 迁移建议
+- Kafka 3.6+ 支持从ZooKeeper模式在线迁移到KRaft模式
+- 新集群建议直接使用KRaft模式
+- 旧集群可先升级到3.6+，再执行在线迁移
+
+---
+
+## 🆕 RocketMQ 5.x 新特性
+
+### Pop消费模式
+- 支持消费者更灵活地消费消息，兼容Push和Pull模式
+- 减少Rebalance带来的消费延迟
+- 支持Retry Topic V2，更精细的重试控制
+
+### 代理模式（Proxy）
+- 轻量级代理层，支持gRPC协议
+- 兼容4.x客户端，支持5.x新客户端
+- 简化部署架构，Proxy可独立伸缩
+
+### 延迟消息优化
+- RocketMQ 5.x 支持任意延迟级别的延迟消息
+- 突破原来18个固定延迟级别的限制
+
+---
+
+## 🆕 RabbitMQ 4.x 新特性
+
+### Quorum Queue增强
+- Quorum Queue（仲裁队列）成为默认推荐队列类型
+- 替代经典镜像队列方案，提供更好的数据一致性保障
+- 支持ATTL（每消息TTL）和队列长度限制
+
+### Streams流式队列
+- 基于日志的持久化队列，支持消息回溯
+- 类似Kafka的消费者偏移量管理
+- 高吞吐、低延迟，适合事件流场景
+
+### MQTT 5.0支持
+- 原生MQTT 5.0协议支持
+- 适合IoT场景的消息接入
+
+---
+
 ## 📊 性能优化
 
 ### 生产者优化
@@ -424,12 +549,16 @@ consumeThreadMax = 64
 
 ## 🔄 持续更新
 
-- [ ] Kafka核心机制详解
-- [ ] RabbitMQ核心机制详解
+- [x] Kafka核心机制详解 ✅ 已完成
+- [x] RabbitMQ核心机制详解 ✅ 已完成
+- [x] RocketMQ核心机制详解 ✅ 已完成
+- [x] Kafka KRaft模式 ✅ 已补充
+- [x] RocketMQ 5.x新特性 ✅ 已补充
+- [x] RabbitMQ 4.x新特性 ✅ 已补充
 - [ ] Pulsar核心机制详解
 - [ ] 消息队列架构设计实战
 
 ---
 
-*最后更新：2025-10-27*
+*最后更新：2026-05-22*
 

@@ -398,13 +398,62 @@ public class ReferenceDemo {
 
 #### ZGC/Shenandoah（低延迟）
 ```bash
-# ZGC参数（JDK 11+）
--XX:+UseZGC
--XX:ZCollectionInterval=120     # GC间隔
+# ZGC参数（JDK 11+引入，JDK 15正式发布）
+-XX:+UseZGC                        # 启用ZGC
+-XX:ZCollectionInterval=120        # GC间隔
 -XX:ZAllocationSpikeTolerance=5
+-XX:SoftMaxHeapSize=4g             # 软最大堆大小
 
-# Shenandoah参数（JDK 12+）
--XX:+UseShenandoahGC
+# JDK 21+: Generational ZGC（分代ZGC）
+-XX:+UseZGC -XX:+ZGenerational     # 启用分代ZGC（JDK 23默认启用）
+
+# JDK 23+: 分代ZGC已成为默认模式
+# 不需要-XX:+ZGenerational参数
+-XX:+UseZGC                        # 自动使用分代模式
+```
+
+**ZGC特点**：
+```
+✅ 超低延迟（< 1ms停顿，不论堆大小）
+✅ 支持TB级堆内存
+✅ 并发标记、并发转移
+✅ 染色指针技术（Colored Pointers）
+✅ 读屏障（Load Barrier）而非写屏障
+
+JDK 21+ Generational ZGC改进：
+✅ 分代收集（年轻代/老年代分离）
+✅ 更好的短期对象回收效率
+✅ 降低分配停顿
+✅ 适合大多数工作负载的默认选择
+```
+
+**Shenandoah参数（JDK 12+）**：
+```bash
+-XX:+UseShenandoahGC               # 启用Shenandoah
+-XX:ShenandoahGCHeuristics=compact # GC策略
+-XX:ShenandoahGuaranteedGCInterval=300000  # 保证GC间隔
+```
+
+**Shenandoah特点**：
+```
+✅ 超低延迟（< 10ms停顿）
+✅ 并发压缩（Concurrent Compaction）
+✅ Brooks Pointer转发指针
+✅ 适合对延迟敏感的应用
+```
+
+**ZGC vs Shenandoah vs G1对比**：
+```
+┌──────────────┬────────────┬──────────────┬────────────┐
+│ 特性         │ G1         │ ZGC          │ Shenandoah │
+├──────────────┼────────────┼──────────────┼────────────┤
+│ 停顿时间     │ 100-200ms  │ < 1ms        │ < 10ms     │
+│ 堆大小支持   │ 32GB以下   │ TB级         │ TB级       │
+│ 并发压缩     │ 否         │ 是           │ 是         │
+│ 默认收集器   │ JDK 9+     │ JDK 23+可选  │ 否         │
+│ 适用场景     │ 通用       │ 低延迟/大堆  │ 低延迟     │
+│ 生产成熟度   │ 非常成熟   │ 成熟         │ 成熟       │
+└──────────────┴────────────┴──────────────┴────────────┘
 ```
 
 ### 4.2 JVM参数调优
@@ -684,4 +733,4 @@ jstack <pid> | grep "deadlock"
 
 ---
 
-*最后更新：2025-10-27*
+*最后更新：2026-05-22*

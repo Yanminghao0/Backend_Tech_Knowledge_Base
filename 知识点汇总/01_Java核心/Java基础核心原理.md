@@ -38,6 +38,8 @@
     - Stream API中间操作与终端操作
 12. [Java新特性总结](#12-java新特性总结)
     - JDK 8-17主要特性
+    - JDK 18-21新特性（Virtual Threads、Record模式匹配、Switch模式匹配、顺序集合等）
+    - JDK 22-23新特性
 
 ---
 
@@ -3718,33 +3720,271 @@ public sealed class Triangle extends Shape
 // 浮点运算结果在所有平台保持一致
 ```
 
+### 12.8.2 JDK 18-21 新特性
+
+#### JDK 18（2022.3）
+**① 默认UTF-8编码**：
+```java
+// JDK 18之前：默认编码依赖操作系统
+// JDK 18+：默认使用UTF-8
+System.out.println(Charset.defaultCharset()); // UTF-8
+
+// 可以通过系统属性覆盖
+// -Dfile.encoding=COMPAT  // 恢复旧行为
+```
+
+**② Simple Web Server**：
+```bash
+# 启动最小HTTP服务器（无需第三方库）
+jwebserver
+# 默认端口8000，服务于当前目录
+# 适用于开发测试、原型演示
+```
+
+**③ 代码片段标签（@snippet）**：
+```java
+/**
+ * {@snippet :
+ * var list = List.of("A", "B", "C"); // @highlight substring="List.of"
+ * }
+ */
+```
+
+#### JDK 19（2022.9）
+**① 虚拟线程（Preview）**：
+```java
+// 首次预览虚拟线程（详见Java并发编程详解）
+// 需要启用：--enable-preview
+```
+
+**② 结构化并发（Incubator）**：
+```java
+// 首次引入结构化并发API（Incubator阶段）
+```
+
+**③ Record模式匹配（Preview）**：
+```java
+// 预览阶段的Record解构
+```
+
+#### JDK 20（2023.3）
+**① 作用域值（Scoped Values）（Incubator）**：
+```java
+// 首次引入作用域值，替代ThreadLocal的改进方案
+```
+
+**② Record模式匹配（第二次预览）**
+
+**③ 虚拟线程（第二次预览）**
+
+#### JDK 21（2023.9）⭐ LTS
+**① 虚拟线程（Virtual Threads）正式发布**：
+```java
+// 创建虚拟线程的几种方式
+// 方式1：Thread.startVirtualThread
+Thread vt = Thread.startVirtualThread(() -> {
+    System.out.println("虚拟线程: " + Thread.currentThread());
+});
+
+// 方式2：Thread.ofVirtual()
+Thread vt2 = Thread.ofVirtual()
+    .name("my-virtual-thread")
+    .start(() -> System.out.println("Hello"));
+
+// 方式3：Executors.newVirtualThreadPerTaskExecutor
+try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    // 每个任务分配一个虚拟线程
+    executor.submit(() -> doTask());
+}
+
+// 虚拟线程 vs 平台线程
+// 虚拟线程：轻量级（可创建百万级），自动挂起/恢复，适合IO密集型
+// 平台线程：与OS线程1:1映射，数量有限（通常几千），适合CPU密集型
+```
+
+**② Record模式匹配（Pattern Matching）正式发布**：
+```java
+// JDK 16: instanceof模式匹配
+if (obj instanceof String s) {
+    System.out.println(s.length());
+}
+
+// JDK 21: Record解构
+record Point(int x, int y) {}
+
+// 解构Record
+if (obj instanceof Point(int x, int y)) {
+    System.out.println("x=" + x + ", y=" + y);
+}
+
+// 嵌套解构
+record Rectangle(Point upperLeft, Point lowerRight) {}
+if (obj instanceof Rectangle(Point(int x1, int y1), Point(int x2, int y2))) {
+    System.out.println("矩形: (" + x1 + "," + y1 + ")-(" + x2 + "," + y2 + ")");
+}
+
+// switch中使用
+switch (shape) {
+    case Point(int x, int y) -> "点(" + x + "," + y + ")";
+    case Rectangle(Point(int x1, int y1), Point(int x2, int y2)) -> 
+        "矩形(" + x1 + "," + y1 + ")-(" + x2 + "," + y2 + ")";
+    default -> "未知形状";
+}
+```
+
+**③ Switch模式匹配正式发布**：
+```java
+// JDK 21: switch模式匹配
+static String formatterPatternSwitch(Object obj) {
+    return switch (obj) {
+        case Integer i -> String.format("int %d", i);
+        case Long l    -> String.format("long %d", l);
+        case Double d  -> String.format("double %f", d);
+        case String s  -> String.format("String %s", s);
+        case null      -> "null";  // 直接匹配null
+        default        -> obj.toString();
+    };
+}
+
+// 带守卫条件的switch
+switch (obj) {
+    case String s when s.length() > 5 -> "长字符串: " + s;
+    case String s                     -> "短字符串: " + s;
+    default                           -> "非字符串";
+}
+```
+
+**④ 顺序集合（Sequenced Collections）**：
+```java
+// 新接口体系
+// SequencedCollection <- List, Deque, SortedSet等
+// SequencedSet <- SortedSet, LinkedHashSet等
+// SequencedMap <- SortedMap, LinkedHashMap等
+
+// 新增方法
+SequencedCollection<String> list = new ArrayList<>(List.of("A", "B", "C"));
+list.addFirst("X");     // 头部添加
+list.addLast("Z");      // 尾部添加
+list.getFirst();        // 获取第一个
+list.getLast();         // 获取最后一个
+list.removeFirst();     // 移除第一个
+list.removeLast();      // 移除最后一个
+list.reversed();        // 反转视图（不影响原集合）
+
+// SequencedMap
+SequencedMap<String, Integer> map = new LinkedHashMap<>();
+map.firstEntry();
+map.lastEntry();
+map.reversed();
+```
+
+**⑤ 字符串模板（String Templates）（Preview）**：
+```java
+// 预览阶段，需要--enable-preview
+// 注意：JDK 22中继续预览，JDK 23中已移除该特性
+var name = "World";
+var msg = STR."Hello \{name}!";  // 模板表达式
+```
+
+### 12.8.3 JDK 22-23 新特性
+
+#### JDK 22（2024.3）
+**① 未命名变量与模式**：
+```java
+// 使用_表示不需要的变量
+try {
+    // ...
+} catch (Exception _) {  // 不使用异常变量
+    log.error("操作失败");
+}
+
+// lambda中忽略参数
+BiPredicate<String, String> isEqual = (_, _) -> true;
+
+// 模式中忽略组件
+if (obj instanceof Point(int x, _)) {  // 只关心x
+    System.out.println("x = " + x);
+}
+```
+
+**② 外部函数与内存API（Foreign Function & Memory API）正式发布**：
+```java
+// 替代JNI的现代API（Panama项目）
+// 支持调用C/C++库，无需编写JNI代码
+// 更安全、更高效的内存访问
+```
+
+**③ Stream Gatherer（Preview）**：
+```java
+// 自定义中间操作，扩展Stream API
+// 内置Gatherer：fold, mapConcurrent, scan, windowFixed等
+```
+
+#### JDK 23（2024.9）
+**① 原始类型模式匹配（Preview）**：
+```java
+// 允许在instanceof和switch中匹配原始类型
+if (obj instanceof int i) {
+    System.out.println("整数: " + i);
+}
+```
+
+**② ZGC Generational Mode默认启用**
+
+**③ Markdown文档注释**：
+```java
+/// 这是一个Markdown格式的文档注释
+/// 
+/// - 支持列表
+/// - 支持**粗体**和*斜体*
+/// - 支持`代码`
+///
+/// @param value 输入值
+/// @return 结果
+public int process(int value) { ... }
+```
+
 ---
 
 ### 12.9 新特性对比表
 
 ```
-┌──────────┬────────────────────────────────────────┐
-│ JDK版本  │            主要特性                     │
-├──────────┼────────────────────────────────────────┤
-│ JDK 8    │ Lambda、Stream、Optional、新日期API    │
-│          │ 接口默认方法                            │
-├──────────┼────────────────────────────────────────┤
-│ JDK 9    │ 模块化、接口私有方法、集合工厂方法      │
-├──────────┼────────────────────────────────────────┤
-│ JDK 10   │ var局部变量类型推断                     │
-├──────────┼────────────────────────────────────────┤
-│ JDK 11   │ String新方法、HTTP Client、文件操作增强│
-│   (LTS)  │                                        │
-├──────────┼────────────────────────────────────────┤
-│ JDK 14   │ Switch表达式、NPE增强                  │
-├──────────┼────────────────────────────────────────┤
-│ JDK 15   │ 文本块（Text Blocks）                  │
-├──────────┼────────────────────────────────────────┤
-│ JDK 16   │ Record类、instanceof模式匹配           │
-├──────────┼────────────────────────────────────────┤
-│ JDK 17   │ Sealed Classes密封类                   │
-│   (LTS)  │                                        │
-└──────────┴────────────────────────────────────────┘
+┌──────────┬────────────────────────────────────────────────────┐
+│ JDK版本  │            主要特性                                 │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 8    │ Lambda、Stream、Optional、新日期API                │
+│          │ 接口默认方法                                        │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 9    │ 模块化、接口私有方法、集合工厂方法                   │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 10   │ var局部变量类型推断                                  │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 11   │ String新方法、HTTP Client、文件操作增强             │
+│   (LTS)  │                                                    │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 14   │ Switch表达式、NPE增强                               │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 15   │ 文本块（Text Blocks）                               │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 16   │ Record类、instanceof模式匹配                        │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 17   │ Sealed Classes密封类                                │
+│   (LTS)  │                                                    │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 18   │ 默认UTF-8编码、Simple Web Server、@snippet          │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 19   │ 虚拟线程Preview、结构化并发Incubator                 │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 20   │ 作用域值Incubator、Record模式匹配Preview             │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 21   │ 虚拟线程正式版、Switch模式匹配、Record模式匹配       │
+│   (LTS)  │ 顺序集合、字符串模板Preview                          │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 22   │ 未命名变量、外部函数与内存API、Stream Gatherer       │
+├──────────┼────────────────────────────────────────────────────┤
+│ JDK 23   │ 原始类型模式匹配Preview、ZGC分代默认启用              │
+│          │ Markdown文档注释                                    │
+└──────────┴────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -3823,7 +4063,7 @@ public sealed class Triangle extends Shape
   - 终端操作：collect, forEach, reduce
 - 并行流：适合大数据量、无状态操作
 
-**12. Java新特性（JDK 8-17）**：
+**12. Java新特性（JDK 8-23）**：
 - JDK 8：Lambda、Stream、Optional、新日期API
 - JDK 9：模块化、集合工厂方法
 - JDK 10：var类型推断
@@ -3832,6 +4072,12 @@ public sealed class Triangle extends Shape
 - JDK 15：文本块
 - JDK 16：Record类、instanceof模式匹配
 - JDK 17（LTS）：Sealed Classes密封类
+- JDK 18：默认UTF-8编码、Simple Web Server
+- JDK 19：虚拟线程Preview、结构化并发Incubator
+- JDK 20：作用域值Incubator
+- JDK 21（LTS）：虚拟线程正式版、Switch模式匹配、Record模式匹配、顺序集合
+- JDK 22：未命名变量、外部函数与内存API、Stream Gatherer
+- JDK 23：原始类型模式匹配Preview、ZGC分代默认启用、Markdown文档注释
 
 ---
 
@@ -3848,4 +4094,4 @@ public sealed class Triangle extends Shape
 - 《Java并发编程详解》：深入并发机制
 - 《JVM虚拟机详解》：深入JVM底层原理
 
-*最后更新：2025-10-28*
+*最后更新：2026-05-22*

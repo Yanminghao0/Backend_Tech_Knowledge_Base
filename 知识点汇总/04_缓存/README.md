@@ -201,14 +201,43 @@ redisTemplate.execute((RedisCallback<Long>) connection -> {
 
 ---
 
-## 🔄 持续更新
+## 🆕 Redis 7.x 新特性
 
-- [x] **缓存架构设计与实战** ✅ 已完成
-- [ ] Memcached核心机制
-- [ ] 缓存监控与运维深入
-- [ ] 大Key问题排查与优化
+### Redis 7.0 重大更新
+- ✅ **Redis Functions**：替代Lua脚本的新编程模型，支持函数库管理和持久化
+- ✅ **ACL v2**：细粒度权限控制，支持按命令和Key模式授权
+- ✅ **Multi-part AOF**：AOF拆分为基础文件+增量文件，提升重写效率
+- ✅ **Client Eviction**：客户端内存使用上限，防止单个客户端占用过多内存
+- ✅ **Sharded Pub/Sub**：集群模式下的分片发布订阅，消息只在对应分片传播
+
+### Redis 7.2 增强
+- ✅ **原生函数库持久化**：Redis Functions自动持久化到RDB/AOF
+- ✅ **Stream消费者组优化**：改善大规模Stream场景下的消费者组性能
+- ✅ **集群带宽优化**：减少集群内部通信开销
+
+### 使用建议
+```bash
+# Redis Functions示例（7.x替代EVAL）
+redis> FUNCTION CREATE mylib LUA
+  redis.register_function('greet', function(keys, args) return 'Hello ' .. args[1] end)
+FUNCTION
+
+redis> FCALL greet 0 World
+"Hello World"
+```
 
 ---
 
-*最后更新：2025-10-27*
+## 🔄 持续更新
+
+- [x] **缓存架构设计与实战** ✅ 已完成
+- [x] **Redis 7.x新特性** ✅ 已补充
+- [ ] Memcached核心机制
+- [ ] 缓存监控与运维深入
+- [ ] 大Key问题排查与优化
+- [ ] Redis 8.x新特性追踪
+
+---
+
+*最后更新：2026-05-22*
 
