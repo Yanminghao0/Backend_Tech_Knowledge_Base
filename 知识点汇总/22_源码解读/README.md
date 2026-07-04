@@ -1,4 +1,4 @@
-# 23_源码解读
+# 22_源码解读
 
 > 💡 深入理解主流框架源码，从使用者到贡献者的进阶之路
 
@@ -7,56 +7,88 @@
 ## 📚 目录结构
 
 ```
-23_源码解读/
-├── README.md                           # 本文档
-├── 源码阅读方法论.md                    # 源码阅读技巧
-├── Spring源码解读/                      # Spring框架源码
+22_源码解读/
+├── README.md                              # 本文档
+├── 01_源码阅读方法论.md                    # 源码阅读技巧
+├── 02_🚀快速开始指南.md                   # 学习路径指南
+├── 04_集合框架源码解读/                    # Java集合源码
 │   ├── README.md
-│   ├── IoC容器源码解析.md
-│   ├── AOP源码解析.md
-│   ├── 事务管理源码解析.md
-│   ├── SpringMVC源码解析.md
-│   └── SpringBoot自动配置源码.md
-├── MyBatis源码解读/                     # MyBatis框架源码
+│   ├── 4.1_HashMap源码解析.md
+│   ├── 4.2_ArrayList源码解析.md
+│   ├── 4.3_LinkedList源码解析.md
+│   ├── 4.5_LinkedHashMap源码解析.md
+│   ├── 4.6_TreeMap源码解析.md
+│   ├── 4.7_HashSet源码解析.md
+│   ├── 4.8_PriorityQueue源码解析.md
+│   └── 4.9_ArrayDeque源码解析.md
+├── 05_并发包源码解读/                      # JUC并发包源码
 │   ├── README.md
-│   ├── 核心架构解析.md
-│   ├── SQL解析与执行.md
-│   ├── 缓存机制源码.md
-│   └── 插件机制源码.md
-├── 并发包源码解读/                      # JUC并发包源码
+│   ├── 5.1_AQS源码解析.md
+│   ├── 5.2_ReentrantLock源码解析.md
+│   ├── 5.3_ThreadPoolExecutor源码解析.md
+│   ├── 5.4_ConcurrentHashMap源码解析.md
+│   ├── 5.5_CountDownLatch源码解析.md
+│   ├── 5.6_CyclicBarrier源码解析.md
+│   ├── 5.7_Semaphore源码解析.md
+│   ├── 5.8_ReentrantReadWriteLock源码解析.md
+│   ├── 5.9_AtomicInteger源码解析.md
+│   ├── 5.10_BlockingQueue源码解析.md
+│   └── 5.11_CompletableFuture源码解析.md
+├── 06_Spring源码解读/                      # Spring框架源码
 │   ├── README.md
-│   ├── AQS源码解析.md
-│   ├── ReentrantLock源码解析.md
-│   ├── ConcurrentHashMap源码解析.md
-│   ├── ThreadPoolExecutor源码解析.md
-│   └── CompletableFuture源码解析.md
-├── 集合框架源码解读/                    # Java集合源码
+│   ├── 6.1_IoC容器源码解析.md
+│   ├── 6.2_AOP源码解析.md
+│   ├── 6.3_@Autowired注入源码解析.md
+│   ├── 6.4_BeanPostProcessor源码解析.md
+│   ├── 6.5_SpringBoot启动流程源码解析.md
+│   ├── 6.6_SpringBoot自动配置源码.md
+│   ├── 6.7_@EnableAutoConfiguration源码解析.md
+│   ├── 6.8_Starter机制源码解析.md
+│   ├── 6.9_@Configuration配置类源码解析.md
+│   ├── 6.10_SpringMVC源码解析.md
+│   ├── 6.11_事务管理源码解析.md
+│   ├── 6.12_ApplicationListener源码解析.md
+│   └── 6.13_SpringBoot内嵌Tomcat源码解析.md
+├── 07_Spring核心源码解析.md                # Spring核心源码综合解析
+├── 08_MyBatis源码解读/                     # MyBatis框架源码
 │   ├── README.md
-│   ├── ArrayList源码解析.md
-│   ├── LinkedList源码解析.md
-│   ├── HashMap源码解析.md
-│   └── TreeMap源码解析.md
-├── Netty源码解读/                       # Netty框架源码 ✅
+│   ├── 8.1_SqlSession源码解析.md
+│   ├── 8.2_Mapper代理源码解析.md
+│   ├── 8.3_一二级缓存源码解析.md
+│   └── 8.4_插件机制源码解析.md
+├── 09_MyBatis源码解析.md                   # MyBatis源码综合解析
+├── 10_数据访问层源码解读/                   # 数据访问层源码
 │   ├── README.md
-│   ├── 核心架构解析.md
-│   ├── EventLoop源码解析.md
-│   ├── Pipeline源码解析.md
-│   └── 内存管理源码解析.md
-├── Dubbo源码解读/                       # Dubbo框架源码
+│   └── 10.1_HikariCP源码解析.md
+├── 11_Netty源码解读/                       # Netty框架源码
 │   ├── README.md
-│   ├── SPI机制源码解析.md
-│   ├── 服务暴露源码解析.md
-│   ├── 服务引用源码解析.md
-│   └── 负载均衡源码解析.md
-├── 手写系列/                           # 手写简化版框架
+│   ├── 11.1_核心架构解析.md
+│   ├── 11.2_Bootstrap源码解析.md
+│   ├── 11.3_EventLoop源码解析.md
+│   ├── 11.4_Pipeline源码解析.md
+│   ├── 11.5_ChannelHandler源码解析.md
+│   ├── 11.6_内存管理源码解析.md
+│   ├── 11.7_零拷贝源码解析.md
+│   └── 11.8_编解码器源码解析.md
+├── 12_Tomcat源码解读/                      # Tomcat源码
 │   ├── README.md
-│   ├── 手写Spring IoC.md
-│   ├── 手写Spring AOP.md
-│   ├── 手写MyBatis.md
-│   ├── 手写RPC框架.md
-│   └── 手写线程池.md
-├── 📋源码解读补充规划.md                # 补充规划文档
-└── 🚀快速开始指南.md                   # 学习路径指南
+│   ├── 12.1_Tomcat启动流程源码解析.md
+│   ├── 12.2_Connector源码解析.md
+│   ├── 12.3_Container源码解析.md
+│   ├── 12.4_Servlet处理流程源码解析.md
+│   ├── 12.5_线程模型源码解析.md
+│   └── 12.6_类加载机制源码解析.md
+├── 13_Dubbo源码解读/                       # Dubbo框架源码
+│   ├── README.md
+│   ├── 13.1_SPI机制源码解析.md
+│   ├── 13.2_服务暴露源码解析.md
+│   ├── 13.3_服务引用源码解析.md
+│   ├── 13.4_协议层源码解析.md
+│   ├── 13.5_负载均衡源码解析.md
+│   └── 13.6_集群容错源码解析.md
+├── 14_Dubbo源码解析.md                     # Dubbo源码综合解析
+├── 15_手写系列(Spring+RPC).md              # 手写简化版框架
+└── 16_📋源码解读补充规划.md                # 补充规划文档
 ```
 
 ---
@@ -66,7 +98,7 @@
 ### 🎯 新手入门
 如果你是第一次学习源码，强烈推荐先阅读：
 
-📄 **[🚀快速开始指南.md](./🚀快速开始指南.md)**
+📄 **[🚀快速开始指南.md](./02_🚀快速开始指南.md)**
 
 这份指南包含：
 - 零基础学习路径（3-6个月规划）
@@ -126,7 +158,7 @@
 ## 📖 源码解读内容
 
 ### 1️⃣ Spring源码解读 ✅
-📂 [Spring源码解读](./Spring源码解读/)
+📂 [Spring源码解读](./06_Spring源码解读/)
 
 **核心内容**：
 - ✅ **IoC容器**：Bean生命周期、依赖注入、循环依赖解决
@@ -143,7 +175,7 @@
 - ⭐⭐⭐⭐ SpringBoot自动配置原理
 
 ### 2️⃣ MyBatis源码解读
-📂 [MyBatis源码解读](./MyBatis源码解读/)
+📂 [MyBatis源码解读](./08_MyBatis源码解读/)
 
 **核心内容**：
 - ✅ **核心架构**：SqlSession、Executor、StatementHandler
@@ -157,7 +189,7 @@
 - ⭐⭐⭐⭐ 插件开发实战
 
 ### 3️⃣ 并发包源码解读 ✅
-📂 [并发包源码解读](./并发包源码解读/)
+📂 [并发包源码解读](./05_并发包源码解读/)
 
 **核心内容**：
 - ✅ **AQS框架**：同步状态、等待队列、独占/共享模式
@@ -172,7 +204,7 @@
 - ⭐⭐⭐⭐⭐ 线程池工作原理
 
 ### 4️⃣ 集合框架源码解读 ✅
-📂 [集合框架源码解读](./集合框架源码解读/)
+📂 [集合框架源码解读](./04_集合框架源码解读/)
 
 **核心内容**：
 - ✅ **HashMap**：哈希算法、红黑树、扩容机制
@@ -186,7 +218,7 @@
 - ⭐⭐⭐⭐ 红黑树基本原理
 
 ### 5️⃣ Netty源码解读
-📂 [Netty源码解读](./Netty源码解读/)
+📂 [Netty源码解读](./11_Netty源码解读/)
 
 **核心内容**：
 - ✅ **核心架构**：Reactor模式、主从多线程模型
@@ -200,7 +232,7 @@
 - ⭐⭐⭐⭐ 内存池设计
 
 ### 6️⃣ Dubbo源码解读
-📂 [Dubbo源码解读](./Dubbo源码解读/)
+📂 [Dubbo源码解读](./13_Dubbo源码解读/)
 
 **核心内容**：
 - ✅ **SPI机制**：扩展点加载、自适应扩展
@@ -214,7 +246,7 @@
 - ⭐⭐⭐⭐ 负载均衡策略
 
 ### 7️⃣ 手写系列
-📂 [手写系列](./手写系列/)
+📂 [手写系列](./15_手写系列(Spring+RPC).md)
 
 **核心内容**：
 - ✅ **手写Spring IoC**：Bean容器、依赖注入
@@ -418,7 +450,7 @@ IDE工具：
 ### 🎯 规划概览
 当前已完成21篇源码解读文档，计划补充76篇，最终达到97篇的完整体系。
 
-📄 **详细规划**: [📋源码解读补充规划.md](./📋源码解读补充规划.md)
+📄 **详细规划**: [📋源码解读补充规划.md](./16_📋源码解读补充规划.md)
 
 ### 🔥 P0级别：急需补充（1-2个月）
 ```

@@ -9,7 +9,7 @@
 ### 1️⃣ 注册中心与配置中心
 
 #### Nacos核心机制详解
-📄 [Nacos核心机制详解.md](./Nacos核心机制详解.md)
+📄 [Nacos核心机制详解.md](./核心组件/Nacos核心机制详解.md)
 
 **核心内容**：
 - ✅ 服务注册与发现机制
@@ -31,7 +31,7 @@
 ### 2️⃣ Spring Cloud Alibaba生态
 
 #### Spring Cloud Alibaba全家桶
-📄 [Spring Cloud Alibaba全家桶.md](./Spring%20Cloud%20Alibaba全家桶.md)
+📄 [Spring Cloud Alibaba全家桶.md](./核心组件/Spring%20Cloud%20Alibaba全家桶.md)
 
 **核心内容**：
 - ✅ **Nacos**：服务注册发现 + 配置中心
@@ -70,7 +70,7 @@
 ### 3️⃣ RPC框架
 
 #### Dubbo与gRPC详解
-📄 [Dubbo与gRPC详解.md](./Dubbo与gRPC详解.md)
+📄 [Dubbo与gRPC详解.md](./通信协议/Dubbo与gRPC详解.md)
 
 **核心内容**：
 
@@ -197,9 +197,9 @@
 ## 📖 相关文档
 
 ### 本目录文档
-- [Nacos核心机制详解.md](./Nacos核心机制详解.md)
-- [Spring Cloud Alibaba全家桶.md](./Spring%20Cloud%20Alibaba全家桶.md)
-- [Dubbo与gRPC详解.md](./Dubbo与gRPC详解.md)
+- [Nacos核心机制详解.md](./核心组件/Nacos核心机制详解.md)
+- [Spring Cloud Alibaba全家桶.md](./核心组件/Spring%20Cloud%20Alibaba全家桶.md)
+- [Dubbo与gRPC详解.md](./通信协议/Dubbo与gRPC详解.md)
 
 ### 相关领域
 - [../01_Java核心/](../01_Java核心/) - Java基础、JVM、并发
@@ -208,8 +208,8 @@
 - [../11_性能优化/](../11_性能优化/) - 性能监控、JVM调优
 
 ### 待补充内容
-- [ ] Sentinel流量控制详解
-- [ ] Gateway网关详解
+- [x] ~~Sentinel流量控制详解~~ → 已完成：[服务治理/Sentinel流量控制详解.md](./服务治理/Sentinel流量控制详解.md)
+- [x] ~~Gateway网关详解~~ → 已完成：[核心组件/API Gateway实战指南.md](./核心组件/API%20Gateway实战指南.md)
 - [ ] Seata分布式事务深度解析
 - [ ] 服务网格（Istio）详解
 
