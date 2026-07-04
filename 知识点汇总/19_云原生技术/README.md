@@ -193,7 +193,7 @@ Docker基础
 | 文档 | 难度 | 重要性 | 预计学习时间 |
 |------|------|--------|-------------|
 | [Kubernetes进阶实战](./Kubernetes进阶实战.md) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 2-3周 |
-| [Service Mesh(Istio)详解](./Service%20Mesh(Istio)详解.md) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 2-3周 |
+| [Service Mesh(Istio)详解](<./Service%20Mesh(Istio)详解.md>) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 2-3周 |
 | [Serverless架构详解](./Serverless架构详解.md) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 1-2周 |
 | [云原生可观测性](./云原生可观测性.md) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 1-2周 |
 

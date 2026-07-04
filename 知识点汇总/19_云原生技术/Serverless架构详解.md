@@ -526,7 +526,7 @@ public class BadHandler implements RequestHandler<Order, OrderResult> {
 ## 📚 相关文档
 
 - [Kubernetes进阶实战](./Kubernetes进阶实战.md)
-- [Service Mesh(Istio)详解](./Service%20Mesh(Istio)详解.md)
+- [Service Mesh(Istio)详解](<./Service%20Mesh(Istio)详解.md>)
 - [云原生可观测性](./云原生可观测性.md)
 - [Docker与Kubernetes详解](../10_容器化/Docker与Kubernetes详解.md)
 

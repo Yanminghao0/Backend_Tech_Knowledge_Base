@@ -38,7 +38,7 @@ MyBatis源码解读/
 ## 📖 核心内容
 
 ### 1️⃣ SqlSession源码解析 ✅
-📄 [SqlSession源码解析.md](./SqlSession源码解析.md)
+📄 [SqlSession源码解析.md](./8.1_SqlSession源码解析.md)
 
 **核心内容**：
 - ✅ SqlSessionFactory创建过程
@@ -59,7 +59,7 @@ BatchExecutor              # 批量执行器
 ```
 
 ### 2️⃣ Mapper代理源码解析 ✅
-📄 [Mapper代理源码解析.md](./Mapper代理源码解析.md)
+📄 [Mapper代理源码解析.md](./8.2_Mapper代理源码解析.md)
 
 **核心内容**：
 - ✅ MapperRegistry注册机制
@@ -79,7 +79,7 @@ MethodSignature            # 方法签名
 ```
 
 ### 3️⃣ 一二级缓存源码解析 ✅
-📄 [一二级缓存源码解析.md](./一二级缓存源码解析.md)
+📄 [一二级缓存源码解析.md](./8.3_一二级缓存源码解析.md)
 
 **核心内容**：
 - ✅ 一级缓存（本地缓存）原理
@@ -99,7 +99,7 @@ CachingExecutor            # 缓存执行器
 ```
 
 ### 4️⃣ 插件机制源码解析 📄
-📄 [插件机制源码解析.md](./插件机制源码解析.md) - 待完成
+📄 [插件机制源码解析.md](./8.4_插件机制源码解析.md) - 待完成
 
 **核心内容**：
 - 📄 Interceptor接口设计
