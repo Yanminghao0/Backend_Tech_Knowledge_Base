@@ -1541,3 +1541,12 @@ src/main/java/com/example/security/
 *最后更新：2025-10-27*  
 *文档状态：v1.0 完成*  
 *作者：技术知识库团队*
+
+
+---
+
+## 📚 相关阅读
+
+- [OAuth2.0实战案例](./OAuth2.0实战案例.md)
+- [Spring核心源码解析](../02_Spring生态/Spring核心源码解析.md)
+- [Spring Boot核心原理](../02_Spring生态/Spring Boot核心原理.md)

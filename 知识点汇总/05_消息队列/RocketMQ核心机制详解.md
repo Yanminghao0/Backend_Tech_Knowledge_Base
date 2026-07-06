@@ -1292,3 +1292,11 @@ graph LR
 **作者**: AI Assistant  
 **适用版本**: RocketMQ 4.x / 5.x
 
+
+---
+
+## 📚 相关阅读
+
+- [Kafka核心机制详解](./Kafka核心机制详解.md)
+- [RabbitMQ核心机制.md](./RabbitMQ核心机制.md)
+- [分布式事务详解](../07_分布式系统/分布式事务详解.md)

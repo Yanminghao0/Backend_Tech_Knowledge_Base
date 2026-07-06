@@ -532,3 +532,12 @@ SELECT * FROM user WHERE id=1;
 *创建时间：2025-10-25*
 *关键词：MySQL, InnoDB, MVCC, Undo Log, 事务, 并发控制*
 
+
+---
+
+## 📚 相关阅读
+
+- [MySQL查询核心机制详解](./MySQL查询核心机制详解.md)
+- [MySQL分库分表实战](./MySQL分库分表实战.md)
+- [Redis核心机制详解](../04_缓存/Redis核心机制详解.md)
+- [缓存架构设计与实战](../04_缓存/缓存架构设计与实战.md)

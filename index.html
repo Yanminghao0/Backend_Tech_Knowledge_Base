@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Java后端技术知识库</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="description" content="系统化整理的Java后端核心技术详解">
+  <meta name="description" content="系统化整理的Java后端核心技术详解，涵盖Java核心、Spring、数据库、缓存、消息队列、微服务、分布式系统等26个技术领域">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <style>
@@ -12,6 +12,16 @@
     .sidebar-nav h3 { font-size: 0.95rem; }
     .markdown-section { max-width: 900px; }
     nav.app-nav { margin-right: 40px; }
+    /* 封面样式 */
+    .cover-main h1 { font-size: 2.4rem; }
+    .cover-main blockquote { border-left: 4px solid #42b983; }
+    /* 代码块样式 */
+    .markdown-section pre { padding: 1rem; border-radius: 6px; }
+    .markdown-section code { font-family: 'Fira Code', 'JetBrains Mono', monospace; }
+    /* 表格样式 */
+    .markdown-section table { display: table; width: 100%; }
+    /* mermaid 图表居中 */
+    .mermaid { text-align: center; margin: 1rem 0; }
   </style>
 </head>
 <body>
@@ -27,19 +37,59 @@
       maxLevel: 3,
       subMaxLevel: 3,
       search: {
-        placeholder: '搜索',
+        placeholder: '搜索知识点...',
         noData: '没有找到结果',
-        depth: 3
+        depth: 3,
+        hideOtherSidebarContent: false
       },
       auto2top: true,
       relativePath: true,
       themeColor: '#42b983',
       alias: {
         '/.*/_sidebar.md': '/_sidebar.md',
+      },
+      // 代码高亮
+      prism: {
+        theme: 'tomorrow'
+      },
+      // mermaid 插件配置
+      markdown: {
+        renderer: {
+          code: function(code, lang) {
+            if (lang === 'mermaid') {
+              return '<div class="mermaid">' + code + '</div>';
+            }
+            return this.origin.code.apply(this, arguments);
+          }
+        }
       }
     };
   </script>
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <!-- Mermaid 图表渲染 -->
+  <script src="//cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+    // docsify 内容加载后渲染 mermaid
+    document.addEventListener('DOMContentLoaded', function() {
+      const observer = new MutationObserver(function() {
+        const mermaidDivs = document.querySelectorAll('.mermaid:not([data-processed])');
+        if (mermaidDivs.length > 0) {
+          mermaidDivs.forEach(function(div) {
+            div.setAttribute('data-processed', 'true');
+            try {
+              mermaid.run({ nodes: [div] });
+            } catch(e) {}
+          });
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
+  </script>
+  <!-- 代码复制按钮 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2"></script>
+  <!-- 图片缩放 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
 </body>
 </html>
