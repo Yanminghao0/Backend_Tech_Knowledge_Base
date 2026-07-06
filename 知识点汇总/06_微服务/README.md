@@ -210,8 +210,8 @@
 ### 待补充内容
 - [x] ~~Sentinel流量控制详解~~ → 已完成：[服务治理/Sentinel流量控制详解.md](./服务治理/Sentinel流量控制详解.md)
 - [x] ~~Gateway网关详解~~ → 已完成：[核心组件/API Gateway实战指南.md](./核心组件/API%20Gateway实战指南.md)
-- [ ] Seata分布式事务深度解析
-- [ ] 服务网格（Istio）详解
+- [x] ~~Seata分布式事务深度解析~~ → 已完成：[../07_分布式系统/分布式事务详解.md](../07_分布式系统/分布式事务详解.md)
+- [x] ~~服务网格（Istio）详解~~ → 已完成：[../19_云原生技术/Service Mesh(Istio)详解.md](<../19_云原生技术/Service%20Mesh(Istio)详解.md>)
 
 ---
 
