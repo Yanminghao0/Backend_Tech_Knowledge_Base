@@ -1,0 +1,16 @@
+# pre-commit hook 配置
+# 使用方法：
+#   1. 安装 pre-commit: pip install pre-commit
+#   2. 在仓库根目录执行: pre-commit install
+#   3. 之后每次 git commit 会自动检查 Markdown 链接
+
+repos:
+  - repo: local
+    hooks:
+      - id: markdown-link-check
+        name: Markdown Link Check
+        entry: python3 scripts/check_links.py --strict
+        language: system
+        files: \.md$
+        pass_filenames: false
+        stages: [pre-commit]

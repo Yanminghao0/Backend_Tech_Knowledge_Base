@@ -1,0 +1,97 @@
+name: Markdown Link Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/*.md'
+  schedule:
+    # 每周一北京时间早上8点执行一次全量检查
+    - cron: '0 0 * * 1'
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install markdown-link-check
+        run: npm install -g markdown-link-check@3.12
+
+      - name: Create config
+        run: |
+          cat > .mlc-config.json << 'EOF'
+          {
+            "ignorePatterns": [
+              {
+                "pattern": "^https://github.com/.*/edit/"
+              },
+              {
+                "pattern": "^https://img.shields.io"
+              }
+            ],
+            "replacementPatterns": [
+              {
+                "pattern": "^./",
+                "replacement": ""
+              },
+              {
+                "pattern": "^../",
+                "replacement": ""
+              }
+            ],
+            "httpHeaders": [
+              {
+                "urls": ["https://github.com"],
+                "headers": {
+                  "Accept-Encoding": "zstd"
+                }
+              }
+            ],
+            "timeout": "10s",
+            "retryOn429": true,
+            "retryCount": 3,
+            "fallbackRetryDelay": "30s",
+            "aliveStatusCodes": [200, 206, 301, 302, 403]
+          }
+          EOF
+
+      - name: Check all markdown links
+        run: |
+          find . -name '*.md' -not -path './.git/*' -not -path './node_modules/*' | sort | while read -r file; do
+            echo "::group::Checking $file"
+            markdown-link-check --config .mlc-config.json --quiet "$file" 2>&1 || true
+            echo "::endgroup::"
+          done
+
+      - name: Run strict check (fail on broken links)
+        run: |
+          echo "## Markdown Link Check Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          BROKEN=0
+          TOTAL=0
+
+          find . -name '*.md' -not -path './.git/*' -not -path './node_modules/*' | sort | while read -r file; do
+            RESULT=$(markdown-link-check --config .mlc_config.json --quiet "$file" 2>&1)
+            # Count links
+            LINKS=$(echo "$RESULT" | grep -c "^\s*=>" || echo "0")
+            BROKEN_LINKS=$(echo "$RESULT" | grep -c "ERROR" || echo "0")
+
+            if [ "$BROKEN_LINKS" -gt 0 ]; then
+              echo "❌ $file: $BROKEN_LINKS broken links" >> $GITHUB_STEP_SUMMARY
+              echo "$RESULT" | grep "ERROR" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ $file" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
