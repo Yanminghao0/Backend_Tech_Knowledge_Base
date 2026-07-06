@@ -2303,7 +2303,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
 - [02_Spring生态/Spring核心原理](../../02_Spring生态/)
 - [22_源码解读/Spring核心源码解析](../../22_源码解读/07_Spring核心源码解析.md)
-- [Java基础面试题](./Java基础面试题.md)
+- [Java基础面试题](./01_Java基础面试题.md)
 
 ---
 

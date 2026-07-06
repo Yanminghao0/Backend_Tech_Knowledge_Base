@@ -7,7 +7,7 @@
 ## 📋 文档列表
 
 ### 1. RocketMQ核心机制详解
-📄 [RocketMQ核心机制详解.md](./RocketMQ核心机制详解.md)
+📄 [RocketMQ核心机制详解.md](./03_RocketMQ核心机制详解.md)
 
 **核心内容**：
 - ✅ **架构设计**：NameServer、Broker、Producer、Consumer
@@ -34,7 +34,7 @@
 ---
 
 ### 2. Kafka核心机制详解 ⭐ 新增
-📄 [Kafka核心机制详解.md](./Kafka核心机制详解.md)
+📄 [Kafka核心机制详解.md](./01_Kafka核心机制详解.md)
 
 **核心内容**：
 - ✅ **架构设计**：Broker、Topic、Partition、Consumer Group
@@ -59,7 +59,7 @@
 ---
 
 ### 3. RabbitMQ核心机制 ⭐ 新增
-📄 [RabbitMQ核心机制.md](./RabbitMQ核心机制.md)
+📄 [RabbitMQ核心机制.md](./02_RabbitMQ核心机制.md)
 
 **核心内容**：
 - ✅ **架构设计**：AMQP协议、Broker、Virtual Host

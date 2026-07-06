@@ -24,93 +24,93 @@
 ```
 知识点汇总/
 ├── 00_综合/                    # 综合技术资料
-│   ├── Java高级工程师技术清单.md
+│   ├── 01_Java高级工程师技术清单.md
 │   └── README.md
 ├── 01_Java核心/                # Java核心技术 ⭐ 基础必学
-│   ├── Java基础核心原理.md
-│   ├── JVM虚拟机详解.md
-│   ├── Java并发编程详解.md
+│   ├── 02_Java基础核心原理.md
+│   ├── 01_JVM虚拟机详解.md
+│   ├── 03_Java并发编程详解.md
 │   └── README.md
 ├── 02_Spring生态/              # Spring框架 ⭐ 框架基础
-│   ├── Spring核心源码解析.md
-│   ├── Spring Boot核心原理.md
+│   ├── 02_Spring核心源码解析.md
+│   ├── 01_Spring Boot核心原理.md
 │   └── README.md
 ├── 03_数据库/                  # 数据库核心机制
-│   ├── MySQL核心机制详解.md
-│   ├── MySQL查询核心机制详解.md
+│   ├── 04_MySQL核心机制详解.md
+│   ├── 03_MySQL查询核心机制详解.md
 │   └── README.md
 ├── 04_缓存/                    # 缓存核心机制
-│   ├── Redis核心机制详解.md
+│   ├── 01_Redis核心机制详解.md
 │   └── README.md
 ├── 05_消息队列/                # 消息队列核心机制
-│   ├── RocketMQ核心机制详解.md
+│   ├── 03_RocketMQ核心机制详解.md
 │   └── README.md
 ├── 06_微服务/                  # 微服务架构（注册中心+RPC） 🆕
 │   ├── 核心组件/
-│   │   ├── Nacos核心机制详解.md
-│   │   └── Spring Cloud Alibaba全家桶.md
+│   │   ├── 02_Nacos核心机制详解.md
+│   │   └── 03_Spring Cloud Alibaba全家桶.md
 │   ├── 通信协议/
-│   │   └── Dubbo与gRPC详解.md
+│   │   └── 01_Dubbo与gRPC详解.md
 │   └── README.md
 ├── 07_分布式系统/              # 分布式核心
-│   ├── 分布式事务详解.md
-│   ├── 分布式锁详解.md
+│   ├── 02_分布式事务详解.md
+│   ├── 03_分布式锁详解.md
 │   └── README.md
 ├── 08_网络通信/                # 网络与IO
-│   ├── HTTP协议与网络编程.md
-│   ├── Netty核心原理详解.md
+│   ├── 01_HTTP协议与网络编程.md
+│   ├── 02_Netty核心原理详解.md
 │   └── README.md
 ├── 09_搜索引擎/                # 搜索引擎
-│   ├── Elasticsearch核心原理.md
+│   ├── 01_Elasticsearch核心原理.md
 │   └── README.md
 ├── 10_容器化/                  # 容器与编排
-│   ├── Docker与Kubernetes详解.md
+│   ├── 01_Docker与Kubernetes详解.md
 │   └── README.md
 ├── 11_性能优化/                # 性能优化与调优
-│   ├── JVM调优实战.md
-│   ├── 性能监控与系统优化.md
+│   ├── 01_JVM调优实战.md
+│   ├── 02_性能监控与系统优化.md
 │   └── README.md
 ├── 12_AI集成/                  # AI应用开发 🆕
-│   ├── Java AI开发实战.md
+│   ├── 03_Java AI开发实战.md
 │   └── README.md
 ├── 13_安全认证/                # 安全认证授权 🆕
-│   ├── Spring Security与JWT实战.md
+│   ├── 02_Spring Security与JWT实战.md
 │   └── README.md
 ├── 14_架构设计/                # 架构设计与技术选型 🆕
-│   ├── 架构设计与技术选型方法论.md
+│   ├── 01_架构设计与技术选型方法论.md
 │   └── README.md
 ├── 15_MCP协议/                 # MCP协议详解 🆕
-│   ├── MCP协议核心原理与实战.md
-│   ├── MCP vs Function Calling 详细对比.md
-│   ├── Function Calling 机制和工作原理.md
+│   ├── 03_MCP协议核心原理与实战.md
+│   ├── 02_MCP vs Function Calling 详细对比.md
+│   ├── 01_Function Calling 机制和工作原理.md
 │   └── README.md
 ├── 16_设计模式/                 # 设计模式 🆕
 │   └── README.md
 ├── 17_算法与数据结构/            # 算法与数据结构 🆕
 │   └── README.md
 ├── 18_DevOps与CICD/            # DevOps与CI/CD 🆕
-│   ├── GitLab CICD配置.md
-│   ├── Jenkins流水线实战.md
-│   ├── 日志收集与分析.md
-│   ├── 监控告警体系.md
-│   ├── 自动化测试体系.md
+│   ├── 01_GitLab CICD配置.md
+│   ├── 02_Jenkins流水线实战.md
+│   ├── 03_日志收集与分析.md
+│   ├── 04_监控告警体系.md
+│   ├── 05_自动化测试体系.md
 │   └── README.md
 ├── 19_云原生技术/               # 云原生技术 🆕
-│   ├── Kubernetes进阶实战.md
-│   ├── Serverless架构详解.md
-│   ├── Service Mesh(Istio)详解.md
-│   ├── Service Mesh核心概念.md
-│   ├── 云原生可观测性.md
+│   ├── 01_Kubernetes进阶实战.md
+│   ├── 02_Serverless架构详解.md
+│   ├── 03_Service Mesh(Istio)详解.md
+│   ├── 04_Service Mesh核心概念.md
+│   ├── 05_云原生可观测性.md
 │   └── README.md
 ├── 20_低代码开发/               # 低代码开发 🆕
-│   ├── 企业级低代码平台架构.md
-│   ├── 低代码表单引擎实战.md
+│   ├── 01_企业级低代码平台架构.md
+│   ├── 02_低代码表单引擎实战.md
 │   └── README.md
 ├── 21_系统设计与面试/            # 系统设计与面试 🆕
-│   ├── 系统设计方法论.md
-│   ├── 高并发系统设计.md
-│   ├── 中高级程序员面试知识深度广度评估.md
-│   ├── 中高级程序员面试知识点梳理.md
+│   ├── 03_系统设计方法论.md
+│   ├── 04_高并发系统设计.md
+│   ├── 01_中高级程序员面试知识深度广度评估.md
+│   ├── 02_中高级程序员面试知识点梳理.md
 │   └── README.md
 ├── 22_源码解读/                 # 源码解读 🆕
 │   ├── 01_源码阅读方法论.md
@@ -129,7 +129,7 @@
 │   ├── 04_Djl.ai.md
 │   ├── 05_Tribuo.md
 │   ├── 06_Solon AI.md
-│   ├── AI框架对比分析.md
+│   ├── 07_AI框架对比分析.md
 │   └── README.md
 ├── 25_生产环境问题排查/           # 生产环境问题排查 🆕
 │   ├── 01_性能问题排查.md
@@ -153,7 +153,7 @@
 ## 🎯 快速导航
 
 ### 📋 完整技术清单
-**[Java高级工程师技术清单](./知识点汇总/00_综合/Java高级工程师技术清单.md)** ⭐ 推荐
+**[Java高级工程师技术清单](./知识点汇总/00_综合/01_Java高级工程师技术清单.md)** ⭐ 推荐
 
 这份清单包含：
 - ✅ 12大技术领域完整知识图谱
@@ -204,7 +204,7 @@
 📂 [03_数据库](./知识点汇总/03_数据库/)
 
 #### MySQL核心机制详解
-📄 [MySQL核心机制详解.md](./知识点汇总/03_数据库/MySQL核心机制详解.md)
+📄 [MySQL核心机制详解.md](./知识点汇总/03_数据库/04_MySQL核心机制详解.md)
 
 **核心内容**：
 - ✅ 事务ACID、MVCC多版本并发控制
@@ -218,7 +218,7 @@
 ---
 
 #### MySQL查询核心机制详解 ⭐ NEW
-📄 [MySQL查询核心机制详解.md](./知识点汇总/03_数据库/MySQL查询核心机制详解.md)
+📄 [MySQL查询核心机制详解.md](./知识点汇总/03_数据库/03_MySQL查询核心机制详解.md)
 
 **核心内容**：
 - ✅ 查询执行全流程（连接器→解析器→优化器→执行器）
@@ -246,7 +246,7 @@
 📂 [04_缓存](./知识点汇总/04_缓存/)
 
 #### Redis核心机制详解
-📄 [Redis核心机制详解.md](./知识点汇总/04_缓存/Redis核心机制详解.md)
+📄 [Redis核心机制详解.md](./知识点汇总/04_缓存/01_Redis核心机制详解.md)
 
 **核心内容**：
 - ✅ 数据结构底层实现（SDS、跳表、压缩列表等）
@@ -269,7 +269,7 @@
 📂 [05_消息队列](./知识点汇总/05_消息队列/)
 
 #### RocketMQ核心机制详解
-📄 [RocketMQ核心机制详解.md](./知识点汇总/05_消息队列/RocketMQ核心机制详解.md)
+📄 [RocketMQ核心机制详解.md](./知识点汇总/05_消息队列/03_RocketMQ核心机制详解.md)
 
 **核心内容**：
 - ✅ 架构设计（NameServer、Broker、Producer、Consumer）
@@ -356,7 +356,7 @@
 📂 [11_性能优化](./知识点汇总/11_性能优化/)
 
 #### JVM调优实战
-📄 [JVM调优实战.md](./知识点汇总/11_性能优化/JVM调优实战.md)
+📄 [JVM调优实战.md](./知识点汇总/11_性能优化/01_JVM调优实战.md)
 
 **核心内容**：
 - ✅ **JVM参数配置**：堆内存、GC参数、日志参数
@@ -366,7 +366,7 @@
 - ✅ **实战案例**：Full GC频繁、接口响应慢
 
 #### 性能监控与系统优化
-📄 [性能监控与系统优化.md](./知识点汇总/11_性能优化/性能监控与系统优化.md)
+📄 [性能监控与系统优化.md](./知识点汇总/11_性能优化/02_性能监控与系统优化.md)
 
 **核心内容**：
 - ✅ **APM监控**：Prometheus+Grafana、Skywalking、ELK
@@ -383,7 +383,7 @@
 📂 [12_AI集成](./知识点汇总/12_AI集成/)
 
 #### Java AI开发实战
-📄 [Java AI开发实战.md](./知识点汇总/12_AI集成/Java%20AI开发实战.md)
+📄 [Java AI开发实战.md](./知识点汇总/12_AI集成/03_Java%20AI开发实战.md)
 
 **核心内容**：
 - ✅ **LangChain4j框架**：快速集成LLM、Function Calling、对话记忆
@@ -408,7 +408,7 @@
 📂 [13_安全认证](./知识点汇总/13_安全认证/)
 
 #### Spring Security与JWT实战
-📄 [Spring Security与JWT实战.md](./知识点汇总/13_安全认证/Spring%20Security与JWT实战.md)
+📄 [Spring Security与JWT实战.md](./知识点汇总/13_安全认证/02_Spring%20Security与JWT实战.md)
 
 **核心内容**：
 - ✅ **认证授权基础**：Authentication vs Authorization、Session vs Token
@@ -435,7 +435,7 @@
 📂 [14_架构设计](./知识点汇总/14_架构设计/)
 
 #### 架构设计与技术选型方法论 ⭐ 重要
-📄 [架构设计与技术选型方法论.md](./知识点汇总/14_架构设计/架构设计与技术选型方法论.md)
+📄 [架构设计与技术选型方法论.md](./知识点汇总/14_架构设计/01_架构设计与技术选型方法论.md)
 
 **核心内容**：
 - ✅ **技术选型本质**：PCTS模型（性能、成本、团队、规模）
@@ -466,7 +466,7 @@
 📂 [15_MCP协议](./知识点汇总/15_MCP协议/)
 
 #### MCP协议核心原理与实战 ⭐ 前沿技术
-📄 [MCP协议核心原理与实战.md](./知识点汇总/15_MCP协议/MCP协议核心原理与实战.md)
+📄 [MCP协议核心原理与实战.md](./知识点汇总/15_MCP协议/03_MCP协议核心原理与实战.md)
 
 **核心内容**：
 - ✅ **MCP简介**：协议定义、解决的问题、生态架构
@@ -869,43 +869,43 @@ graph TB
 ### 按问题场景查找
 
 **Q: HashMap为什么线程不安全？**
-- 📄 [Java基础核心原理.md](./知识点汇总/01_Java核心/Java基础核心原理.md#54-hashmap核心原理)
+- 📄 [Java基础核心原理.md](./知识点汇总/01_Java核心/02_Java基础核心原理.md#54-hashmap核心原理)
 - 查看HashMap扩容机制、JDK 7/8差异
 
 **Q: JVM如何调优Full GC频繁问题？**
-- 📄 [JVM调优实战.md](./知识点汇总/11_性能优化/JVM调优实战.md)
+- 📄 [JVM调优实战.md](./知识点汇总/11_性能优化/01_JVM调优实战.md)
 - Heap Dump分析、GC日志分析、参数调整
 
 **Q: 数据库查询慢怎么优化？**
-- 📄 [MySQL查询核心机制详解.md](./知识点汇总/03_数据库/MySQL查询核心机制详解.md#3-索引选择机制)
+- 📄 [MySQL查询核心机制详解.md](./知识点汇总/03_数据库/03_MySQL查询核心机制详解.md#3-索引选择机制)
 - 查看索引失效场景、优化器原理
 
 **Q: IN()包含大量值如何优化？**
-- 📄 [MySQL查询核心机制详解.md](./知识点汇总/03_数据库/MySQL查询核心机制详解.md#5-in包含大量值问题与解决方案)
+- 📄 [MySQL查询核心机制详解.md](./知识点汇总/03_数据库/03_MySQL查询核心机制详解.md#5-in包含大量值问题与解决方案)
 - 推荐：临时表+JOIN、内存表+JOIN、Redis缓存
 
 **Q: 如何保证消息不丢失？**
-- 📄 [RocketMQ核心机制详解.md](./知识点汇总/05_消息队列/RocketMQ核心机制详解.md)
+- 📄 [RocketMQ核心机制详解.md](./知识点汇总/05_消息队列/03_RocketMQ核心机制详解.md)
 - 生产者重试、Broker同步刷盘、消费者手动ACK
 
 **Q: 缓存穿透/击穿/雪崩怎么解决？**
-- 📄 [Redis核心机制详解.md](./知识点汇总/04_缓存/Redis核心机制详解.md)
+- 📄 [Redis核心机制详解.md](./知识点汇总/04_缓存/01_Redis核心机制详解.md)
 - 布隆过滤器、互斥锁、过期时间加随机值
 
 **Q: 微服务如何实现配置动态刷新？**
-- 📄 [Nacos核心机制详解.md](./知识点汇总/06_微服务/核心组件/Nacos核心机制详解.md)
+- 📄 [Nacos核心机制详解.md](./知识点汇总/06_微服务/核心组件/02_Nacos核心机制详解.md)
 - 配置中心 + @RefreshScope注解
 
 **Q: MySQL事务提交前数据在哪里？**
-- 📄 [MySQL核心机制详解.md](./知识点汇总/03_数据库/MySQL核心机制详解.md#1-mysql数据库commit提交前数据在哪)
+- 📄 [MySQL核心机制详解.md](./知识点汇总/03_数据库/04_MySQL核心机制详解.md#1-mysql数据库commit提交前数据在哪)
 - Buffer Pool（内存脏页）+ Redo Log Buffer + Undo Log（磁盘）
 
 **Q: 如何实现JWT认证？**
-- 📄 [Spring Security与JWT实战.md](./知识点汇总/13_安全认证/Spring%20Security与JWT实战.md)
+- 📄 [Spring Security与JWT实战.md](./知识点汇总/13_安全认证/02_Spring%20Security与JWT实战.md)
 - Token生成验证、刷新机制、权限控制
 
 **Q: 前后端分离项目如何做权限控制？**
-- 📄 [Spring Security与JWT实战.md](./知识点汇总/13_安全认证/Spring%20Security与JWT实战.md)
+- 📄 [Spring Security与JWT实战.md](./知识点汇总/13_安全认证/02_Spring%20Security与JWT实战.md)
 - RBAC权限模型、@PreAuthorize注解、动态菜单
 
 ---

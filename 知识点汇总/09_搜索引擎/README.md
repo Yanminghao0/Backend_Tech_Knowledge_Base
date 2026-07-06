@@ -7,7 +7,7 @@
 ## 📋 文档列表
 
 ### 1. Elasticsearch核心原理 ⭐ 推荐
-📄 [Elasticsearch核心原理.md](./Elasticsearch核心原理.md)
+📄 [Elasticsearch核心原理.md](./01_Elasticsearch核心原理.md)
 
 **核心内容**：
 - ✅ **Elasticsearch架构**：核心概念、集群架构、文档CRUD
@@ -70,7 +70,7 @@ Mapping   ←→ Schema
 - 正排索引：文档ID → 内容
 - 倒排索引：词项 → 文档ID列表
 - 优点：快速查找包含特定词的文档
-- 详见：[Elasticsearch核心原理.md](./Elasticsearch核心原理.md#21-正排索引-vs-倒排索引)
+- 详见：[Elasticsearch核心原理.md](./01_Elasticsearch核心原理.md#21-正排索引-vs-倒排索引)
 
 **Q3: TF-IDF和BM25有什么区别？**
 ```
@@ -84,7 +84,7 @@ BM25（ES 5.0+默认）：
 - 词频饱和
 - 更符合实际需求
 ```
-- 详见：[Elasticsearch核心原理.md](./Elasticsearch核心原理.md#24-评分算法tf-idfbm25)
+- 详见：[Elasticsearch核心原理.md](./01_Elasticsearch核心原理.md#24-评分算法tf-idfbm25)
 
 **Q4: Query和Filter有什么区别？**
 ```
@@ -98,7 +98,7 @@ Filter：
 - 可缓存
 - 用于精确匹配
 ```
-- 详见：[Elasticsearch核心原理.md](./Elasticsearch核心原理.md#31-查询类型)
+- 详见：[Elasticsearch核心原理.md](./01_Elasticsearch核心原理.md#31-查询类型)
 
 **Q5: 如何解决深度分页问题？**
 ```
@@ -106,7 +106,7 @@ Filter：
 方案2：search_after（推荐）
 方案3：限制分页深度
 ```
-- 详见：[Elasticsearch核心原理.md](./Elasticsearch核心原理.md#61-深度分页问题)
+- 详见：[Elasticsearch核心原理.md](./01_Elasticsearch核心原理.md#61-深度分页问题)
 
 **Q6: 什么是脑裂？如何避免？**
 ```
@@ -117,7 +117,7 @@ Filter：
 2. 使用专用主节点
 3. ES 7.x后自动管理
 ```
-- 详见：[Elasticsearch核心原理.md](./Elasticsearch核心原理.md#62-脑裂问题)
+- 详见：[Elasticsearch核心原理.md](./01_Elasticsearch核心原理.md#62-脑裂问题)
 
 ---
 

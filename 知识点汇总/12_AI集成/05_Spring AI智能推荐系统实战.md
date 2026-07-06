@@ -292,9 +292,9 @@ spring:
 
 ## 📚 相关文档
 
-- [Spring AI详解.md](./Spring AI详解.md)
-- [Java AI开发实战.md](./Java AI开发实战.md)
-- [LangChain4j详解.md](./LangChain4j详解.md)
+- [Spring AI详解.md](./06_Spring AI详解.md)
+- [Java AI开发实战.md](./03_Java AI开发实战.md)
+- [LangChain4j详解.md](./04_LangChain4j详解.md)
 
 ---
 

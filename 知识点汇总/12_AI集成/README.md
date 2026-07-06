@@ -7,7 +7,7 @@
 ## 📋 文档列表
 
 ### 1. Java AI开发实战 ⭐⭐⭐ 必学
-📄 [Java AI开发实战.md](./Java%20AI开发实战.md)
+📄 [Java AI开发实战.md](./03_Java%20AI开发实战.md)
 
 **核心内容**：
 - ✅ **LangChain4j框架**：快速集成LLM、Function Calling、对话记忆
@@ -26,7 +26,7 @@
 ---
 
 ### 2. LangChain4j详解 ⭐⭐⭐⭐⭐ 必学
-📄 [LangChain4j详解.md](./LangChain4j详解.md)
+📄 [LangChain4j详解.md](./04_LangChain4j详解.md)
 
 **核心内容**：
 - ✅ **LangChain4j框架**：Java生态最强大的AI应用开发框架
@@ -47,7 +47,7 @@
 ---
 
 ### 3. Spring AI详解 ⭐⭐⭐⭐⭐ 必学
-📄 [Spring AI详解.md](./Spring%20AI详解.md)
+📄 [Spring AI详解.md](./06_Spring%20AI详解.md)
 
 **核心内容**：
 - ✅ **Spring AI框架**：Spring官方AI框架，与Spring生态深度集成
@@ -68,7 +68,7 @@
 ---
 
 ### 4. Agent-Flex详解 ⭐⭐⭐⭐ 推荐
-📄 [Agent-Flex详解.md](./Agent-Flex详解.md)
+📄 [Agent-Flex详解.md](./01_Agent-Flex详解.md)
 
 **核心内容**：
 - ✅ **Agent-Flex框架**：阿里云开源的AI Agent框架
@@ -87,7 +87,7 @@
 ---
 
 ### 5. Spring Cloud Alibaba AI详解 ⭐⭐⭐⭐ 推荐
-📄 [Spring Cloud Alibaba AI详解.md](./Spring%20Cloud%20Alibaba%20AI详解.md)
+📄 [Spring Cloud Alibaba AI详解.md](./07_Spring%20Cloud%20Alibaba%20AI详解.md)
 
 **核心内容**：
 - ✅ **Spring Cloud Alibaba AI**：Spring Cloud Alibaba生态的AI能力集成
@@ -183,7 +183,7 @@ RAG（Retrieval-Augmented Generation）：
 ✅ 实时更新知识
 ✅ 成本低
 ```
-- 详见：[Java AI开发实战.md](./Java%20AI开发实战.md#4-rag检索增强生成)
+- 详见：[Java AI开发实战.md](./03_Java%20AI开发实战.md#4-rag检索增强生成)
 
 **Q4: Function Calling是什么？**
 ```
@@ -198,7 +198,7 @@ Function Calling：
 → 返回结果给LLM
 → LLM生成自然语言回答
 ```
-- 详见：[Java AI开发实战.md](./Java%20AI开发实战.md#23-function-calling)
+- 详见：[Java AI开发实战.md](./03_Java%20AI开发实战.md#23-function-calling)
 
 **Q5: 如何优化RAG效果？**
 ```
@@ -228,7 +228,7 @@ Function Calling：
 4. Role Playing（角色扮演）
 5. Format Control（格式控制）
 ```
-- 详见：[Java AI开发实战.md](./Java%20AI开发实战.md#5-prompt工程)
+- 详见：[Java AI开发实战.md](./03_Java%20AI开发实战.md#5-prompt工程)
 
 ---
 

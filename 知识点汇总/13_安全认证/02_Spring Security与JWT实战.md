@@ -1547,6 +1547,6 @@ src/main/java/com/example/security/
 
 ## 📚 相关阅读
 
-- [OAuth2.0实战案例](./OAuth2.0实战案例.md)
-- [Spring核心源码解析](../02_Spring生态/Spring核心源码解析.md)
-- [Spring Boot核心原理](../02_Spring生态/Spring Boot核心原理.md)
+- [OAuth2.0实战案例](./01_OAuth2.0实战案例.md)
+- [Spring核心源码解析](../02_Spring生态/02_Spring核心源码解析.md)
+- [Spring Boot核心原理](../02_Spring生态/01_Spring Boot核心原理.md)
