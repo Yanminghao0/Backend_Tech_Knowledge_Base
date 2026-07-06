@@ -19,7 +19,9 @@
 
 | 期号 | 发布时间 | 核心焦点 | 关键更新 |
 |------|---------|---------|---------|
-| [2026年5月技术综述](./月度技术综述/2026年5月技术综述.md) | 2026-05 | Java 25、Spring Boot 4.0 M1、K8s 1.33、GPT-5 | Java 25正式发布(GA)、Spring Boot 4.0 M1预览、K8s 1.33发布、GPT-5发布 |
+| [2026年7月技术综述](./月度技术综述/2026年7月技术综述.md) | 2026-07 | Spring Boot 4.0 RC1、PostgreSQL 18、Kafka 4.0、GPT-5 Turbo | Spring Boot RC1功能冻结、PG18增量物化视图、Kafka KRaft唯一架构、2026上半年趋势总结 |
+| [2026年6月技术综述](./月度技术综述/2026年6月技术综述.md) | 2026-06 | GPT-5 API开放、Dubbo 3.3、Prometheus 3.0 | GPT-5 API全面开放、Dubbo虚拟线程支持、Prometheus查询性能10倍提升 |
+| [2026年5月技术综述](./月度技术综述/2026年5月技术综述.md) | 2026-05 | Java 25、Spring Boot 4.0 M1、K8s 1.33、GPT-5 | Java 25正式发布、Spring Boot 4.0 M1预览、K8s 1.33发布、GPT-5发布 |
 | [2025年11月技术综述](./月度技术综述/2025年11月技术综述.md) | 2025-11 | Agent-Flex 1.2、Spring AI 1.5、K8s 1.31、ES 8.15 | Agent-Flex 1.2发布、Spring AI 1.5 GA、K8s 1.31发布、ES 8.15发布 |
 
 ---

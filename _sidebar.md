@@ -41,3 +41,13 @@
   * [技术清单](./知识点汇总/00_综合/README.md)
   * [知识库分析](./知识点汇总/05_🔍知识库全局分析与规划.md)
   * [待补充清单](./知识点汇总/04_📋知识库待补充清单.md)
+
+* **Prompt工程**
+  * [Prompt训练指南](./prompt_training/README.md)
+  * [写作指南](./prompt_training/resources/prompt_writing_guide.md)
+  * [最佳实践](./prompt_training/resources/best_practices.md)
+  * [常见错误](./prompt_training/resources/common_mistakes.md)
+
+* **项目维护**
+  * [审查报告](./REVIEW_REPORT.md)
+  * [剩余任务](./REMAINING_TASKS.md)
