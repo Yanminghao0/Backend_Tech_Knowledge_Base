@@ -434,5 +434,5 @@ User user = future.get(3, TimeUnit.SECONDS);
 
 - [02_Netty核心原理详解](./02_Netty核心原理详解.md)
 - [01_HTTP协议与网络编程](./01_HTTP协议与网络编程.md)
-- [Dubbo与gRPC详解](../06_微服务/通信协议/01_Dubbo与gRPC详解.md)
+- [Dubbo与gRPC详解](../06_微服务/02_通信协议/01_Dubbo与gRPC详解.md)
 - [Dubbo源码解析](../22_源码解读/13_Dubbo源码解读/README.md)

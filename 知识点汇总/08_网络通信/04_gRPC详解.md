@@ -455,6 +455,6 @@ Spring Boot grpc-spring-boot-starter支持：
 ## 📚 相关阅读
 
 - [03_RPC原理与实现](./03_RPC原理与实现.md)
-- [Dubbo与gRPC详解](../06_微服务/通信协议/01_Dubbo与gRPC详解.md)
+- [Dubbo与gRPC详解](../06_微服务/02_通信协议/01_Dubbo与gRPC详解.md)
 - [02_Netty核心原理详解](./02_Netty核心原理详解.md)
 - [Dubbo源码解析](../22_源码解读/13_Dubbo源码解读/README.md)
