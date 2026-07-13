@@ -191,7 +191,7 @@ public class AIController {
     
     @PostMapping("/chat")
     public String chat(@RequestBody ChatRequest request) {
-        return chatClient.call(request.getMessage());
+        return chatClient.prompt().user(request.getMessage()).call().content();
     }
     
     @PostMapping("/chat/stream")

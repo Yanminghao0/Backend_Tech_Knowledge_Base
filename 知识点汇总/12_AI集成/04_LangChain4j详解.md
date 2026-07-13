@@ -133,28 +133,28 @@ LangChain4j Core（核心层）
     <dependency>
         <groupId>dev.langchain4j</groupId>
         <artifactId>langchain4j</artifactId>
-        <version>0.28.0</version>
+        <version>1.0.0</version>
     </dependency>
     
     <!-- OpenAI集成 -->
     <dependency>
         <groupId>dev.langchain4j</groupId>
         <artifactId>langchain4j-open-ai</artifactId>
-        <version>0.28.0</version>
+        <version>1.0.0</version>
     </dependency>
     
     <!-- Spring Boot集成 -->
     <dependency>
         <groupId>dev.langchain4j</groupId>
         <artifactId>langchain4j-spring-boot-starter</artifactId>
-        <version>0.28.0</version>
+        <version>1.0.0</version>
     </dependency>
     
     <!-- 向量存储（Milvus） -->
     <dependency>
         <groupId>dev.langchain4j</groupId>
         <artifactId>langchain4j-milvus</artifactId>
-        <version>0.28.0</version>
+        <version>1.0.0</version>
     </dependency>
 </dependencies>
 ```
@@ -229,7 +229,7 @@ String response = model.generate("你好");
 <dependency>
     <groupId>dev.langchain4j</groupId>
     <artifactId>langchain4j-anthropic</artifactId>
-    <version>0.28.0</version>
+    <version>1.0.0</version>
 </dependency>
 
 // 创建Claude模型
@@ -248,7 +248,7 @@ AnthropicChatModel model = AnthropicChatModel.builder()
 <dependency>
     <groupId>dev.langchain4j</groupId>
     <artifactId>langchain4j-qianfan</artifactId>
-    <version>0.28.0</version>
+    <version>1.0.0</version>
 </dependency>
 
 // 创建通义千问模型
@@ -267,7 +267,7 @@ OpenAiChatModel model = OpenAiChatModel.builder()  # 通义千问用OpenAI兼容
 <dependency>
     <groupId>dev.langchain4j</groupId>
     <artifactId>langchain4j-ollama</artifactId>
-    <version>0.28.0</version>
+    <version>1.0.0</version>
 </dependency>
 
 // 创建Ollama模型
@@ -286,7 +286,7 @@ OllamaChatModel model = OllamaChatModel.builder()
 
 ```java
 // 创建Milvus向量存储
-MilvusEmbeddingStore<TextSegment> embeddingStore = MilvusEmbeddingStore.builder()
+MilvusEmbeddingStore embeddingStore = MilvusEmbeddingStore.builder()
     .host("localhost")
     .port(19530)
     .collectionName("documents")
@@ -311,7 +311,7 @@ List<EmbeddingMatch<TextSegment>> matches = embeddingStore.findRelevant(
 <dependency>
     <groupId>dev.langchain4j</groupId>
     <artifactId>langchain4j-pinecone</artifactId>
-    <version>0.28.0</version>
+    <version>1.0.0</version>
 </dependency>
 
 // 创建Pinecone向量存储

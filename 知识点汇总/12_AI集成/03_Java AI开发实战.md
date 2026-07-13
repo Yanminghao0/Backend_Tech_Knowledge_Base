@@ -87,21 +87,21 @@ graph TB
     <dependency>
         <groupId>dev.langchain4j</groupId>
         <artifactId>langchain4j</artifactId>
-        <version>0.28.0</version>
+        <version>1.0.0</version>
     </dependency>
     
     <!-- OpenAI集成 -->
     <dependency>
         <groupId>dev.langchain4j</groupId>
         <artifactId>langchain4j-open-ai</artifactId>
-        <version>0.28.0</version>
+        <version>1.0.0</version>
     </dependency>
     
     <!-- Spring Boot集成 -->
     <dependency>
         <groupId>dev.langchain4j</groupId>
         <artifactId>langchain4j-spring-boot-starter</artifactId>
-        <version>0.28.0</version>
+        <version>1.0.0</version>
     </dependency>
 </dependencies>
 ```
@@ -273,7 +273,7 @@ public class ConversationService {
 <dependency>
     <groupId>dev.langchain4j</groupId>
     <artifactId>langchain4j-embeddings</artifactId>
-    <version>0.28.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
