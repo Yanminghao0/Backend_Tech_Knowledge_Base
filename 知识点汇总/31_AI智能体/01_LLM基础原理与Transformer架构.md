@@ -695,17 +695,17 @@ KV Cache = 缓存历史token的Key和Value，避免重复计算
   KV Cache显存计算:
     KV Cache大小 = 2 × n_layers × n_kv_heads × d_head × seq_len × batch × dtype_size
 
-    LLaMA-7B示例:
-      n_layers = 32, n_kv_heads = 32(GQA=8), d_head = 128
+    LLaMA-1-7B示例(MHA):
+      n_layers = 32, n_kv_heads = 32(MHA), d_head = 128
       seq_len = 4096, batch = 1, dtype = FP16(2字节)
       KV Cache = 2 × 32 × 32 × 128 × 4096 × 2 = 2GB
 
-    LLaMA-70B示例:
+    LLaMA-2-70B示例(GQA):
       n_layers = 80, n_kv_heads = 8(GQA), d_head = 128
       seq_len = 4096, batch = 1
       KV Cache = 2 × 80 × 8 × 128 × 4096 × 2 = 1.3GB
 
-    → GQA大幅减少KV Cache显存!
+    → GQA大幅减少KV Cache显存!(70B的KV Cache比7B MHA还小)
 ```
 
 ### 6.2 MoE混合专家
@@ -792,7 +792,7 @@ MoE(Mixture of Experts) = 稀疏激活，用少量参数处理每个token
   │  d_model       │  ~12288   │  8192     │  8192     │  7168       │
   │  注意力头数    │  ~96      │  64       │  64       │  128        │
   │  KV头数(GQA)   │  ?       │  8        │  8        │  128(MLA)   │
-  │  d_head        │  128      │  128      │  128      │  192        │
+  │  d_head        │  128      │  128      │  128      │  MLA(压缩)  │
   │  FFN维度       │  ?       │  28672    │  29568    │  MoE        │
   │  上下文窗口    │  128K     │  128K     │  128K     │  128K       │
   │  位置编码      │  ?       │  RoPE     │  RoPE     │  RoPE       │
@@ -804,7 +804,8 @@ MoE(Mixture of Experts) = 稀疏激活，用少量参数处理每个token
 
   DeepSeek-V3特殊: MLA(Multi-head Latent Attention)
     将KV Cache压缩到低维潜空间，大幅减少KV Cache显存
-    KV Cache只需传统MHA的1/4
+    MLA不是标准GQA，通过低秩投影压缩KV Cache
+    KV Cache只需传统MHA的约1/4
 ```
 
 ### 7.2 模型选型建议
