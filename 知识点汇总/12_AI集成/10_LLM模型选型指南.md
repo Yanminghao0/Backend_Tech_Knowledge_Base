@@ -19,12 +19,12 @@
 
 | 模型 | 厂商 | 上下文窗口 | 特点 | 开源 |
 |------|------|-----------|------|------|
-| GPT-5 | OpenAI | 100万token | 多模态推理最强 | ❌ |
+| GPT-5 | OpenAI | 1M(推测) | 多模态推理最强 | ❌ |
 | Claude 4 | Anthropic | 200K token | 代码生成/长文分析 | ❌ |
-| Qwen3 | 阿里 | 128K token | 中文优化/开源 | ✅(72B) |
-| DeepSeek V4 | 深度求索 | 128K token | MoE架构/低成本 | ✅ |
-| Llama 4 | Meta | 128K token | 开源生态最大 | ✅(405B) |
-| GLM-5 | 智谱 | 128K token | 国产/Function Calling | ✅ |
+| Qwen2.5 | 阿里 | 128K token | 中文优化/开源 | ✅(72B) |
+| DeepSeek-V3 | 深度求索 | 128K token | MoE架构/低成本 | ✅ |
+| Llama 3.1 | Meta | 128K token | 开源生态最大 | ✅(405B) |
+| GLM-4 | 智谱 | 128K token | 国产/Function Calling | ✅ |
 
 ---
 
@@ -32,7 +32,7 @@
 
 ### 综合能力评分
 
-| 维度 | GPT-5 | Claude 4 | Qwen3 | DeepSeek V4 | Llama 4 |
+| 维度 | GPT-5 | Claude 4 | Qwen3 | DeepSeek-V3 | Llama 4 |
 |------|-------|----------|-------|-------------|---------|
 | 推理能力 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
 | 代码生成 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
@@ -45,10 +45,10 @@
 
 ```
 代码开发助手 → Claude 4 / GPT-5
-中文知识库问答 → Qwen3 / DeepSeek V4
+中文知识库问答 → Qwen3 / DeepSeek-V3
 多模态应用 → GPT-5
-低成本批量处理 → DeepSeek V4（推理成本最低）
-本地部署 → Qwen3-72B / Llama 4-70B
+低成本批量处理 → DeepSeek-V3（推理成本最低）
+本地部署 → Qwen2.5-72B / Llama 3.1-70B
 Function Calling → GPT-5 / Claude 4
 ```
 
@@ -60,11 +60,11 @@ Function Calling → GPT-5 / Claude 4
 
 | 模型 | 输入($/1M token) | 输出($/1M token) | 相对成本 |
 |------|-----------------|-----------------|---------|
-| GPT-5 | $5 | $15 | 1.0x |
-| GPT-5 Turbo | $2 | $6 | 0.4x |
-| Claude 4 Sonnet | $3 | $15 | 0.8x |
-| Qwen3-Plus | $0.5 | $1.5 | 0.1x |
-| DeepSeek V4 | $0.3 | $0.6 | 0.05x |
+| GPT-4 Turbo | $10 | $30 | 1.0x |
+| GPT-4 | $5 | $15 | 0.5x |
+| Claude 3.5 Sonnet | $3 | $15 | 0.3x |
+| Qwen-Plus | $0.5 | $1.5 | 0.05x |
+| DeepSeek-V3 | $0.14 | $0.28 | 0.01x |
 
 ### 成本优化策略
 
@@ -76,7 +76,7 @@ public class ModelRouter {
     public String selectModel(String prompt, int estimatedTokens) {
         // 1. 简单问答 → 便宜模型
         if (estimatedTokens < 500 && !isComplex(prompt)) {
-            return "deepseek-v4";  // 成本最低
+            return "deepseek-v3";  // 成本最低
         }
         
         // 2. 代码相关 → Claude
@@ -129,9 +129,9 @@ public class SemanticCache {
 | 代码助手 | Claude 4 | GPT-5 | 代码准确率最高 |
 | 中文客服 | Qwen3 | DeepSeek | 中文理解最优 |
 | RAG知识库 | GPT-5 | Claude 4 | 上下文理解最强 |
-| 批量数据处理 | DeepSeek V4 | Qwen3 | 成本最低 |
+| 批量数据处理 | DeepSeek-V3 | Qwen3 | 成本最低 |
 | 多模态应用 | GPT-5 | Qwen3 | 图片/视频理解 |
-| 本地私有部署 | Qwen3-72B | Llama 4 | 开源+中文优化 |
+| 本地私有部署 | Qwen2.5-72B | Llama 4 | 开源+中文优化 |
 | Function Calling | GPT-5 | Claude 4 | 工具调用最稳定 |
 | 长文档分析 | Claude 4 | GPT-5 | 200K上下文 |
 
