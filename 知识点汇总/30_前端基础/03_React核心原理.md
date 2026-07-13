@@ -116,7 +116,7 @@ function Counter({ initialValue = 0, step = 1 }) {
         return () => {
             console.log('Cleanup on unmount or before next effect');
         };
-    }, [count]);  // 依赖数组: count变化时执行, 空数组=仅mount时, 无数组=每次渲染
+    }, [count]);  // 依赖数组: count变化时执行, 空数组=仅mount时, 不传第二个参数=每次渲染
 
     // 事件处理
     const handleIncrement = () => setCount(c => c + step);
@@ -540,7 +540,7 @@ Fiber: React 16+拆分渲染为可中断的小单元
 **Q2: useEffect的依赖数组？**
 
 ```
-无数组: 每次渲染后执行
+无数组(不传第二个参数): 每次渲染后执行
 空数组[]: 仅mount时执行(类似mounted)
 有依赖[a, b]: a或b变化时执行
 返回清理函数: unmount或下次effect前执行
