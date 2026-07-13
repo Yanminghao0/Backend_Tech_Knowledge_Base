@@ -449,8 +449,8 @@ producer.send(record);
 # acks=0：不等待Broker确认（最快，可能丢失）
 acks=0
 
-# acks=1：Leader确认即返回（默认）
-acks=1
+# acks=all：所有ISR副本确认（Kafka 3.0+默认，旧版默认acks=1）
+acks=all
 
 # acks=-1/all：所有ISR副本确认（最可靠）
 acks=all

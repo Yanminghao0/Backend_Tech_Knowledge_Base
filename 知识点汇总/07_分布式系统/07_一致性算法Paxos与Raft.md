@@ -346,7 +346,7 @@ Raft：
 ### Q4: ZAB和Raft的区别？
 
 ```
-1. 选举依据：ZAB选ZXID最大（数据最新），Raft选日志最长
+1. 选举依据：ZAB选ZXID最大（数据最新），Raft选日志最新(Term和Index最大)
 2. 提交机制：ZAB两步(Proposal+COMMIT)，Raft一步(AppendEntries含commitIndex)
 3. 数据顺序：ZAB用ZXID保证全局顺序，Raft用LogIndex
 4. 适用场景：ZAB用于ZK配置管理，Raft用于通用KV存储

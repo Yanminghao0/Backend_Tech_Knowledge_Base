@@ -1920,7 +1920,7 @@ public class ProducerConsumerPatterns {
 }
 ```
 
-### 7.3 并发容器
+### 10.3 并发容器
 
 ```java
 /**

@@ -78,7 +78,7 @@ public class MemoryAllocationDemo {
            
 - PSYoungGen: 年轻代使用Parallel Scavenge收集器
 - 7291K->1016K: 年轻代从7291K降到1016K
-- 7291K->5144K(19456K): 整个堆从7291K增加到5144K（部分对象晋升到老年代）
+- 7291K->5144K(19456K): 整个堆从7291K降低到5144K（部分对象晋升到老年代）
 ```
 
 ---
