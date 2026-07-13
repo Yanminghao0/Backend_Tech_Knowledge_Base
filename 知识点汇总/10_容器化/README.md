@@ -25,6 +25,37 @@
 
 ---
 
+### 2. Docker与K8s实战进阶 ⭐⭐⭐
+📄 [Docker与K8s实战进阶.md](./02_Docker与K8s实战进阶.md)
+
+**核心内容**：
+- ✅ **Docker进阶**：Dockerfile优化、多阶段构建、网络模型
+- ✅ **K8s进阶**：Deployment/StatefulSet、Service/Ingress、ConfigMap/Secret
+
+### 3. Docker Compose实战 ⭐⭐⭐⭐
+📄 [Docker Compose实战.md](./03_Docker%20Compose实战.md)
+
+**核心内容**：
+- ✅ **核心概念**：Service/Network/Volume、YAML语法详解
+- ✅ **多服务编排**：完整服务定义、网络配置、数据卷管理
+- ✅ **多环境配置**：compose.override.yml、.env文件、prod覆盖
+- ✅ **健康检查**：healthcheck、depends_on条件控制
+- ✅ **实战案例**：一键部署Spring Boot+MySQL+Redis+Nacos+RocketMQ开发环境
+
+### 4. K8s生产环境部署 ⭐⭐⭐⭐ 必学
+📄 [K8s生产环境部署.md](./04_K8s生产环境部署.md)
+
+**核心内容**：
+- ✅ **集群规划**：多Master高可用、节点角色、etcd备份
+- ✅ **资源管理**：requests/limits、QoS等级(Guaranteed/Burstable/BestEffort)
+- ✅ **健康检查**：liveness/readiness/startup三种探针
+- ✅ **HPA扩缩容**：CPU/内存阈值、扩缩容行为控制
+- ✅ **ConfigMap/Secret**：配置与敏感信息管理
+- ✅ **灰度发布**：滚动更新、金丝雀发布
+- ✅ **生产排障**：常用kubectl命令、常见问题处理
+
+---
+
 ## 🎯 学习路径
 
 ```mermaid

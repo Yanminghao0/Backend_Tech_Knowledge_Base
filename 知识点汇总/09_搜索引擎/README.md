@@ -299,6 +299,21 @@ CPU：16-32核
 
 ---
 
+## 📄 ES集群架构与调优
+
+📄 [ES集群架构与调优.md](./04_ES集群架构与调优.md)
+
+**核心内容**：
+- ✅ **集群架构**：节点角色(Master/Data/Coordinating)、生产集群规划
+- ✅ **分片策略**：分片数选择公式、路由规则
+- ✅ **索引设计**：Mapping设计、字段类型选择原则
+- ✅ **写入优化**：Bulk批量、refresh_interval、translog异步刷盘
+- ✅ **查询优化**：Filter缓存、路由查询、search_after分页
+- ✅ **JVM调优**：堆内存不超过32G(指针压缩)、系统配置
+- ✅ **监控指标**：cluster_status、heap_usage、thread_pool_rejected
+
+---
+
 ## 🆕 Elasticsearch 8.x 新特性
 
 ### 安全默认开启
