@@ -1,391 +1,680 @@
-# TDD 与 BDD 实践
+# TDD与BDD实践
 
-> 测试驱动开发（TDD）和行为驱动开发（BDD）是两种重要的开发方法论。TDD 以测试为先导驱动代码编写，BDD 以自然语言描述行为驱动开发和测试。两者相辅相成，共同提升代码质量和需求表达力。
+> 测试驱动开发（TDD）和行为驱动开发（BDD）是两种以测试为中心的开发方法论。TDD关注代码实现的质量，BDD关注业务行为的正确性。本文系统介绍TDD的三步骤、BDD的Given-When-Then结构、Cucumber和Gherkin语法。
 
 ---
 
 ## 📋 目录
 
-1. [TDD 核心理念](#1-tdd-核心理念)
-2. [TDD 三步骤：Red-Green-Refactor](#2-tdd-三步骤red-green-refactor)
-3. [TDD 实战案例](#3-tdd-实战案例)
-4. [BDD 核心理念](#4-bdd-核心理念)
-5. [Given-When-Then 模式](#5-given-when-then-模式)
-6. [Cucumber 与 Gherkin 语法](#6-cucumber-与-gherkin-语法)
-7. [BDD 实战案例](#7-bdd-实战案例)
-8. [TDD 与 BDD 的关系](#8-tdd-与-bdd-的关系)
-9. [常见陷阱与最佳实践](#9-常见陷阱与最佳实践)
-10. [面试题速查](#10-面试题速查)
+1. [TDD概述](#1-tdd概述)
+2. [TDD三步骤](#2-tdd三步骤)
+3. [TDD实战](#3-tdd实战)
+4. [BDD概述](#4-bdd概述)
+5. [Given-When-Then](#5-given-when-then)
+6. [Cucumber与Gherkin](#6-cucumber与gherkin)
+7. [BDD实战案例](#7-bdd实战案例)
+8. [TDD vs BDD](#8-tdd-vs-bdd)
+9. [面试题速查](#9-面试题速查)
 
 ---
 
-## 1. TDD 核心理念
+## 1. TDD概述
 
-### 1.1 什么是 TDD
-
-测试驱动开发（Test-Driven Development）是一种开发方法论，核心理念是**先写测试，再写实现代码**。它颠覆了传统的"先写代码，后写测试"的模式。
+### 1.1 什么是TDD
 
 ```
-传统开发：  编码 → 测试 → 修复
-TDD 开发：  测试 → 编码 → 重构
+TDD (Test-Driven Development) 测试驱动开发
+
+核心理念: 先写测试，再写代码
+
+传统开发流程:
+  需求 → 设计 → 编码 → 测试 → 修复 → 交付
+                          ↑__________↓
+                         (测试在编码之后)
+
+TDD开发流程:
+  需求 → 写测试(失败) → 写代码(通过) → 重构 → 交付
+         ↑______________________________↓
+         (测试驱动编码)
 ```
 
-### 1.2 TDD 的价值
+### 1.2 TDD的好处
 
-| 价值 | 说明 |
-|------|------|
-| **需求驱动设计** | 写测试的过程就是理解需求的过程 |
-| **即时反馈** | 每写一个测试就能立即知道代码是否正确 |
-| **设计引导** | 测试先写促使代码设计更松耦合、更可测试 |
-| **安全重构** | 有测试保底，可以大胆重构 |
-| **活文档** | 测试用例就是代码行为的文档 |
-| **减少 Bug** | 在编码阶段就发现大量问题 |
+```markdown
+## TDD的核心价值
 
-### 1.3 TDD 的三条规则（Uncle Bob）
+1. **确保测试覆盖**: 每行代码都有对应的测试
+2. **改善设计**: 先写测试促使代码更可测试、更松耦合
+3. **即时反馈**: 代码写完即测试，减少调试时间
+4. **活文档**: 测试用例就是代码行为的使用文档
+5. **重构信心**: 有测试保护，可以放心重构
+6. **减少Bug**: 边开发边测试，问题在早期暴露
 
-1. 除非是为了使一个失败的单元测试通过，否则不允许编写任何产品代码
-2. 在一个单元测试中，只允许写刚好能导致失败的内容（编译失败也算失败）
-3. 只允许写刚好能使失败测试通过的产品代码，不允许多写
+## TDD的挑战
 
----
-
-## 2. TDD 三步骤：Red-Green-Refactor
-
-### 2.1 三步骤循环
-
-```
-    ┌─────────┐
-    │  Red    │ ← 写一个失败的测试
-    │ (红色)  │
-    └────┬────┘
-         │
-         ▼
-    ┌─────────┐
-    │ Green   │ ← 写最少代码使测试通过
-    │ (绿色)  │
-    └────┬────┘
-         │
-         ▼
-    ┌─────────┐
-    │Refactor │ ← 重构代码，保持测试通过
-    │ (重构)  │
-    └────┬────┘
-         │
-         └──→ 回到 Red（下一个测试）
+1. **学习曲线**: 需要转变思维方式
+2. **初期速度慢**: 写测试占用开发时间
+3. **测试设计难**: 需要好的测试设计能力
+4. **不适用场景**: UI探索、原型验证、一次性脚本
 ```
 
-### 2.2 Red：写失败测试
+### 1.3 TDD原则
 
 ```java
-// 第1步：Red — 写一个测试，此时目标类还不存在，编译失败
-@Test
-void shouldReturnZeroWhenAccountIsNew() {
-    Account account = new Account();
-    assertEquals(BigDecimal.ZERO, account.getBalance());
-}
-```
+// 原则1: 只在红灯时写代码
+// 测试失败 → 写代码使其通过 → 不能在绿灯时随意加代码
 
-### 2.3 Green：最小实现
+// 原则2: 每次只写一个测试
+// 不要一次写多个测试用例然后一起实现
 
-```java
-// 第2步：Green — 创建类，写最少代码使测试通过
-public class Account {
-    public BigDecimal getBalance() {
-        return BigDecimal.ZERO;
-    }
-}
-```
+// 原则3: 每次只写让测试通过的最少代码
+// 不要过度设计，只满足当前测试
 
-### 2.4 Refactor：重构
+// 原则4: 绿灯时重构
+// 测试通过后才能重构，重构后测试仍需通过
 
-```java
-// 第3步：Refactor — 重构代码，保持测试通过
-public class Account {
-    private BigDecimal balance = BigDecimal.ZERO;
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-}
-```
-
-### 2.5 循环示例
-
-```
-第1轮 Red:   shouldReturnZeroWhenAccountIsNew → 失败（类不存在）
-第1轮 Green: 创建 Account，返回 ZERO → 通过
-第1轮 Refactor: 引入 balance 字段 → 通过
-
-第2轮 Red:   shouldIncreaseBalanceOnDeposit → 失败（deposit 方法不存在）
-第2轮 Green: 添加 deposit 方法 → 通过
-第2轮 Refactor: 提取验证逻辑 → 通过
-
-第3轮 Red:   shouldRejectNegativeDeposit → 失败
-第3轮 Green: 添加参数验证 → 通过
-第3轮 Refactor: 提取验证器 → 通过
-
-... 循环继续
+// 原则5: 三的法则（Rule of Three）
+// 代码重复出现三次时才提取，避免过早抽象
 ```
 
 ---
 
-## 3. TDD 实战案例
+## 2. TDD三步骤
 
-### 3.1 案例：实现一个购物车
+### 2.1 Red-Green-Refactor循环
 
-**需求：** 实现一个购物车，支持添加商品、计算总价、应用折扣
+```
+┌──────────────────────────────────────────────┐
+│                                              │
+│   🔴 RED (红灯)                              │
+│   - 写一个失败的测试                          │
+│   - 测试描述了期望的行为                       │
+│   - 编译失败也是红灯                          │
+│                                              │
+│   ↓                                          │
+│                                              │
+│   🟢 GREEN (绿灯)                             │
+│   - 写最少的代码让测试通过                     │
+│   - 不考虑代码质量                            │
+│   - 可以"作弊"，只要测试通过                   │
+│                                              │
+│   ↓                                          │
+│                                              │
+│   🔵 REFACTOR (重构)                         │
+│   - 在绿灯下重构代码                          │
+│   - 改善代码质量、提取方法、消除重复             │
+│   - 测试必须始终保持通过                       │
+│                                              │
+│   ↓ (回到红灯，写下一个测试)                    │
+│                                              │
+└──────────────────────────────────────────────┘
 
-#### 第1轮：空购物车
+每个循环应该很短: 1-5分钟
+```
+
+### 2.2 第一个TDD循环示例
 
 ```java
-// Red
+// 任务: 实现一个字符串计算器
+
+// === 循环1: 空字符串返回0 ===
+
+// 🔴 RED: 写测试
 @Test
-void shouldHaveZeroTotalWhenCartIsEmpty() {
-    ShoppingCart cart = new ShoppingCart();
-    assertEquals(BigDecimal.ZERO, cart.getTotal());
+@DisplayName("空字符串返回0")
+void emptyStringReturnsZero() {
+    Calculator calculator = new Calculator();
+    assertEquals(0, calculator.add(""));
 }
+// 编译失败：Calculator类不存在 → 这也是红灯
 
-// Green
-public class ShoppingCart {
-    public BigDecimal getTotal() {
-        return BigDecimal.ZERO;
+// 🟢 GREEN: 写最少代码
+public class Calculator {
+    public int add(String input) {
+        return 0;
     }
 }
+// 测试通过！
 
-// Refactor — 暂时不需要
-```
+// 🔵 REFACTOR: 暂时不需要重构
 
-#### 第2轮：添加单个商品
+// === 循环2: 单个数字返回该数字 ===
 
-```java
-// Red
+// 🔴 RED: 写测试
 @Test
-void shouldCalculateTotalWithSingleItem() {
-    ShoppingCart cart = new ShoppingCart();
-    cart.addItem(new CartItem("笔记本电脑", new BigDecimal("5999.00"), 1));
-    assertEquals(new BigDecimal("5999.00"), cart.getTotal());
+@DisplayName("单个数字返回该数字")
+void singleNumberReturnsTheNumber() {
+    Calculator calculator = new Calculator();
+    assertEquals(1, calculator.add("1"));
 }
+// 测试失败：期望1，实际0
 
-// Green
-public class ShoppingCart {
-    private List<CartItem> items = new ArrayList<>();
-
-    public void addItem(CartItem item) {
-        items.add(item);
-    }
-
-    public BigDecimal getTotal() {
-        return items.stream()
-            .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+// 🟢 GREEN: 修改代码
+public class Calculator {
+    public int add(String input) {
+        if (input.isEmpty()) {
+            return 0;
+        }
+        return Integer.parseInt(input);
     }
 }
+// 测试通过！
 
-// Refactor — 代码已经简洁
-```
+// 🔵 REFACTOR: 可以提取为三元表达式
+public class Calculator {
+    public int add(String input) {
+        return input.isEmpty() ? 0 : Integer.parseInt(input);
+    }
+}
 
-#### 第3轮：添加多个商品
+// === 循环3: 两个数字返回和 ===
 
-```java
-// Red
+// 🔴 RED
 @Test
-void shouldCalculateTotalWithMultipleItems() {
-    ShoppingCart cart = new ShoppingCart();
-    cart.addItem(new CartItem("笔记本电脑", new BigDecimal("5999.00"), 1));
-    cart.addItem(new CartItem("鼠标", new BigDecimal("99.00"), 2));
-    assertEquals(new BigDecimal("6197.00"), cart.getTotal());
+@DisplayName("两个数字返回和")
+void twoNumbersReturnsSum() {
+    Calculator calculator = new Calculator();
+    assertEquals(3, calculator.add("1,2"));
+}
+// 测试失败
+
+// 🟢 GREEN
+public class Calculator {
+    public int add(String input) {
+        if (input.isEmpty()) {
+            return 0;
+        }
+        String[] numbers = input.split(",");
+        int sum = 0;
+        for (String num : numbers) {
+            sum += Integer.parseInt(num);
+        }
+        return sum;
+    }
+}
+// 测试通过！
+
+// 🔵 REFACTOR: 使用Stream简化
+public class Calculator {
+    public int add(String input) {
+        if (input.isEmpty()) {
+            return 0;
+        }
+        return Arrays.stream(input.split(","))
+                .mapToInt(Integer::parseInt)
+                .sum();
+    }
 }
 
-// Green — 已有的实现已经能处理，直接通过！
-// Refactor — 不需要
-```
+// === 循环4: 支持任意数量数字 ===
 
-#### 第4轮：应用折扣
-
-```java
-// Red
+// 🔴 RED
 @Test
-void shouldApplyPercentageDiscount() {
-    ShoppingCart cart = new ShoppingCart();
-    cart.addItem(new CartItem("笔记本电脑", new BigDecimal("5999.00"), 1));
-    cart.applyDiscount(Discount.percentage(10)); // 10% off
-    assertEquals(new BigDecimal("5399.10"), cart.getTotal());
+@DisplayName("任意数量数字返回和")
+void anyAmountOfNumbersReturnsSum() {
+    Calculator calculator = new Calculator();
+    assertEquals(15, calculator.add("1,2,3,4,5"));
 }
+// 测试直接通过！——当前实现已支持
 
-// Green
-public class ShoppingCart {
-    private List<CartItem> items = new ArrayList<>();
-    private Discount discount = Discount.none();
+// 不需要GREEN和REFACTOR，继续下一个测试
 
-    public void addItem(CartItem item) {
-        items.add(item);
-    }
+// === 循环5: 支持换行符分隔 ===
 
-    public void applyDiscount(Discount discount) {
-        this.discount = discount;
-    }
-
-    public BigDecimal getTotal() {
-        BigDecimal subtotal = items.stream()
-            .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return discount.apply(subtotal);
-    }
-}
-
-public interface Discount {
-    BigDecimal apply(BigDecimal amount);
-
-    static Discount none() {
-        return amount -> amount;
-    }
-
-    static Discount percentage(int percent) {
-        return amount -> amount.multiply(BigDecimal.valueOf(100 - percent))
-            .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-    }
-}
-```
-
-#### 第5轮：拒绝负数折扣
-
-```java
-// Red
+// 🔴 RED
 @Test
-void shouldRejectNegativeDiscountPercentage() {
-    ShoppingCart cart = new ShoppingCart();
-    assertThrows(IllegalArgumentException.class,
-        () -> cart.applyDiscount(Discount.percentage(-10)));
+@DisplayName("支持换行符分隔")
+void supportsNewlineDelimiter() {
+    Calculator calculator = new Calculator();
+    assertEquals(6, calculator.add("1\n2,3"));
 }
+// 测试失败
 
-// Green
-static Discount percentage(int percent) {
-    if (percent < 0 || percent > 100) {
-        throw new IllegalArgumentException("折扣百分比必须在0-100之间");
-    }
-    return amount -> amount.multiply(BigDecimal.valueOf(100 - percent))
-        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-}
-
-// Refactor — 提取验证逻辑
-static Discount percentage(int percent) {
-    validatePercent(percent);
-    return amount -> amount.multiply(BigDecimal.valueOf(100 - percent))
-        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-}
-
-private static void validatePercent(int percent) {
-    if (percent < 0 || percent > 100) {
-        throw new IllegalArgumentException("折扣百分比必须在0-100之间");
+// 🟢 GREEN
+public class Calculator {
+    public int add(String input) {
+        if (input.isEmpty()) {
+            return 0;
+        }
+        String[] numbers = input.split("[,\n]");
+        return Arrays.stream(numbers)
+                .mapToInt(Integer::parseInt)
+                .sum();
     }
 }
-```
+// 测试通过！
 
-### 3.2 TDD 的设计驱动效应
+// === 循环6: 负数抛出异常 ===
 
-观察上面的案例，TDD 自然驱动出了以下设计：
-
-- `ShoppingCart` 只暴露 `addItem`、`applyDiscount`、`getTotal` 方法
-- `CartItem` 和 `Discount` 作为值对象自然分离
-- `Discount` 使用策略模式（接口 + 工厂方法）
-- 验证逻辑自然嵌入
-
-这不是刻意设计的，而是测试驱动的结果。
-
----
-
-## 4. BDD 核心理念
-
-### 4.1 什么是 BDD
-
-行为驱动开发（Behavior-Driven Development）是 TDD 的演进，强调用**自然语言**描述系统行为，让开发者、测试人员和业务人员使用同一种语言沟通。
-
-### 4.2 BDD 与 TDD 的区别
-
-| 维度 | TDD | BDD |
-|------|-----|-----|
-| 关注点 | 代码正确性 | 系统行为 |
-| 描述方式 | 编程语言 | 自然语言（Gherkin） |
-| 参与者 | 开发者 | 开发者 + 测试 + 业务 |
-| 粒度 | 方法级别 | 场景级别 |
-| 输出 | 单元测试 | 可执行的规格说明 |
-
-### 4.3 BDD 的核心价值
-
-- **统一语言**：业务和技术使用相同描述
-- **活文档**：场景即文档，始终与代码同步
-- **需求验证**：在编码前验证需求理解
-- **自动化验收**：场景自动执行，持续验证
-
----
-
-## 5. Given-When-Then 模式
-
-### 5.1 结构
-
-```
-Given（假设/前置条件） — 描述场景的初始状态
-When（当/触发动作）    — 描述触发的事件或操作
-Then（那么/期望结果）  — 描述期望的结果
-```
-
-### 5.2 自然语言示例
-
-```
-Feature: 用户登录
-
-  Scenario: 使用正确的用户名和密码登录
-    Given 用户 "张三" 已注册
-    And 用户 "张三" 的密码是 "password123"
-    When 用户使用用户名 "张三" 和密码 "password123" 登录
-    Then 登录应该成功
-    And 应该返回有效的 JWT Token
-    And 应该返回用户角色信息
-
-  Scenario: 使用错误的密码登录
-    Given 用户 "张三" 已注册
-    When 用户使用用户名 "张三" 和密码 "wrongpass" 登录
-    Then 登录应该失败
-    And 应该返回 "用户名或密码错误" 的错误信息
-    And 失败计数应该增加 1
-```
-
-### 5.3 在测试代码中的应用
-
-```java
+// 🔴 RED
 @Test
-void shouldLoginSuccessfullyWithCorrectCredentials() {
-    // Given
-    userRepository.save(new User("张三", passwordEncoder.encode("password123")));
-
-    // When
-    LoginResponse response = authService.login("张三", "password123");
-
-    // Then
-    assertThat(response.isSuccess()).isTrue();
-    assertThat(response.getToken()).isNotNull();
-    assertThat(response.getRoles()).contains("USER");
+@DisplayName("负数抛出异常")
+void negativeNumberThrowsException() {
+    Calculator calculator = new Calculator();
+    IllegalArgumentException ex = assertThrows(
+        IllegalArgumentException.class,
+        () -> calculator.add("1,-2,3")
+    );
+    assertTrue(ex.getMessage().contains("-2"));
 }
+// 测试失败
 
-@Test
-void shouldFailLoginWithWrongPassword() {
-    // Given
-    userRepository.save(new User("张三", passwordEncoder.encode("password123")));
+// 🟢 GREEN
+public class Calculator {
+    public int add(String input) {
+        if (input.isEmpty()) {
+            return 0;
+        }
+        String[] numbers = input.split("[,\n]");
+        List<Integer> negatives = new ArrayList<>();
+        int sum = 0;
+        for (String num : numbers) {
+            int n = Integer.parseInt(num);
+            if (n < 0) {
+                negatives.add(n);
+            }
+            sum += n;
+        }
+        if (!negatives.isEmpty()) {
+            throw new IllegalArgumentException(
+                "负数不被允许: " + negatives);
+        }
+        return sum;
+    }
+}
+// 测试通过！
 
-    // When
-    LoginResponse response = authService.login("张三", "wrongpass");
-
-    // Then
-    assertThat(response.isSuccess()).isFalse();
-    assertThat(response.getErrorMessage()).isEqualTo("用户名或密码错误");
+// 🔵 REFACTOR: 提取验证逻辑
+public class Calculator {
+    public int add(String input) {
+        if (input.isEmpty()) {
+            return 0;
+        }
+        String[] tokens = input.split("[,\n]");
+        int[] numbers = parseNumbers(tokens);
+        validateNoNegatives(numbers);
+        return Arrays.stream(numbers).sum();
+    }
+    
+    private int[] parseNumbers(String[] tokens) {
+        return Arrays.stream(tokens)
+                .mapToInt(Integer::parseInt)
+                .toArray();
+    }
+    
+    private void validateNoNegatives(int[] numbers) {
+        int[] negatives = Arrays.stream(numbers)
+                .filter(n -> n < 0)
+                .toArray();
+        if (negatives.length > 0) {
+            throw new IllegalArgumentException(
+                "负数不被允许: " + Arrays.toString(negatives));
+        }
+    }
 }
 ```
 
 ---
 
-## 6. Cucumber 与 Gherkin 语法
+## 3. TDD实战
 
-### 6.1 依赖配置
+### 3.1 领域模型TDD
+
+```java
+// 任务: 实现Order领域模型
+
+// === 循环1: 创建订单时状态为PENDING ===
+@Test
+void newOrderShouldHavePendingStatus() {
+    Order order = Order.create(testRequest());
+    assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
+}
+
+// === 循环2: 订单有创建时间 ===
+@Test
+void newOrderShouldHaveCreatedAt() {
+    LocalDateTime before = LocalDateTime.now();
+    Order order = Order.create(testRequest());
+    LocalDateTime after = LocalDateTime.now();
+    
+    assertThat(order.getCreatedAt()).isBetween(before, after);
+}
+
+// === 循环3: 待处理订单可以取消 ===
+@Test
+void pendingOrderCanBeCancelled() {
+    Order order = createPendingOrder();
+    order.cancel();
+    assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+}
+
+// === 循环4: 已完成订单不能取消 ===
+@Test
+void completedOrderCannotBeCancelled() {
+    Order order = createCompletedOrder();
+    assertThatThrownBy(order::cancel)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("已完成订单不能取消");
+}
+
+// === 循环5: 订单金额必须为正 ===
+@Test
+void orderAmountMustBePositive() {
+    assertThatThrownBy(() -> 
+        Order.create(requestWithAmount(BigDecimal.ZERO))
+    ).isInstanceOf(IllegalArgumentException.class)
+     .hasMessage("订单金额必须大于0");
+}
+
+// 实现逐步完善
+public class Order {
+    private OrderStatus status;
+    private BigDecimal amount;
+    private LocalDateTime createdAt;
+    
+    public static Order create(OrderRequest request) {
+        validateAmount(request.getAmount());
+        Order order = new Order();
+        order.amount = request.getAmount();
+        order.status = OrderStatus.PENDING;
+        order.createdAt = LocalDateTime.now();
+        return order;
+    }
+    
+    private static void validateAmount(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("订单金额必须大于0");
+        }
+    }
+    
+    public void cancel() {
+        if (status != OrderStatus.PENDING) {
+            throw new IllegalStateException(
+                status.getDescription() + "订单不能取消");
+        }
+        this.status = OrderStatus.CANCELLED;
+    }
+}
+```
+
+### 3.2 Mock优先TDD
+
+```java
+// 使用Mock来驱动接口设计
+
+// 步骤1: 写测试，Mock还不存在的依赖
+@Test
+void shouldCreateOrderAndNotifyCustomer() {
+    // Mock不存在的接口——驱动设计
+    OrderRepository mockRepo = mock(OrderRepository.class);
+    NotificationService mockNotification = mock(NotificationService.class);
+    when(mockRepo.save(any())).thenReturn(orderWithId(1L));
+    
+    OrderService service = new OrderService(mockRepo, mockNotification);
+    OrderResult result = service.createOrder(validRequest());
+    
+    assertEquals(1L, result.getOrderId());
+    verify(mockRepo).save(any(Order.class));
+    verify(mockNotification).notifyOrderCreated(1L);
+}
+
+// 步骤2: 创建接口（编译通过）
+public interface OrderRepository {
+    Order save(Order order);
+}
+
+public interface NotificationService {
+    void notifyOrderCreated(Long orderId);
+}
+
+// 步骤3: 实现OrderService
+public class OrderService {
+    private final OrderRepository repository;
+    private final NotificationService notification;
+    
+    public OrderService(OrderRepository repo, 
+                        NotificationService notification) {
+        this.repository = repo;
+        this.notification = notification;
+    }
+    
+    public OrderResult createOrder(OrderRequest request) {
+        Order order = Order.create(request);
+        Order saved = repository.save(order);
+        notification.notifyOrderCreated(saved.getId());
+        return OrderResult.success(saved);
+    }
+}
+```
+
+---
+
+## 4. BDD概述
+
+### 4.1 什么是BDD
+
+```
+BDD (Behavior-Driven Development) 行为驱动开发
+
+BDD关注的是系统的行为，而非代码的实现细节
+
+TDD: 从开发者视角写测试
+  - 测试方法名: testCreateOrderWithValidData()
+  - 关注: 方法调用和返回值
+
+BDD: 从业务视角描述行为
+  - 场景: 创建订单时提供有效数据应该成功创建
+  - 关注: 业务场景和预期结果
+
+BDD的三要素:
+  1. 共同语言: 业务、开发、测试使用相同的描述
+  2. 活文档: 场景描述本身就是可执行的文档
+  3. 自动化: 场景自动映射到测试代码
+```
+
+### 4.2 BDD的核心概念
+
+```yaml
+BDD核心概念:
+
+Feature（功能）:
+  描述一个业务功能的高层次需求
+  示例: "订单管理"
+
+Scenario（场景）:
+  描述一个具体的行为场景
+  示例: "创建订单时输入有效数据应该成功创建"
+
+Given（假设/前置条件）:
+  描述场景的初始状态
+  示例: "Given 用户已登录且购物车中有商品"
+
+When（当/操作）:
+  描述触发行为的事件
+  示例: "When 用户点击结算按钮"
+
+Then（那么/预期结果）:
+  描述期望的结果
+  示例: "Then 系统创建订单并发送确认邮件"
+
+And（且）:
+  连接多个条件
+  示例: "And 订单状态为待支付"
+```
+
+---
+
+## 5. Given-When-Then
+
+### 5.1 结构化场景描述
+
+```gherkin
+Feature: 订单管理
+  作为一名消费者
+  我希望管理系统中的订单
+  以便追踪我的购买记录
+
+  Background:  # 所有场景共享的前置条件
+    Given 系统中存在以下用户:
+      | id | name | email          | vip  |
+      | 1  | 张三 | zhang@test.com | true |
+      | 2  | 李四 | li@test.com    | false |
+
+  Scenario: VIP用户创建大额订单享受15%折扣
+    Given 用户"张三"已登录
+    And 购物车中有以下商品:
+      | sku    | name     | quantity | price |
+      | SKU001 | iPhone   | 1        | 8999  |
+      | SKU002 | AirPods  | 1        | 1299  |
+    When 用户提交订单
+    Then 订单创建成功
+    And 订单总金额为"10298.00"
+    And 折扣金额为"1544.70"
+    And 实付金额为"8753.30"
+    And 订单状态为"待支付"
+
+  Scenario: 普通用户创建订单不享受折扣
+    Given 用户"李四"已登录
+    And 购物车中有以下商品:
+      | sku    | name     | quantity | price |
+      | SKU003 | iPad     | 1        | 3999  |
+    When 用户提交订单
+    Then 订单创建成功
+    And 订单总金额为"3999.00"
+    And 折扣金额为"0.00"
+    And 订单状态为"待支付"
+
+  Scenario: 空购物车不能创建订单
+    Given 用户"张三"已登录
+    And 购物车为空
+    When 用户提交订单
+    Then 系统返回错误"购物车不能为空"
+    And 没有订单被创建
+
+  Scenario Outline: 订单金额验证
+    Given 用户已登录
+    And 购物车中有1个商品，价格为"<price>"
+    When 用户提交订单
+    Then 订单创建结果为"<result>"
+
+    Examples:
+      | price | result  |
+      | 0     | 失败    |
+      | -1    | 失败    |
+      | 0.01  | 成功    |
+      | 99999 | 成功    |
+```
+
+### 5.2 测试代码中的GWT结构
+
+```java
+// 不使用Cucumber，在JUnit5中实践GWT风格
+class OrderServiceBDDTest {
+    
+    @Test
+    @DisplayName("VIP用户创建大额订单享受15%折扣")
+    void vipUserLargeOrderGetsDiscount() {
+        // Given
+        Customer vipCustomer = CustomerTestDataBuilder.aCustomer()
+                .withId(1L)
+                .withName("张三")
+                .vip()
+                .build();
+        ShoppingCart cart = CartTestDataBuilder.aCart()
+                .withItem("SKU001", "iPhone", 1, new BigDecimal("8999"))
+                .withItem("SKU002", "AirPods", 1, new BigDecimal("1299"))
+                .build();
+        
+        given(customerRepository.findById(1L))
+            .willReturn(Optional.of(vipCustomer));
+        
+        // When
+        OrderResult result = orderService.createOrder(
+            CreateOrderRequest.builder()
+                .customerId(1L)
+                .cart(cart)
+                .build());
+        
+        // Then
+        assertThat(result)
+            .isSuccessful()
+            .hasTotalAmount("10298.00")
+            .hasDiscount("1544.70")
+            .hasFinalAmount("8753.30")
+            .hasStatus(OrderStatus.PENDING);
+    }
+    
+    @Test
+    @DisplayName("空购物车不能创建订单")
+    void emptyCartCannotCreateOrder() {
+        // Given
+        Customer customer = CustomerTestDataBuilder.aCustomer().build();
+        ShoppingCart emptyCart = ShoppingCart.empty();
+        
+        given(customerRepository.findById(1L))
+            .willReturn(Optional.of(customer));
+        
+        // When
+        Throwable thrown = catchThrowable(() -> 
+            orderService.createOrder(
+                CreateOrderRequest.builder()
+                    .customerId(1L)
+                    .cart(emptyCart)
+                    .build()));
+        
+        // Then
+        assertThat(thrown)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("购物车不能为空");
+        
+        verify(orderRepository, never()).save(any());
+    }
+}
+```
+
+---
+
+## 6. Cucumber与Gherkin
+
+### 6.1 Cucumber架构
+
+```
+┌──────────────────────────────────────────────┐
+│              .feature 文件                    │
+│  (Gherkin语法编写的业务场景)                   │
+│  Feature: 订单管理                            │
+│    Scenario: VIP用户下单                      │
+│      Given ...                                │
+│      When ...                                 │
+│      Then ...                                 │
+└──────────────────┬───────────────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────────────┐
+│           Step Definitions                   │
+│  (Java代码，将Gherkin步骤映射到代码)           │
+│  @Given("用户已登录")                         │
+│  public void userLoggedIn() { ... }           │
+│                                               │
+│  @When("用户提交订单")                         │
+│  public void submitOrder() { ... }            │
+│                                               │
+│  @Then("订单创建成功")                         │
+│  public void orderCreated() { ... }           │
+└──────────────────┬───────────────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────────────┐
+│              测试执行                          │
+│  Cucumber运行器                               │
+│  - 解析.feature文件                           │
+│  - 匹配Step Definitions                      │
+│  - 执行对应的Java方法                          │
+│  - 生成测试报告                                │
+└──────────────────────────────────────────────┘
+```
+
+### 6.2 Maven依赖
 
 ```xml
 <dependencies>
@@ -410,435 +699,333 @@ void shouldFailLoginWithWrongPassword() {
 </dependencies>
 ```
 
-### 6.2 Gherkin 关键字
-
-| 关键字 | 中文关键字 | 用途 |
-|--------|-----------|------|
-| Feature | 功能 | 描述功能模块 |
-| Scenario | 场景 | 描述单个测试场景 |
-| Given | 假设 | 前置条件 |
-| When | 当 | 触发动作 |
-| Then | 那么 | 期望结果 |
-| And | 并且 | 附加条件/结果 |
-| But | 但是 | 排除条件 |
-| Background | 背景 | 所有场景共享的前置条件 |
-| Scenario Outline | 场景大纲 | 参数化场景 |
-| Examples | 例子 | 场景大纲的数据表 |
-
-### 6.3 Feature 文件示例
+### 6.3 Gherkin语法详解
 
 ```gherkin
-# src/test/resources/features/shopping_cart.feature
-Feature: 购物车管理
+# src/test/resources/features/order.feature
 
-  Background:
-    Given 购物车已清空
+# Language: 中文
+# language: zh-CN
+功能: 订单管理
+  作为消费者
+  我希望管理订单
+  以便追踪购买记录
 
-  Scenario: 添加商品到购物车
-    Given 商品 "笔记本电脑" 的价格是 5999.00 元
-    When 我将 1 件 "笔记本电脑" 加入购物车
-    Then 购物车中应有 1 种商品
-    And 购物车总价应为 5999.00 元
+  背景:
+    假设 系统中存在以下商品:
+      | 商品编号 | 商品名称 | 价格  | 库存 |
+      | SKU001  | iPhone   | 8999 | 100 |
+      | SKU002  | AirPods  | 1299 | 50  |
 
-  Scenario: 添加多个相同商品
-    Given 商品 "鼠标" 的价格是 99.00 元
-    When 我将 3 件 "鼠标" 加入购物车
-    Then 购物车中应有 1 种商品
-    And 购物车中 "鼠标" 的数量应为 3
-    And 购物车总价应为 297.00 元
+  场景: 创建简单订单
+    假设 用户"张三"已登录
+    当 用户将"SKU001"加入购物车，数量为1
+    而且 用户提交订单
+    那么 订单创建成功
+    而且 订单总金额为"8999.00"
+    而且 "SKU001"的库存减少1
 
-  Scenario: 移除商品
-    Given 购物车中已有 2 件 "鼠标" 单价 99.00 元
-    When 我从购物车中移除 1 件 "鼠标"
-    Then 购物车中 "鼠标" 的数量应为 1
-    And 购物车总价应为 99.00 元
+  场景: 使用优惠券
+    假设 用户"张三"已登录
+    而且 用户有优惠券"SAVE100"，满500减100
+    当 用户将"SKU001"加入购物车，数量为1
+    而且 用户使用优惠券"SAVE100"
+    而且 用户提交订单
+    那么 订单创建成功
+    而且 订单总金额为"8999.00"
+    而且 优惠金额为"100.00"
+    而且 实付金额为"8899.00"
 
-  Scenario Outline: 应用不同折扣
-    Given 购物车总价为 <originalPrice> 元
-    When 我应用 <discount>% 的折扣
-    Then 购物车总价应为 <finalPrice> 元
+  场景大纲: 库存不足时下单失败
+    假设 用户"张三"已登录
+    当 用户将"<sku>"加入购物车，数量为"<quantity>"
+    而且 用户提交订单
+    那么 下单失败，错误信息为"<error>"
 
-    Examples:
-      | originalPrice | discount | finalPrice |
-      | 1000.00       | 10       | 900.00     |
-      | 500.00        | 20       | 400.00     |
-      | 200.00        | 50       | 100.00     |
-      | 99.99         | 0        | 99.99      |
-```
+    例子:
+      | sku    | quantity | error           |
+      | SKU001 | 101      | 库存不足         |
+      | SKU002 | 51       | 库存不足         |
+      | SKU999 | 1        | 商品不存在       |
 
-### 6.4 中文 Feature 文件
-
-```gherkin
-# src/test/resources/features/user_registration.feature
-功能: 用户注册
-
-  场景: 使用有效信息注册新用户
-    假设 系统中不存在邮箱 "zhangsan@test.com" 的用户
-    当 我使用以下信息注册:
-      | 字段   | 值                  |
-      | 用户名 | 张三                |
-      | 邮箱   | zhangsan@test.com   |
-      | 密码   | StrongP@ss123      |
-      | 年龄   | 25                  |
-    那么 注册应该成功
-    而且 应该发送验证邮件到 "zhangsan@test.com"
-    而且 用户状态应为 "PENDING_VERIFICATION"
-
-  场景: 使用已存在的邮箱注册
-    假设 系统中已存在邮箱 "zhangsan@test.com" 的用户
-    当 我使用邮箱 "zhangsan@test.com" 注册
-    那么 注册应该失败
-    而且 错误信息应为 "邮箱已被注册"
+  场景: 并发下单
+    假设 用户"张三"和用户"李四"同时购买"SKU001"
+    而且 "SKU001"库存仅为1
+    当 两个用户同时提交订单
+    那么 只有一个用户下单成功
+    而且 另一个用户收到"库存不足"错误
 ```
 
 ---
 
-## 7. BDD 实战案例
+## 7. BDD实战案例
 
 ### 7.1 Step Definitions
 
 ```java
-import io.cucumber.java.zh.假设;
-import io.cucumber.java.zh.当;
-import io.cucumber.java.zh.那么;
-import io.cucumber.java.zh.而且;
-import io.cucumber.java.DataTableType;
-import io.cucumber.java.DataTable;
+// src/test/java/steps/OrderSteps.java
 
-public class ShoppingCartSteps {
+import io.cucumber.java.zh.cn.假设;
+import io.cucumber.java.zh.cn.当;
+import io.cucumber.java.zh.cn.那么;
+import io.cucumber.java.zh.cn.而且;
+import io.cucumber.datatable.DataTable;
+import org.springframework.beans.factory.annotation.Autowired;
 
-    private ShoppingCart cart = new ShoppingCart();
-    private Map<String, BigDecimal> productPrices = new HashMap<>();
-    private Exception lastException;
-
-    @假设("商品 {string} 的价格是 {bigdecimal} 元")
-    public void setProductPrice(String productName, BigDecimal price) {
-        productPrices.put(productName, price);
-    }
-
-    @假设("购物车已清空")
-    public void clearCart() {
-        cart = new ShoppingCart();
-    }
-
-    @假设("购物车中已有 {int} 件 {string} 单价 {bigdecimal} 元")
-    public void cartAlreadyHasItems(int quantity, String productName, BigDecimal price) {
-        productPrices.put(productName, price);
-        cart.addItem(new CartItem(productName, price, quantity));
-    }
-
-    @假设("购物车总价为 {bigdecimal} 元")
-    public void cartTotalIs(BigDecimal total) {
-        // 设置购物车总价为指定值（通过添加商品达到）
-        cart.addItem(new CartItem("placeholder", total, 1));
-    }
-
-    @当("我将 {int} 件 {string} 加入购物车")
-    public void addItemToCart(int quantity, String productName) {
-        BigDecimal price = productPrices.getOrDefault(productName, BigDecimal.ZERO);
-        cart.addItem(new CartItem(productName, price, quantity));
-    }
-
-    @当("我从购物车中移除 {int} 件 {string}")
-    public void removeItemFromCart(int quantity, String productName) {
-        cart.removeItem(productName, quantity);
-    }
-
-    @当("我应用 {int}% 的折扣")
-    public void applyDiscount(int percentage) {
-        try {
-            cart.applyDiscount(Discount.percentage(percentage));
-        } catch (Exception e) {
-            lastException = e;
+public class OrderSteps {
+    
+    @Autowired
+    private TestContext context;
+    
+    @Autowired
+    private ProductRepository productRepository;
+    
+    @Autowired
+    private CustomerRepository customerRepository;
+    
+    @Autowired
+    private OrderService orderService;
+    
+    @假设("系统中存在以下商品:")
+    public void setupProducts(DataTable table) {
+        List<Map<String, String>> rows = table.asMaps();
+        for (Map<String, String> row : rows) {
+            Product product = Product.builder()
+                .sku(row.get("商品编号"))
+                .name(row.get("商品名称"))
+                .price(new BigDecimal(row.get("价格")))
+                .stock(Integer.parseInt(row.get("库存")))
+                .build();
+            productRepository.save(product);
         }
     }
-
-    @那么("购物车中应有 {int} 种商品")
-    public void verifyItemCount(int expectedCount) {
-        assertEquals(expectedCount, cart.getItemCount());
+    
+    @假设("用户\"{string}\"已登录")
+    public void userLoggedIn(String userName) {
+        Customer customer = customerRepository.findByName(userName);
+        context.setCurrentUser(customer);
     }
-
-    @那么("购物车中 {string} 的数量应为 {int}")
-    public void verifyItemQuantity(String productName, int expectedQuantity) {
-        assertEquals(expectedQuantity, cart.getItemQuantity(productName));
+    
+    @当("用户将\"{string}\"加入购物车，数量为{int}")
+    public void addToCart(String sku, int quantity) {
+        context.getCart().addItem(sku, quantity);
     }
-
-    @那么("购物车总价应为 {bigdecimal} 元")
-    public void verifyTotal(BigDecimal expectedTotal) {
-        assertEquals(expectedTotal, cart.getTotal());
+    
+    @而且("用户提交订单")
+    public void submitOrder() {
+        try {
+            CreateOrderRequest request = CreateOrderRequest.builder()
+                .customerId(context.getCurrentUser().getId())
+                .cart(context.getCart())
+                .build();
+            context.setOrderResult(orderService.createOrder(request));
+        } catch (Exception e) {
+            context.setException(e);
+        }
+    }
+    
+    @那么("订单创建成功")
+    public void orderCreatedSuccessfully() {
+        assertThat(context.getOrderResult()).isNotNull();
+        assertThat(context.getException()).isNull();
+        assertThat(context.getOrderResult().isSuccessful()).isTrue();
+    }
+    
+    @而且("订单总金额为\"{string}\"")
+    public void verifyTotalAmount(String expectedAmount) {
+        assertThat(context.getOrderResult().getTotalAmount())
+            .isEqualByComparingTo(expectedAmount);
+    }
+    
+    @而且("{string}的库存减少{int}")
+    public void verifyStockReduced(String sku, int reducedAmount) {
+        Product product = productRepository.findBySku(sku);
+        Product originalProduct = context.getOriginalProducts().get(sku);
+        int expectedStock = originalProduct.getStock() - reducedAmount;
+        assertThat(product.getStock()).isEqualTo(expectedStock);
+    }
+    
+    @那么("下单失败，错误信息为\"{string}\"")
+    public void verifyOrderFailed(String expectedError) {
+        assertThat(context.getException())
+            .isNotNull()
+            .hasMessageContaining(expectedError);
     }
 }
 ```
 
-### 7.2 Cucumber + Spring Boot 集成
+### 7.2 Cucumber运行配置
 
 ```java
-import io.cucumber.spring.CucumberContextConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.ActiveProfiles;
+// src/test/java/runners/CucumberRunner.java
 
+import io.cucumber.junit.platform.engine.Cucumber;
+import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectClasspathResource;
+import org.junit.platform.suite.api.Suite;
+
+@Suite
+@IncludeEngines("cucumber")
+@SelectClasspathResource("features")
+@ConfigurationParameter(
+    key = "cucumber.glue", 
+    value = "com.example.steps"
+)
+@ConfigurationParameter(
+    key = "cucumber.plugin",
+    value = "pretty, html:target/cucumber-report.html, json:target/cucumber.json"
+)
+public class CucumberRunner {
+}
+
+// Spring集成
 @CucumberContextConfiguration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-public class CucumberSpringConfig {
-
-    @LocalServerPort
-    private int port;
-
-    public String getBaseUrl() {
-        return "http://localhost:" + port;
-    }
+public class SpringBootTestConfig {
+    // Spring Boot测试配置
 }
 ```
 
-### 7.3 API 级别 BDD 测试
-
-```gherkin
-# src/test/resources/features/api/user_api.feature
-Feature: 用户 API
-
-  Background:
-    Given 数据库已清空
-
-  Scenario: 创建用户并通过 API 查询
-    When 我发送 POST 请求到 "/api/users" 包含:
-      """
-      {
-        "name": "张三",
-        "email": "zhangsan@test.com",
-        "age": 25
-      }
-      """
-    Then 响应状态码应为 201
-    And 响应应包含字段 "id"
-    And 响应的 "name" 应为 "张三"
-
-    When 我发送 GET 请求到 "/api/users/{id}"
-    Then 响应状态码应为 200
-    And 响应的 "email" 应为 "zhangsan@test.com"
-
-  Scenario: 查询不存在的用户返回 404
-    When 我发送 GET 请求到 "/api/users/9999"
-    Then 响应状态码应为 404
-    And 响应应包含字段 "error"
-```
+### 7.3 场景大纲实现
 
 ```java
-public class UserApiSteps {
-
-    private String baseUrl;
-    private HttpResponse<String> lastResponse;
-    private Long createdUserId;
-
-    public UserApiSteps(CucumberSpringConfig config) {
-        this.baseUrl = config.getBaseUrl();
+// 场景大纲的Step Definition
+public class InventorySteps {
+    
+    @当("用户将{string}加入购物车，数量为{int}")
+    public void addToCart(String sku, int quantity) {
+        context.getCart().addItem(sku, quantity);
     }
-
-    @当("我发送 POST 请求到 {string} 包含:")
-    public void sendPostRequest(String path, String body) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(baseUrl + path))
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(body))
-            .build();
-
-        lastResponse = HttpClient.newHttpClient().send(request,
-            HttpResponse.BodyHandlers.ofString());
-
-        // 提取创建的用户ID
-        if (lastResponse.statusCode() == 201) {
-            createdUserId = JsonPath.read(lastResponse.body(), "$.id");
+    
+    @那么("下单失败，错误信息为{string}")
+    public void orderFailedWithError(String expectedError) {
+        assertThat(context.getException())
+            .isNotNull();
+        // 根据错误类型验证
+        if (expectedError.equals("库存不足")) {
+            assertThat(context.getException())
+                .isInstanceOf(InsufficientStockException.class);
+        } else if (expectedError.equals("商品不存在")) {
+            assertThat(context.getException())
+                .isInstanceOf(ProductNotFoundException.class);
         }
-    }
-
-    @当("我发送 GET 请求到 {string}")
-    public void sendGetRequest(String path) throws Exception {
-        // 替换路径参数
-        if (path.contains("{id}")) {
-            path = path.replace("{id}", String.valueOf(createdUserId));
-        }
-
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(baseUrl + path))
-            .GET()
-            .build();
-
-        lastResponse = HttpClient.newHttpClient().send(request,
-            HttpResponse.BodyHandlers.ofString());
-    }
-
-    @那么("响应状态码应为 {int}")
-    public void verifyStatusCode(int expectedCode) {
-        assertEquals(expectedCode, lastResponse.statusCode());
-    }
-
-    @那么("响应的 {string} 应为 {string}")
-    public void verifyFieldValue(String field, String expectedValue) {
-        Object actual = JsonPath.read(lastResponse.body(), "$." + field);
-        assertEquals(expectedValue, actual.toString());
     }
 }
 ```
 
 ---
 
-## 8. TDD 与 BDD 的关系
+## 8. TDD vs BDD
 
-### 8.1 互补关系
+### 8.1 对比分析
 
-```
-BDD（外部/行为层）
-  │
-  │ 描述系统行为，验收标准
-  │
-  ▼
-TDD（内部/单元层）
-  │
-  │ 驱动代码设计，单元测试
-  │
-  ▼
-实现代码
-```
+```markdown
+| 维度        | TDD                          | BDD                          |
+|------------|------------------------------|------------------------------|
+| 关注点      | 代码实现质量                   | 业务行为正确性                 |
+| 视角       | 开发者                       | 业务+开发+测试                |
+| 描述语言    | 编程语言                      | 自然语言(Gherkin)             |
+| 测试粒度    | 方法级别                      | 场景级别                      |
+| 执行速度    | 快（单元测试）                 | 较慢（集成测试）               |
+| 适用层      | 单元测试                      | 集成测试/验收测试              |
+| 文档价值    | 代码行为文档                   | 业务需求文档                   |
+| 协作方式    | 开发者独立                     | 三方协作                      |
+| 学习成本    | 中等                         | 较高                         |
 
-### 8.2 协作模式
-
-```
-1. 业务 + 开发 → 编写 BDD 场景（Feature 文件）
-2. 开发 → 用 TDD 实现每个步骤（Step Definition）
-3. BDD 场景作为验收测试，持续运行
-4. TDD 单元测试保证代码质量
+最佳实践: TDD + BDD 结合使用
+- BDD定义业务场景（验收测试）
+- TDD实现内部逻辑（单元测试）
 ```
 
-### 8.3 何时用 TDD，何时用 BDD
-
-| 场景 | 推荐方法 |
-|------|---------|
-| 核心业务逻辑实现 | TDD |
-| API 接口开发 | TDD + BDD |
-| 需求不明确，需要与业务确认 | BDD |
-| 复杂算法实现 | TDD |
-| 用户故事验收 | BDD |
-| 微服务间交互 | BDD（契约测试） |
-| 单个类的设计 | TDD |
-
----
-
-## 9. 常见陷阱与最佳实践
-
-### 9.1 TDD 常见陷阱
+### 8.2 结合使用
 
 ```java
-// ❌ 陷阱1：一次写太多测试
-@Test
-void testEverything() {
-    // 测试了10个不同的事情，无法定位失败原因
+// BDD场景: 验收测试
+// order.feature
+/*
+  场景: VIP用户享受折扣
+    假设 用户"张三"是VIP
+    当 用户下单1000元
+    那么 享受15%折扣
+    而且 实付850元
+ */
+
+// TDD单元测试: 驱动实现
+@ExtendWith(MockitoExtension.class)
+class DiscountCalculatorTest {
+    
+    @Test
+    @DisplayName("VIP用户享受15%折扣")
+    void vipGets15PercentDiscount() {
+        // TDD: 先写测试驱动实现
+        Customer vip = Customer.builder().vip(true).build();
+        BigDecimal amount = new BigDecimal("1000");
+        
+        BigDecimal discount = calculator.calculate(vip, amount);
+        
+        assertThat(discount).isEqualByComparingTo("150.00");
+    }
+    
+    @Test
+    @DisplayName("普通用户大额订单享受5%折扣")
+    void normalUserLargeOrderGets5PercentDiscount() {
+        Customer normal = Customer.builder().vip(false).build();
+        BigDecimal amount = new BigDecimal("1000");
+        
+        BigDecimal discount = calculator.calculate(normal, amount);
+        
+        assertThat(discount).isEqualByComparingTo("50.00");
+    }
+    
+    @Test
+    @DisplayName("普通用户小额订单无折扣")
+    void normalUserSmallOrderNoDiscount() {
+        Customer normal = Customer.builder().vip(false).build();
+        BigDecimal amount = new BigDecimal("100");
+        
+        BigDecimal discount = calculator.calculate(normal, amount);
+        
+        assertThat(discount).isEqualByComparingTo("0.00");
+    }
 }
 
-// ✅ 一个测试只验证一个行为
-@Test
-void shouldRejectNullUsername() { }
-@Test
-void shouldRejectEmptyUsername() { }
-@Test
-void shouldRejectTooShortPassword() { }
-
-// ❌ 陷阱2：Green 阶段写太多代码
-// Red: 测试 add(2, 3) == 5
-// Green: 写了完整的 Calculator 类，包括 subtract、multiply、divide
-// 这样违反了"最少代码"原则
-
-// ✅ 只写让测试通过的最少代码
-public int add(int a, int b) {
-    return 5; // 最简单（虽然看起来傻）
+// BDD Step Definition: 验收测试
+@那么("享受{int}%折扣")
+public void verifyDiscountPercentage(int percentage) {
+    BigDecimal expectedDiscount = context.getOrderAmount()
+        .multiply(BigDecimal.valueOf(percentage))
+        .divide(BigDecimal.valueOf(100));
+    assertThat(context.getOrderResult().getDiscount())
+        .isEqualByComparingTo(expectedDiscount);
 }
-// 下一个测试会驱动出真正的实现
-
-// ❌ 陷阱3：跳过 Refactor 阶段
-// 测试通过了就进入下一个 Red，代码越来越乱
-
-// ✅ 每轮 Green 后必须考虑重构
 ```
-
-### 9.2 BDD 常见陷阱
-
-```gherkin
-# ❌ 陷阱1：场景过于技术化，业务人员看不懂
-Scenario: 测试用户API
-  Given HTTP 请求头 Content-Type 为 application/json
-  When 发送 POST 到 /api/v1/users 端口 8080
-  Then 返回 HTTP 201 和 JSON body
-
-# ✅ 用业务语言描述
-Scenario: 注册新用户
-  Given 系统 中没有叫"张三"的用户
-  When 张三 尝试注册
-  Then 注册 成功
-  And 张三 收到验证邮件
-
-# ❌ 陷阱2：场景步骤太多，维护困难
-Scenario: 复杂流程
-  Given 步骤1
-  And 步骤2
-  And 步骤3
-  And 步骤4
-  And 步骤5
-  And 步骤6
-  When 步骤7
-  And 步骤8
-  Then 步骤9
-  ...（20个步骤）
-
-# ✅ 拆分为多个小场景，或使用 Background 提取公共步骤
-```
-
-### 9.3 最佳实践总结
-
-| 实践 | TDD | BDD |
-|------|-----|-----|
-| 步骤大小 | 小步快走，每个测试只验证一点 | 每个场景聚焦一个用户故事 |
-| 重构 | 每轮 Green 后必重构 | 定期重构 Step Definitions |
-| 命名 | `should_When_` 模式 | 场景用自然语言 |
-| 隔离 | 每个测试独立 | 场景之间无依赖 |
-| 速度 | 单元测试毫秒级 | 集成测试秒级 |
 
 ---
 
-## 10. 面试题速查
+## 9. 面试题速查
 
-**Q1: TDD 的三个步骤是什么？**
-- Red：写一个失败的测试
-- Green：写最少代码使测试通过
-- Refactor：重构代码，保持测试通过
+**Q1: TDD的Red-Green-Refactor循环是什么？**
+> Red：先写一个失败的测试，描述期望的行为。Green：写最少的代码让测试通过，不考虑质量。Refactor：在测试通过的状态下重构代码，改善设计。每个循环1-5分钟，反复迭代。核心思想是"测试驱动设计"——先想清楚要什么，再实现它。
 
-**Q2: TDD 的核心价值是什么？**
-- 需求驱动设计、即时反馈、安全重构、活文档
+**Q2: TDD中"只写让测试通过的最少代码"是什么意思？**
+> 不要提前实现测试未要求的功能。如果测试只要求返回0，就只写`return 0`，即使你知道后续需要更复杂的逻辑。这避免了过度设计和YAGNI（You Aren't Gonna Need It）问题。后续的测试会逐步驱动出更完整的实现。
 
-**Q3: BDD 和 TDD 的区别？**
-- TDD 关注代码正确性，用编程语言描述，开发者使用
-- BDD 关注系统行为，用自然语言描述，所有角色参与
-- BDD 是 TDD 的演进和补充
+**Q3: BDD和TDD有什么区别？**
+> TDD从开发者视角写单元测试，关注方法级别的行为，使用编程语言。BDD从业务视角写场景，关注业务流程，使用自然语言（Gherkin）。TDD是开发实践，BDD是协作实践。最佳实践是结合使用：BDD定义验收场景，TDD驱动内部实现。
 
-**Q4: Given-When-Then 模式的含义？**
-- Given：前置条件/初始状态
-- When：触发动作/事件
-- Then：期望结果/验证
+**Q4: Gherkin的Given-When-Then分别代表什么？**
+> Given是前置条件——描述场景的初始状态。When是触发事件——描述执行的操作。Then是预期结果——描述期望的行为。And/But用于补充条件。GWT结构让非技术人员也能理解测试场景，形成活文档。
 
-**Q5: Gherkin 语法支持哪些关键字？**
-- Feature、Scenario、Given、When、Then、And、But、Background、Scenario Outline、Examples
+**Q5: Cucumber的工作原理是什么？**
+> Cucumber解析.feature文件中的Gherkin文本，通过正则表达式匹配Step Definition（Java方法），执行对应代码并验证结果。每个Gherkin步骤对应一个@Given/@When/@Then注解的方法。Cucumber生成可视化报告，显示每个步骤的通过/失败状态。
 
-**Q6: Scenario Outline 的作用？**
-- 参数化场景，通过 Examples 表格提供多组数据
-- 避免写多个相似的 Scenario
+**Q6: TDD适合所有场景吗？有什么局限？**
+> 不适合的场景：1）UI探索性开发——界面设计需要快速迭代。2）原型验证——不确定方向时快速验证。3）一次性脚本——不值得投入测试。4）纯数据类——DTO/Entity的getter/setter。适合的场景：核心业务逻辑、算法实现、API设计、复杂条件分支。
 
-**Q7: TDD 中 Green 阶段为什么要写"最少代码"？**
-- 避免过度设计
-- 确保每个代码路径都有测试覆盖
-- 通过测试驱动出正确的实现
+**Q7: 场景大纲（Scenario Outline）和场景（Scenario）有什么区别？**
+> Scenario是单个具体场景，使用固定值。Scenario Outline是参数化场景，使用占位符和Examples表格，一次定义多组数据执行。类似JUnit5的@ParameterizedTest。场景大纲减少了重复的场景定义，特别适合边界值测试和数据驱动测试。
 
-**Q8: TDD 和 BDD 如何配合使用？**
-- BDD 定义验收标准和系统行为（外部视角）
-- TDD 驱动实现每个行为的代码（内部视角）
-- BDD 场景作为集成测试，TDD 测试作为单元测试
+---
 
 *最后更新：2026-07-13*
