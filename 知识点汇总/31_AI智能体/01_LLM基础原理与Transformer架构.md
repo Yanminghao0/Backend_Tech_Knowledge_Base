@@ -264,10 +264,10 @@ NLP发展时间线:
     "Hello World" → 约2个token
     一页A4纸(500字) → 约800-1000个token
 
-  成本计算:
-    GPT-5: 输入$5/M token, 输出$15/M token
-    DeepSeek-V3: 输入$0.27/M token, 输出$1.1/M token
-    → DeepSeek比GPT-5便宜约15-20倍
+  成本计算(2026年7月，价格随时可能调整):
+    GPT-4 Turbo: 输入$10/M token, 输出$30/M token
+    DeepSeek-V3: 输入约$0.14/M token(非缓存), 输出约$0.28/M token
+    → DeepSeek比GPT-4便宜约50-100倍
 ```
 
 ---
@@ -754,9 +754,9 @@ MoE(Mixture of Experts) = 稀疏激活，用少量参数处理每个token
   │  ────        │  ────────  │  ──────         │
   │  GPT-3        │  2K         │  -               │
   │  GPT-4 Turbo  │  128K       │  -               │
-  │  GPT-5        │  1M         │  -               │
-  │  Claude 3     │  200K       │  -               │
-  │  Claude 4     │  500K       │  -               │
+  │  GPT-5        │  1M(推测)   │  -               │
+  │  Claude 3.5   │  200K       │  -               │
+  │  Claude 4     │  500K(推测) │  -               │
   │  Qwen2.5      │  128K       │  -               │
   │  LLaMA 3.1    │  128K       │  -               │
   │  DeepSeek-V3  │  128K       │  -               │
@@ -787,7 +787,7 @@ MoE(Mixture of Experts) = 稀疏激活，用少量参数处理每个token
   │  参数          │  GPT-4    │  LLaMA-3  │  Qwen2.5  │  DeepSeek-V3│
   │  ──────      │  ──────  │  ──────  │  ──────  │  ──────── │
   │  架构          │  Decoder  │  Decoder  │  Decoder  │  Decoder    │
-  │  参数量        │  ~1.8T    │  70B      │  72B      │  671B(37B激活)│
+  │  参数量        │  ~1.8T(推测) │  70B      │  72B      │  671B(37B激活)│
   │  层数          │  ~120     │  80       │  80       │  61         │
   │  d_model       │  ~12288   │  8192     │  8192     │  7168       │
   │  注意力头数    │  ~96      │  64       │  64       │  128        │
@@ -818,7 +818,7 @@ MoE(Mixture of Experts) = 稀疏激活，用少量参数处理每个token
   │  ──────      │  ──────        │  ──────           │
   │  最强推理      │  GPT-5/Claude4   │  DeepSeek-R1        │
   │  代码生成      │  Claude 4        │  DeepSeek-V3        │
-  │  中文场景      │  通义千问3        │  Qwen2.5-72B        │
+  │  中文场景      │  通义千问3(最新)  │  Qwen2.5-72B        │
   │  多模态        │  GPT-4o          │  Qwen-VL-Max        │
   │  低成本        │  DeepSeek-V3 API │  Qwen2.5-7B(本地)   │
   │  Agent         │  Claude 4/GPT-5  │  Qwen2.5-72B        │
