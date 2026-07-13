@@ -286,7 +286,7 @@ public StreamObserver<ChatMessage> chat(
 ```java
 // 服务端：使用注解暴露gRPC服务
 @GrpcService
-public class UserGrpcService extends UserServiceGraf.UserServiceImplBase {
+public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
     
     @Autowired
     private UserMapper userMapper;
