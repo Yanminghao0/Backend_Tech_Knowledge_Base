@@ -19,10 +19,12 @@
 
 ## 🎯 学习目标
 
-1. **理解Object设计**：为什么equals和hashCode必须一起重写
-2. **掌握String不可变性**：字符串常量池、编译期优化
-3. **理解线程机制**：Thread的状态转换、中断协作机制
-4. **掌握类加载**：双亲委派模型及打破方式
+1. **理解Object设计**：为什么equals和hashCode必须一起重写，clone的浅拷贝陷阱，finalize为什么被废弃
+2. **掌握String不可变性**：字符串常量池、编译期优化、StringBuilder/StringBuffer的扩容机制（`int newCapacity = oldCapacity << 1 + 2`）
+3. **理解线程机制**：Thread的状态转换（NEW→RUNNABLE→BLOCKED→WAITING→TIMED_WAITING→TERMINATED）、中断协作机制、守护线程与用户线程的区别
+4. **掌握类加载**：双亲委派模型（Bootstrap→Extension→Application）、打破方式（SPI/ThreadContextClassLoader、OSGi、热部署）、类加载器的命名空间隔离
+5. **异常体系**：Throwable→Error/Exception层级、Checked Exception的设计争议、try-with-resources的语法糖原理
+6. **注解机制**：RetentionPolicy三阶段（SOURCE/CLASS/RUNTIME）、注解继承的局限性、Spring的注解组合原理
 
 ---
 
@@ -33,12 +35,149 @@
 - equals和hashCode的关系？为什么必须一起重写？
 - String为什么不可变？String常量池原理？
 - new String("abc")创建了几个对象？
-- Thread的start()和run()区别？
+- Thread的start()和run()区别？为什么不能直接调run()？
+- 双亲委派模型？如何打破？
 
 ⭐⭐⭐⭐ 高频：
-- wait/notify/notifyAll的使用场景？
-- 双亲委派模型？为什么要打破？
-- 异常处理的最佳实践？
+- wait/notify/notifyAll的使用场景？为什么必须在synchronized块中？
+- Thread.sleep()和Object.wait()的区别？
+- ThreadLocal的内存泄漏问题？
+- 异常处理的最佳实践？try-catch-finally执行顺序？
+- @Override注解的作用？不写会怎样？
+```
+
+### equals/hashCode 契约代码片段
+
+```java
+// 重写equals必须同时重写hashCode，否则HashMap中会出问题
+public class Person {
+    private String name;
+    private int age;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return age == person.age && Objects.equals(name, person.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, age); // JDK7+ 推荐写法
+    }
+}
+// 契约：equals相等的两个对象，hashCode必须相等
+//       hashCode相等，equals不一定相等（哈希冲突）
+```
+
+### Thread中断协作机制
+
+```java
+// 正确的中断响应方式：检查中断标志 + 恢复中断状态
+public void run() {
+    try {
+        while (!Thread.currentThread().isInterrupted()) {
+            // 业务逻辑
+            Thread.sleep(1000); // 阻塞方法会抛InterruptedException并清除中断标志
+        }
+    } catch (InterruptedException e) {
+        // sleep/wait/join被中断时会清除中断标志，需重新设置
+        Thread.currentThread().interrupt();
+    }
+}
+```
+
+---
+
+## 📐 核心原理图
+
+### JVM对象头结构（64位JVM）
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Object Header (128 bit)               │
+├──────────────────────┬──────────────────────────────────┤
+│   Mark Word (64 bit) │  Klass Pointer (64 bit, 压缩32) │
+├──────────────────────┴──────────────────────────────────┤
+│  Mark Word 内容（按锁状态变化）：                         │
+│                                                          │
+│  无锁:    [hashcode(31) | age(4) | biased(1) | 0(1) | 01]│
+│  偏向锁:  [threadId(54) | epoch(2) | age(4) | 1(1) | 01]│
+│  轻量级锁:[ptr_to_lock_record(62) | 00]                  │
+│  重量级锁:[ptr_to_heavyweight_monitor(62) | 10]          │
+│  GC标记: [空(63) | 11]                                   │
+└─────────────────────────────────────────────────────────┘
+  → 锁升级路径：无锁 → 偏向锁 → 轻量级锁(CAS自旋) → 重量级锁(OS Mutex)
+```
+
+### String常量池原理
+
+```
+┌─────────────── String Pool（堆中, JDK7+） ───────────────┐
+│                                                           │
+│   引用表 (Hashtable)                                      │
+│   ┌──────────────────────────────────────┐               │
+│   │ "abc" ──→ String对象(char[]{'a','b','c'}) │          │
+│   │ "hello" ──→ String对象(...)                │          │
+│   │ "xyz" ──→ String对象(...)                  │          │
+│   └──────────────────────────────────────┘               │
+│                                                           │
+│   String s1 = "abc";           // 字面量 → 常量池查找     │
+│   String s2 = "ab" + "c";      // 编译期常量折叠 → 常量池 │
+│   String s3 = new String("abc"); // 堆上新对象 + 常量池   │
+│   s3.intern();                 // 放入/返回常量池引用     │
+│                                                           │
+│   s1 == s2       → true  (同一常量池引用)                │
+│   s1 == s3       → false (s3是堆上新对象)                │
+│   s1 == s3.intern() → true (intern返回常量池引用)         │
+│                                                           │
+│   JDK6: 常量池在PermGen   JDK7+: 常量池在堆中            │
+└───────────────────────────────────────────────────────────┘
+```
+
+### Thread状态转换图
+
+```
+                        ┌─────────────┐
+                        │     NEW     │  new Thread()
+                        └──────┬──────┘
+                               │ start()
+                               ▼
+                    ┌─────────────────────┐
+          ┌────────│      RUNNABLE        │────────┐
+          │         │ (Ready ↔ Running)   │        │
+          │         └──────────┬──────────┘        │
+          │                    │                   │
+     wait()             join()/sleep()      synchronized
+          │                    │              (未获锁)
+          ▼                    ▼                   ▼
+  ┌───────────────┐  ┌──────────────────┐  ┌───────────┐
+  │    WAITING    │  │  TIMED_WAITING   │  │  BLOCKED  │
+  │ (无超时等待)   │  │  (有超时等待)     │  │ (等监视器锁)│
+  └───────┬───────┘  └────────┬─────────┘  └─────┬─────┘
+          │ notify()/            │ 超时/notify()    │ 获得锁
+          │ notifyAll()          │                  │
+          └──────────┬───────────┘                  │
+                     │                              │
+                     └──────────┬───────────────────┘
+                                ▼
+                        ┌───────────────┐
+                        │  TERMINATED   │  run()正常结束/异常退出
+                        └───────────────┘
+```
+
+---
+
+## 📖 推荐阅读顺序
+
+```
+阶段一（基础）: Object → String → 异常体系
+  ↓  理解Java对象模型、不可变设计、错误处理
+阶段二（并发）: Thread → （跳转到05_并发包源码）
+  ↓  理解线程生命周期，再深入JUC
+阶段三（高级）: ClassLoader → 注解机制
+  ↓  理解类加载机制，为框架源码打基础
 ```
 
 ---
@@ -46,8 +185,8 @@
 ## 📈 与其他目录的关系
 
 ```
-03_Java核心源码 → 基础类（Object/String/Thread/ClassLoader）
-04_集合框架源码 → 容器类（HashMap/ArrayList/...）
+01_Java核心源码 → 基础类（Object/String/Thread/ClassLoader）
+02_集合框架源码 → 容器类（HashMap/ArrayList/...）
 05_并发包源码  → JUC并发类（AQS/线程池/锁/...）
 ```
 
