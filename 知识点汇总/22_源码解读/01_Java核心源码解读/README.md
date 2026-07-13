@@ -1,6 +1,6 @@
 # Java核心源码解读
 
-> Java基础核心类的源码解析入口，涵盖Object、String、Thread、ClassLoader等
+> Java基础核心类的源码解析入口，涵盖Object、String、Thread、ClassLoader、异常体系、注解机制等
 
 ---
 
@@ -167,6 +167,60 @@ public void run() {
                         └───────────────┘
 ```
 
+### ClassLoader双亲委派模型
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Bootstrap ClassLoader (C++实现, 加载rt.jar)         │
+│  → java.lang.* / java.util.* / java.io.*            │
+│  → 父加载器为null                                    │
+├─────────────────────────────────────────────────────┤
+│  Extension ClassLoader (加载ext/*.jar)              │
+│  → javax.* / 扩展库                                  │
+│  → 父加载器 = Bootstrap                              │
+├─────────────────────────────────────────────────────┤
+│  Application ClassLoader (加载classpath)            │
+│  → 用户类和第三方库                                   │
+│  → 父加载器 = Extension                              │
+├─────────────────────────────────────────────────────┤
+│  Custom ClassLoader (自定义)                         │
+│  → 热部署 / 加密类 / 隔离加载                         │
+│  → 父加载器 = Application                            │
+└─────────────────────────────────────────────────────┘
+
+双亲委派流程：
+  loadClass() → 委托父加载器 → 父加载器再委托 → 直到Bootstrap
+  → 父加载器无法加载 → 子加载器自己加载
+
+打破双亲委派的方式：
+  1. 重写loadClass()（不推荐，重写findClass()更安全）
+  2. SPI机制: ThreadContextClassLoader
+  3. OSGi: 网状类加载结构
+  4. Tomcat: 每个WebApp独立ClassLoader
+```
+
+---
+
+## 📊 核心类对比表
+
+| 类/概念 | 不可变性 | 线程安全 | 核心特点 | 常见面试问法 |
+|---------|----------|----------|----------|-------------|
+| String | ✅ 不可变 | ✅ 安全 | 常量池、编译优化 | new String创建几个对象？ |
+| StringBuilder | ❌ 可变 | ❌ 不安全 | 非同步、性能高 | 和StringBuffer区别？ |
+| StringBuffer | ❌ 可变 | ✅ 安全 | synchronized同步 | 为什么性能比Builder低？ |
+| Object.clone() | — | — | 浅拷贝 | 深拷贝怎么实现？ |
+| Thread | — | — | 协作式中断 | 为什么不能直接调run()？ |
+
+### 异常体系对比
+
+| 维度 | Checked Exception | Unchecked Exception | Error |
+|------|-------------------|---------------------|-------|
+| 继承 | Exception（非RuntimeException） | RuntimeException | Error |
+| 编译检查 | 必须try-catch或throws | 不强制处理 | 不强制处理 |
+| 代表 | IOException/SQLException | NPE/ClassCastException | OOM/StackOverflow |
+| 设计理念 | 可恢复的异常 | 编程错误 | 系统级错误 |
+| 推荐处理 | catch + 恢复 | 修复代码 | 无法处理，让JVM退出 |
+
 ---
 
 ## 📖 推荐阅读顺序
@@ -189,6 +243,14 @@ public void run() {
 02_集合框架源码 → 容器类（HashMap/ArrayList/...）
 05_并发包源码  → JUC并发类（AQS/线程池/锁/...）
 ```
+
+---
+
+## 🔗 配套知识点
+
+- [01_Java核心/07_Java注解与反射](../../01_Java核心/07_Java注解与反射.md) — 注解与反射的实战应用
+- [05_并发包源码/AQS源码](../05_并发包源码/) — Thread源码的延伸
+- [04_并发编程核心](../../04_并发编程核心/) — 并发编程实战
 
 ---
 

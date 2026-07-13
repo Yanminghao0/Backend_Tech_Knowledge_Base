@@ -64,21 +64,31 @@ Varint编码: 每字节高位1bit做续位标志
   → 08 AC 02  (仅3字节)
 ```
 
+### 序列化大小对比
+
+| 数据格式 | 同一对象大小 | 压缩率 | 说明 |
+|----------|-------------|--------|------|
+| Java原生序列化 | 100% | 1x | 最大，含类信息 |
+| JSON (Jackson) | ~40% | 2.5x | 文本格式，可读 |
+| JSON (Fastjson) | ~38% | 2.6x | 紧凑JSON |
+| Protobuf | ~15% | 6.7x | 二进制，无字段名 |
+| Hessian | ~25% | 4x | 二进制，跨语言 |
+
 ---
 
 ## 📊 HTTP客户端对比表
 
-| 维度 | OkHttp | Apache HttpClient | RestTemplate |
-|------|--------|-------------------|--------------|
-| **架构** | 拦截器链(责任链) | 经典/异步两套API | 模板方法模式 |
-| **连接池** | ConnectionPool(5min) | PoolingHttpClientConnectionManager | 委托底层实现 |
-| **异步支持** | Dispatcher+Callback | Future/CompletableFuture | 不原生支持 |
-| **拦截器** | Application+Network | HttpRequestInterceptor | ClientHttpRequestInterceptor |
-| **HTTP/2** | ✅ 支持 | ✅ (5.x) | 取决底层 |
-| **WebSocket** | ✅ 内置 | ❌ | ❌ |
-| **Spring集成** | 需手动配置 | 需手动配置 | Spring默认(已过时) |
-| **推荐度** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ (迁移WebClient) |
-| **适用场景** | Android/微服务 | 传统Java EE | Spring MVC |
+| 维度 | OkHttp | Apache HttpClient | RestTemplate | WebClient |
+|------|--------|-------------------|--------------|-----------|
+| **架构** | 拦截器链(责任链) | 经典/异步两套API | 模板方法模式 | 响应式(Reactor) |
+| **连接池** | ConnectionPool(5min) | PoolingHttpClientConnectionManager | 委托底层实现 | Reactor Netty池 |
+| **异步支持** | Dispatcher+Callback | Future/CompletableFuture | 不原生支持 | 原生Mono/Flux |
+| **拦截器** | Application+Network | HttpRequestInterceptor | ClientHttpRequestInterceptor | ExchangeFilterFunction |
+| **HTTP/2** | ✅ 支持 | ✅ (5.x) | 取决底层 | ✅ 支持 |
+| **WebSocket** | ✅ 内置 | ❌ | ❌ | ✅ 支持 |
+| **Spring集成** | 需手动配置 | 需手动配置 | Spring默认(已过时) | Spring推荐 |
+| **推荐度** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ (迁移WebClient) | ⭐⭐⭐⭐⭐ |
+| **适用场景** | Android/微服务 | 传统Java EE | Spring MVC | Spring WebFlux |
 
 ### OkHttp 拦截器链执行顺序
 
@@ -98,6 +108,62 @@ Varint编码: 每字节高位1bit做续位标志
 │  CallServerInterceptor           │  ← 真正发送HTTP请求
 └──────────────────────────────────┘
 响应方向 ↑ (逆序返回)
+```
+
+### OkHttp连接池管理
+
+```
+ConnectionPool 核心参数：
+  - maxIdleConnections = 5 (最多5个空闲连接)
+  - keepAliveDuration = 5 min (空闲5分钟回收)
+  - CleanupTask 自动回收过期连接
+
+连接复用流程：
+  1. 请求到达 → 从连接池查找可复用连接
+  2. 找到 → 直接复用（省去TCP+TLS握手）
+  3. 未找到 → 创建新连接
+  4. 请求完成 → 连接放回池中
+  5. 空闲超过5分钟 → CleanupTask自动回收
+```
+
+---
+
+## 📐 核心架构图
+
+### Jackson序列化流程
+
+```
+┌──────────────────────────────────────────────────┐
+│  ObjectMapper (线程安全，建议复用)                  │
+│                                                    │
+│  writeValueAsString(obj)                           │
+│       │                                            │
+│       ▼                                            │
+│  ┌─────────────┐                                  │
+│  │ JsonFactory  │ → 创建JsonGenerator              │
+│  └──────┬──────┘                                  │
+│         ▼                                          │
+│  ┌─────────────┐                                  │
+│  │ SerializerProvider │ → 查找对应的Serializer     │
+│  └──────┬──────┘                                  │
+│         ▼                                          │
+│  ┌─────────────────────────────────────────┐     │
+│  │ BeanSerializer                          │     │
+│  │  1. 遍历字段（按声明顺序或@JsonProperty顺序）│     │
+│  │  2. 每个字段调用对应Serializer            │     │
+│  │     - StringSerializer → 字符串           │     │
+│  │     - NumberSerializer → 数字             │     │
+│  │     - CollectionSerializer → 集合         │     │
+│  │  3. 处理注解（@JsonIgnore/@JsonFormat）   │     │
+│  └──────┬──────────────────────────────────┘     │
+│         ▼                                          │
+│  ┌─────────────┐                                  │
+│  │ JsonGenerator │ → 输出Token到Buffer             │
+│  │ (Token: START_OBJECT, FIELD_NAME, VALUE_STRING) │
+│  └──────┬──────┘                                  │
+│         ▼                                          │
+│  JSON字符串: {"name":"Alice","age":25}             │
+└──────────────────────────────────────────────────┘
 ```
 
 ---
@@ -133,7 +199,17 @@ Varint编码: 每字节高位1bit做续位标志
 - Protobuf的前向兼容和后向兼容如何实现？
 - HttpClient的连接池如何配置MaxPerRoute？
 - 序列化循环引用如何处理？（@JsonIdentityInfo / Fastjson循环引用检测）
+- ObjectMapper为什么是线程安全的？底层如何保证？
+- OkHttp的Dispatcher同步和异步请求如何调度？
 ```
+
+---
+
+## 🔗 配套知识点
+
+- [19_Netty源码解读](../19_Netty源码解读/) — OkHttp底层NIO原理
+- [01_Java核心/07_Java注解与反射](../../01_Java核心/07_Java注解与反射.md) — 序列化注解原理
+- [03_微服务通信/gRPC实战](../../06_微服务/) — Protobuf在gRPC中的应用
 
 ---
 
