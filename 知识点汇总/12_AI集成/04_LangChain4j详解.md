@@ -252,7 +252,7 @@ AnthropicChatModel model = AnthropicChatModel.builder()
 </dependency>
 
 // 创建通义千问模型
-QianfanChatModel model = QianfanChatModel.builder()
+OpenAiChatModel model = OpenAiChatModel.builder()  # 通义千问用OpenAI兼容接口
     .apiKey("xxx")
     .secretKey("xxx")
     .modelName("qwen-plus")
@@ -529,7 +529,7 @@ public class BasicAgentService {
 ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
 
 // 时间窗口记忆
-ChatMemory memory = MessageWindowChatMemory.withMaxTokens(
+ChatMemory memory = TokenWindowChatMemory.withMaxTokens(
     1000,  // 最大token数
     Duration.ofHours(1)  // 时间窗口
 );

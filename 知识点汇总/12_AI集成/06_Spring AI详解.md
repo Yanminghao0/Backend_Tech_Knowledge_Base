@@ -532,7 +532,8 @@ public class FunctionCallingService {
     public String chatWithTools(String userMessage) {
         // 创建工具列表
         List<Function> functions = List.of(
-            Function.builder()
+            // Spring AI通过@Bean+@Description注册工具
+            // 此处应使用@Bean方式定义Function
                 .name("getWeather")
                 .description("获取指定城市的天气信息")
                 .parameters(Map.of(

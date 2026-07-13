@@ -208,7 +208,7 @@ java $JAVA_OPTS -jar app.jar
 -XX:ConcGCThreads=2                # 并发标记线程数
 
 # 老年代占比
--XX:G1OldCGenOccupancyThreshold=75 # 老年代占用75%触发Mixed GC
+-XX:G1MixedGCLiveThresholdPercent=85 # 老年代存活率<85%时纳入Mixed GC候选
 
 # 大对象阈值
 -XX:G1HeapRegionSize=16m           # 超过Region一半的对象为大对象
@@ -346,10 +346,10 @@ public class MemoryCalculator {
     
     // 示例2：优化前
     class Order {
-        private Long orderId;        // 包装类：16 bytes对象
-        private Integer userId;      // 16 bytes对象
-        private Double amount;       // 16 bytes对象
-        // 总计：48 bytes + 对象头 = 60+ bytes
+        private Long orderId;        // 包装类：24 bytes对象(12头+8值+对齐)
+        private Integer userId;      // 16 bytes对象(12头+4值+对齐)
+        private Double amount;       // 24 bytes对象(12头+8值+对齐)
+        // 总计：48 bytes + 对象头 = 约88 bytes
     }
     
     // 示例3：优化后
