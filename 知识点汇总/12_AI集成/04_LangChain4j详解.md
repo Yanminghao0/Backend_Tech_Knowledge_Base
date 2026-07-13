@@ -364,7 +364,7 @@ public class RAGService {
         DocumentLoader loader = new FileSystemDocumentLoader();
         Document document = loader.load(documentPath);
         
-        TextSplitter splitter = new DocumentSplitters.recursive(
+        TextSplitter splitter = DocumentSplitters.recursive(
             1000,  // chunk size
             200    // chunk overlap
         );

@@ -63,8 +63,6 @@
 ```java
 @Service
 public class RecommendationService {
-    private static final String BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final int SHORT_URL_LENGTH = 6;
     private final AiClient aiClient;
     private final MilvusClient milvusClient;
     private final ProductRepository productRepository;

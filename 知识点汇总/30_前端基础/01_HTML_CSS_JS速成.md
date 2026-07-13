@@ -227,7 +227,7 @@ function sum(...args) { return args.reduce((a, b) => a + b, 0); }
 const add = (a, b) => a + b;
 const square = x => x * x;
 const greet = () => console.log('Hello');
-const obj = { method() { return 42; } };
+const obj2 = { method() { return 42; } };
 
 // 箭头函数 vs 普通函数的this
 const obj = {

@@ -182,7 +182,7 @@ ZooKeeper存储的元数据：
 ### 多租户
 
 ```
-租户(Tenant) → 偢名空间(Namespace) → 主题(Topic)
+租户(Tenant) → 命名空间(Namespace) → 主题(Topic)
 
 层级隔离：
   - 租户级：配额、认证、授权
