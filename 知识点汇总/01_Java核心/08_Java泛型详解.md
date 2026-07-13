@@ -586,4 +586,487 @@ public class TypeSafeContainer {
 
     // 取出时安全转换
     public <T> T get(Class<T> type) {
-   
+           return type.cast(container.get(type));
+    }
+}
+```
+
+### 6.2 超级类型令牌（Super Type Token）
+
+`Class<T>`无法保留泛型参数化信息（如`List<String>`的`String`会丢失）。Gson库的创建者提出了超级类型令牌模式来解决这个问题：
+
+```java
+// 超级类型令牌：利用匿名内部类保留泛型信息
+public abstract class TypeReference<T> {
+    private final Type type;
+
+    protected TypeReference() {
+        // 通过反射获取父类的泛型参数
+        Type superClass = getClass().getGenericSuperclass();
+        this.type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
+    }
+
+    public Type getType() { return type; }
+}
+
+// 使用方式——创建匿名子类
+TypeReference<List<String>> typeRef = new TypeReference<>() {};
+// typeRef.getType() 返回 ParameterizedType: List<String>
+
+// 实际应用：JSON反序列化
+public class JsonUtils {
+    private static final Gson gson = new Gson();
+
+    public static <T> T fromJson(String json, TypeReference<T> typeRef) {
+        return gson.fromJson(json, typeRef.getType());
+    }
+}
+
+// 反序列化List<String>
+List<String> list = JsonUtils.fromJson(
+    "[\"a\", \"b\", \"c\"]",
+    new TypeReference<List<String>>() {}
+);
+
+// 反序列化Map<String, Integer>
+Map<String, Integer> map = JsonUtils.fromJson(
+    "{\"a\": 1, \"b\": 2}",
+    new TypeReference<Map<String, Integer>>() {}
+);
+```
+
+### 6.3 Class<T>在框架中的应用
+
+```java
+// MyBatis/Guice等框架中的典型用法
+public class GenericDao<T> {
+
+    private final Class<T> entityClass;
+
+    @SuppressWarnings("unchecked")
+    public GenericDao() {
+        // 通过反射获取子类指定的泛型类型
+        Type superClass = getClass().getGenericSuperclass();
+        if (superClass instanceof ParameterizedType) {
+            this.entityClass = (Class<T>) ((ParameterizedType) superClass)
+                .getActualTypeArguments()[0];
+        } else {
+            throw new IllegalArgumentException("必须通过匿名子类或显式指定类型");
+        }
+    }
+
+    public GenericDao(Class<T> entityClass) {
+        this.entityClass = entityClass;
+    }
+
+    public T findById(Long id) {
+        String sql = "SELECT * FROM " + getTableName() + " WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(entityClass), id);
+    }
+
+    private String getTableName() {
+        return entityClass.getSimpleName().toLowerCase();
+    }
+}
+
+// 使用方式一：匿名子类
+GenericDao<User> userDao = new GenericDao<>() {};
+
+// 使用方式二：显式指定
+GenericDao<Order> orderDao = new GenericDao<>(Order.class);
+```
+
+---
+
+## 7. 泛型与反射
+
+### 7.1 反射中的泛型类型
+
+虽然类型擦除在运行时移除了泛型信息，但Java编译器将泛型签名信息保存在字节码的`Signature`属性中。通过反射API可以读取这些信息。
+
+```java
+import java.lang.reflect.*;
+
+public class GenericReflectionDemo {
+
+    // 获取字段的泛型类型
+    public static void inspectFieldType(Field field) {
+        Type genericType = field.getGenericType();
+        System.out.println("字段: " + field.getName());
+        System.out.println("  原始类型: " + field.getType().getName());
+        System.out.println("  泛型类型: " + genericType.getTypeName());
+
+        if (genericType instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType) genericType;
+            Type[] args = pt.getActualTypeArguments();
+            System.out.println("  类型参数:");
+            for (Type arg : args) {
+                System.out.println("    - " + arg.getTypeName());
+            }
+        }
+    }
+
+    // 获取方法的泛型返回类型
+    public static void inspectMethodReturnType(Method method) {
+        Type returnType = method.getGenericReturnType();
+        System.out.println("方法: " + method.getName());
+        System.out.println("  泛型返回类型: " + returnType.getTypeName());
+    }
+
+    // 获取类声明的泛型参数
+    public static void inspectClassTypeParameters(Class<?> clazz) {
+        TypeVariable<?>[] params = clazz.getTypeParameters();
+        System.out.println("类: " + clazz.getSimpleName());
+        for (TypeVariable<?> param : params) {
+            System.out.println("  类型参数: " + param.getName());
+            Type[] bounds = param.getBounds();
+            if (bounds.length > 0 && !bounds[0].equals(Object.class)) {
+                System.out.println("    上界: " + bounds[0].getTypeName());
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        // 示例类
+        class Example {
+            private List<String> stringList;
+            private Map<String, Integer> map;
+            public List<String> getList() { return stringList; }
+            public Map<String, Integer> getMap() { return map; }
+        }
+
+        // 检查字段
+        Field listField = Example.class.getDeclaredField("stringList");
+        inspectFieldType(listField);
+        // 输出：
+        // 字段: stringList
+        //   原始类型: java.util.List
+        //   泛型类型: java.util.List<java.lang.String>
+        //   类型参数:
+        //     - java.lang.String
+
+        Field mapField = Example.class.getDeclaredField("map");
+        inspectFieldType(mapField);
+        // 输出：
+        // 字段: map
+        //   原始类型: java.util.Map
+        //   泛型类型: java.util.Map<java.lang.String, java.lang.Integer>
+        //   类型参数:
+        //     - java.lang.String
+        //     - java.lang.Integer
+    }
+}
+```
+
+### 7.2 ParameterizedType详解
+
+```java
+// ParameterizedType接口的核心方法
+public interface ParameterizedType extends Type {
+    // 获取参数化类型的实际类型参数
+    Type[] getActualTypeArguments();
+
+    // 获取原始类型（如Map<String,Integer>的原始类型是Map）
+    Type getRawType();
+
+    // 获取所有者类型（内部类场景，通常为null）
+    Type getOwnerType();
+}
+
+// 实战：运行时检查List的元素类型
+public static Class<?> getListElementType(Field field) {
+    Type genericType = field.getGenericType();
+    if (genericType instanceof ParameterizedType) {
+        ParameterizedType pt = (ParameterizedType) genericType;
+        Type[] args = pt.getActualTypeArguments();
+        if (args.length > 0 && args[0] instanceof Class) {
+            return (Class<?>) args[0];
+        }
+    }
+    return Object.class;  // 无法确定时返回Object
+}
+```
+
+### 7.3 运行时创建泛型数组
+
+```java
+// 利用反射安全地创建泛型数组
+@SuppressWarnings("unchecked")
+public static <T> T[] newArray(Class<T> componentType, int size) {
+    return (T[]) Array.newInstance(componentType, size);
+}
+
+// 使用
+String[] strings = newArray(String.class, 10);
+Integer[] ints = newArray(Integer.class, 20);
+```
+
+---
+
+## 8. 实战场景
+
+### 8.1 泛型DAO基类
+
+```java
+// 通用DAO基类，消除重复CRUD代码
+public abstract class GenericDaoImpl<T, ID> implements GenericDao<T, ID> {
+
+    protected final Class<T> entityClass;
+    protected final EntityManager entityManager;
+
+    @SuppressWarnings("unchecked")
+    public GenericDaoImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+        Type type = getClass().getGenericSuperclass();
+        if (type instanceof ParameterizedType) {
+            this.entityClass = (Class<T>) ((ParameterizedType) type)
+                .getActualTypeArguments()[0];
+        } else {
+            throw new IllegalStateException("子类必须指定泛型参数");
+        }
+    }
+
+    @Override
+    @Transactional
+    public T save(T entity) {
+        if (getId(entity) == null) {
+            entityManager.persist(entity);
+            return entity;
+        } else {
+            return entityManager.merge(entity);
+        }
+    }
+
+    @Override
+    public Optional<T> findById(ID id) {
+        return Optional.ofNullable(entityManager.find(entityClass, id));
+    }
+
+    @Override
+    public List<T> findAll() {
+        String jpql = "SELECT e FROM " + entityClass.getSimpleName() + " e";
+        return entityManager.createQuery(jpql, entityClass).getResultList();
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(ID id) {
+        findById(id).ifPresent(entityManager::remove);
+    }
+
+    protected abstract ID getId(T entity);
+}
+
+// 具体DAO只需继承即可
+@Repository
+public class UserRepositoryImpl extends GenericDaoImpl<User, Long> {
+    public UserRepositoryImpl(EntityManager em) { super(em); }
+
+    @Override
+    protected Long getId(User entity) { return entity.getId(); }
+
+    // 可添加User特有的查询方法
+    public Optional<User> findByUsername(String username) {
+        return entityManager.createQuery(
+            "SELECT u FROM User u WHERE u.username = :username", entityClass)
+            .setParameter("username", username)
+            .getResultList()
+            .stream()
+            .findFirst();
+    }
+}
+```
+
+### 8.2 Builder模式（泛型版）
+
+```java
+// 泛型Builder模式
+public class User {
+    private final String name;
+    private final Integer age;
+    private final String email;
+    private final String phone;
+    private final String address;
+
+    private User(Builder builder) {
+        this.name = builder.name;
+        this.age = builder.age;
+        this.email = builder.email;
+        this.phone = builder.phone;
+        this.address = builder.address;
+    }
+
+    public static Builder builder() { return new Builder(); }
+    public static Builder builderFrom(User user) { return new Builder(user); }
+
+    public static class Builder {
+        private String name;
+        private Integer age;
+        private String email;
+        private String phone;
+        private String address;
+
+        private Builder() {}
+        private Builder(User user) {
+            this.name = user.name;
+            this.age = user.age;
+            this.email = user.email;
+            this.phone = user.phone;
+            this.address = user.address;
+        }
+
+        public Builder name(String name) { this.name = name; return this; }
+        public Builder age(Integer age) { this.age = age; return this; }
+        public Builder email(String email) { this.email = email; return this; }
+        public Builder phone(String phone) { this.phone = phone; return this; }
+        public Builder address(String address) { this.address = address; return this; }
+
+        public User build() {
+            if (name == null || name.isBlank()) {
+                throw new IllegalStateException("name不能为空");
+            }
+            return new User(this);
+        }
+    }
+}
+
+// 使用
+User user = User.builder()
+    .name("张三")
+    .age(25)
+    .email("zhangsan@example.com")
+    .phone("13800138000")
+    .build();
+```
+
+### 8.3 泛型Optional工具
+
+```java
+// 增强Optional的工具类
+public class OptionalUtils {
+
+    // 安全地从嵌套对象中提取属性
+    public static <T, R> Optional<R> flatMapOpt(Optional<T> optional,
+                                                  Function<T, Optional<R>> mapper) {
+        return optional.flatMap(mapper);
+    }
+
+    // 过滤+映射的链式操作
+    public static <T, R> Optional<R> filterAndMap(Optional<T> optional,
+                                                    Predicate<T> predicate,
+                                                    Function<T, R> mapper) {
+        return optional.filter(predicate).map(mapper);
+    }
+
+    // 如果Optional为空则抛出自定义异常
+    public static <T> T orElseThrow(Optional<T> optional,
+                                     Supplier<? extends RuntimeException> exSupplier) {
+        return optional.orElseThrow(exSupplier);
+    }
+
+    // 使用
+    // Optional<User> userOpt = userRepository.findById(id);
+    // String email = filterAndMap(userOpt, u -> u.isActive(), User::getEmail)
+    //     .orElse("N/A");
+}
+```
+
+### 8.4 类型安全的异构容器
+
+```java
+// 使用Class<T>作为键的容器，存放不同类型的对象
+public class Context {
+    private final Map<Class<?>, Object> values = new ConcurrentHashMap<>();
+
+    public <T> void put(Class<T> type, T instance) {
+        values.put(type, type.cast(instance));
+    }
+
+    public <T> T get(Class<T> type) {
+        return type.cast(values.get(type));
+    }
+
+    public <T> T getOrDefault(Class<T> type, T defaultValue) {
+        T value = get(type);
+        return value != null ? value : defaultValue;
+    }
+
+    public boolean contains(Class<?> type) {
+        return values.containsKey(type);
+    }
+}
+
+// 使用：在一个容器中存放不同类型的对象
+Context context = new Context();
+context.put(String.class, "Hello");
+context.put(Integer.class, 42);
+context.put(BigDecimal.class, new BigDecimal("3.14"));
+
+String str = context.get(String.class);        // "Hello"
+Integer num = context.get(Integer.class);      // 42
+BigDecimal pi = context.get(BigDecimal.class); // 3.14
+```
+
+---
+
+## 9. 面试题速查
+
+### Q1: Java泛型的本质是什么？什么是类型擦除？
+
+**答：** Java泛型是编译期机制，本质是参数化类型。类型擦除是指编译器在编译时使用泛型进行类型检查，但在生成的字节码中移除泛型信息，将类型参数替换为其上界（默认Object）。运行时`List<String>`和`List<Integer>`的类型相同。
+
+### Q2: `List<?>`、`List<Object>`和`List`有什么区别？
+
+**答：**
+- `List<?>`：无界通配符，只读集合（不可添加非null元素），元素以Object类型读取
+- `List<Object>`：可以添加任何Object子类的元素，但只能接收`List<Object>`类型（不是`List<String>`）
+- `List`：原始类型，不进行类型检查，不推荐使用
+
+### Q3: 什么是PECS原则？请举例说明。
+
+**答：** PECS = Producer Extends, Consumer Super。如果集合是生产者（数据源，只读取），用`? extends T`；如果集合是消费者（目标，只写入），用`? super T`。经典案例：`Collections.copy(List<? super T> dest, List<? extends T> src)`。
+
+### Q4: 为什么不能`new T()`？如何解决？
+
+**答：** 类型擦除后T被替换为Object，`new Object()`不是期望的类型。解决方案是传入`Class<T>`类型令牌，通过反射`clazz.getDeclaredConstructor().newInstance()`创建实例。
+
+### Q5: 什么是桥接方法？为什么需要它？
+
+**答：** 当子类泛型类指定具体类型并覆盖父类方法时，由于类型擦除，父类和子类方法签名不同。编译器自动生成桥接方法，将调用转发给实际方法，维持多态正确性。可通过`Method.isBridge()`判断。
+
+### Q6: 如何在运行时获取泛型类型信息？
+
+**答：** 通过反射API：字段的`getGenericType()`、方法的`getGenericReturnType()`返回`Type`接口，如果是`ParameterizedType`则可以获取`getActualTypeArguments()`。也可以使用超级类型令牌（Super Type Token）模式，通过匿名内部类保留泛型信息。
+
+### Q7: 为什么不能创建泛型数组`new T[10]`？
+
+**答：** 数组是协变的（`String[]`可以赋给`Object[]`），而泛型是不变的。如果允许创建泛型数组，会导致类型安全问题——运行时无法检测到错误类型的添加，后续读取时会抛出ClassCastException。
+
+### Q8: 泛型中`extends`和`super`的区别？
+
+**答：**
+- `T extends Number`：类型参数上限，T必须是Number或其子类。用于类型参数声明和方法参数。
+- `? extends Number`：上界通配符，只读场景（生产者）。不能添加元素。
+- `? super Number`：下界通配符，只写场景（消费者）。可以添加Number及子类，读取只能得到Object。
+
+### Q9: 什么是通配符捕获？
+
+**答：** 编译器有时能从上下文推断出通配符`?`的实际类型，称为通配符捕获。经典场景是在`swap(List<?>, i, j)`中，通过辅助泛型方法`<T> swapHelper(List<T>, i, j)`捕获通配符类型，实现安全交换。
+
+### Q10: 泛型方法中`<T extends Comparable<? super T>>`是什么意思？
+
+**答：** 这是JDK `Collections.sort`的参数约束。`T`必须实现`Comparable`接口，且`Comparable`的类型参数可以是`T`的父类型。这样`Student`类如果继承了`Person`，而`Person`实现了`Comparable<Person>`，`Student`也能满足`T extends Comparable<? super T>`。
+
+### Q11: 类型擦除有哪些副作用？
+
+**答：**
+1. 运行时无法使用`instanceof List<String>`检查泛型类型
+2. 不能创建泛型数组`new List<String>[10]`
+3. 不能重载仅泛型参数不同的方法（擦除后签名相同）
+4. 静态上下文不能使用类的类型参数
+5. 不能实例化类型参数`new T()`
+6. 基本类型不能作为类型参数
+
+### Q12: 什么是类型安全的异构容器？
+
+**答：** 使用`Class<T>`作为Map的键，在一个容器中存放不同类型的对象。存入时`put(Class<T>, T)`记录类型，取出时`get(Class<T>)`通过`type.cast()`安全转换。这是Joshua Bloch在《Effective Java》中提出的模式。

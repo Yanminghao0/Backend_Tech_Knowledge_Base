@@ -822,4 +822,359 @@ public class PermissionCacheServiceImpl implements PermissionCacheService {
     @Autowired private StringRedisTemplate redisTemplate;
 
     private static final String PERMISSION_KEY = "user:permissions:";
-    private static final String RO
+    private static final String ROLE_KEY = "user:roles:";
+    private static final long CACHE_TTL = 30; // 分钟
+
+    /**
+     * 获取用户权限（带缓存）
+     */
+    public Set<String> getUserPermissions(Long userId) {
+        String key = PERMISSION_KEY + userId;
+        Set<String> permissions = redisTemplate.opsForSet().members(key);
+        if (permissions != null && !permissions.isEmpty()) {
+            return permissions;
+        }
+
+        // 缓存未命中，查数据库
+        permissions = permissionMapper.selectPermissionCodesByUserId(userId);
+        if (!permissions.isEmpty()) {
+            redisTemplate.opsForSet().add(key, permissions.toArray(new String[0]));
+            redisTemplate.expire(key, CACHE_TTL, TimeUnit.MINUTES);
+        }
+        return permissions;
+    }
+
+    /**
+     * 获取用户角色（带缓存）
+     */
+    public Set<String> getUserRoles(Long userId) {
+        String key = ROLE_KEY + userId;
+        Set<String> roles = redisTemplate.opsForSet().members(key);
+        if (roles != null && !roles.isEmpty()) {
+            return roles;
+        }
+        roles = roleMapper.selectRoleCodesByUserId(userId);
+        if (!roles.isEmpty()) {
+            redisTemplate.opsForSet().add(key, roles.toArray(new String[0]));
+            redisTemplate.expire(key, CACHE_TTL, TimeUnit.MINUTES);
+        }
+        return roles;
+    }
+
+    /**
+     * 清除用户权限缓存
+     */
+    public void evictUserPermissionCache(Long userId) {
+        redisTemplate.delete(PERMISSION_KEY + userId);
+        redisTemplate.delete(ROLE_KEY + userId);
+        // 发布缓存失效消息，通知其他节点
+        redisTemplate.convertAndSend("permission:cache:evict", userId.toString());
+    }
+
+    /**
+     * 清除角色下所有用户的权限缓存
+     */
+    public void evictRolePermissionCache(Long roleId) {
+        List<Long> userIds = userRoleMapper.selectUserIdsByRoleId(roleId);
+        for (Long userId : userIds) {
+            evictUserPermissionCache(userId);
+        }
+    }
+}
+```
+
+### 9.3 多级缓存实现
+
+```java
+@Service
+public class MultiLevelPermissionCache {
+
+    // L1: 本地缓存（Caffeine）
+    private final Cache<Long, Set<String>> localCache = Caffeine.newBuilder()
+        .maximumSize(10_000)
+        .expireAfterWrite(5, TimeUnit.MINUTES)
+        .recordStats()
+        .build();
+
+    @Autowired private StringRedisTemplate redisTemplate;
+    @Autowired private PermissionMapper permissionMapper;
+
+    private static final String REDIS_KEY = "user:permissions:";
+    private static final long REDIS_TTL = 30; // 分钟
+
+    public Set<String> getPermissions(Long userId) {
+        // L1: 本地缓存
+        Set<String> perms = localCache.getIfPresent(userId);
+        if (perms != null) {
+            return perms;
+        }
+
+        // L2: Redis缓存
+        String key = REDIS_KEY + userId;
+        Set<String> redisPerms = redisTemplate.opsForSet().members(key);
+        if (redisPerms != null && !redisPerms.isEmpty()) {
+            localCache.put(userId, redisPerms);
+            return redisPerms;
+        }
+
+        // L3: 数据库
+        Set<String> dbPerms = permissionMapper.selectPermissionCodesByUserId(userId)
+            .stream().collect(Collectors.toSet());
+        if (!dbPerms.isEmpty()) {
+            // 回填L2
+            redisTemplate.opsForset().add(key, dbPerms.toArray(new String[0]));
+            redisTemplate.expire(key, REDIS_TTL, TimeUnit.MINUTES);
+            // 回填L1
+            localCache.put(userId, dbPerms);
+        }
+        return dbPerms;
+    }
+
+    /**
+     * 监听Redis缓存失效消息，同步清除本地缓存
+     */
+    @EventListener
+    public void onCacheEvict(RedisChannelMessage message) {
+        if ("permission:cache:evict".equals(message.getChannel())) {
+            Long userId = Long.parseLong(message.getMessage());
+            localCache.invalidate(userId);
+        }
+    }
+}
+```
+
+---
+
+## 10. 动态权限加载
+
+### 10.1 为什么需要动态权限
+
+在运行时修改权限（新增角色、调整权限分配、禁用用户等）后，需要让变更立即生效，而不需要重启应用。这要求系统具备动态加载和刷新权限的能力。
+
+### 10.2 动态权限过滤器
+
+```java
+@Component
+public class DynamicPermissionFilter extends OncePerRequestFilter {
+
+    @Autowired private MultiLevelPermissionCache permissionCache;
+    @Autowired private PermissionMatcher permissionMatcher;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     FilterChain chain) throws ServletException, IOException {
+        // 获取当前认证用户
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        Long userId = ((SecurityUser) auth.getPrincipal()).getId();
+
+        // 动态获取最新权限（从缓存或数据库）
+        Set<String> permissions = permissionCache.getPermissions(userId);
+
+        // 根据请求路径匹配所需权限
+        String requiredPermission = permissionMatcher.match(request);
+        if (requiredPermission != null && !permissions.contains(requiredPermission)) {
+            response.setStatus(403);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":403,\"message\":\"权限不足\"}");
+            return;
+        }
+
+        chain.doFilter(request, response);
+    }
+}
+
+/**
+ * 权限匹配器：将HTTP请求映射到所需权限
+ */
+@Component
+public class PermissionMatcher {
+
+    // 权限映射表（可动态刷新）
+    private volatile Map<String, String> urlPermissionMap = new ConcurrentHashMap<>();
+
+    @PostConstruct
+    public void init() {
+        loadUrlPermissionMap();
+    }
+
+    /**
+     * 从数据库加载URL-权限映射
+     */
+    public void loadUrlPermissionMap() {
+        List<UrlPermission> list = permissionMapper.selectAllUrlPermissions();
+        Map<String, String> newMap = new ConcurrentHashMap<>();
+        for (UrlPermission up : list) {
+            newMap.put(up.getUrl(), up.getPermissionCode());
+        }
+        this.urlPermissionMap = newMap;
+    }
+
+    /**
+     * 匹配请求路径对应的权限
+     */
+    public String match(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        // 精确匹配
+        String key = method + ":" + path;
+        if (urlPermissionMap.containsKey(key)) {
+            return urlPermissionMap.get(key);
+        }
+
+        // 通配符匹配
+        for (Map.Entry<String, String> entry : urlPermissionMap.entrySet()) {
+            if (matchPattern(entry.getKey(), method + ":" + path)) {
+                return entry.getValue();
+            }
+        }
+        return null; // 无需权限
+    }
+
+    private boolean matchPattern(String pattern, String path) {
+        // 支持 ** 和 * 通配符
+        String regex = pattern.replace("**", ".*").replace("*", "[^/]*");
+        return path.matches(regex);
+    }
+}
+```
+
+### 10.3 权限变更通知
+
+```java
+@Service
+public class PermissionChangeNotifier {
+
+    @Autowired private StringRedisTemplate redisTemplate;
+    @Autowired private PermissionMatcher permissionMatcher;
+    @Autowired private MultiLevelPermissionCache permissionCache;
+
+    private static final String CHANNEL = "permission:change";
+
+    /**
+     * 当角色权限变更时调用
+     */
+    public void onRolePermissionChanged(Long roleId) {
+        // 清除该角色下所有用户的权限缓存
+        List<Long> userIds = userRoleMapper.selectUserIdsByRoleId(roleId);
+        for (Long userId : userIds) {
+            permissionCache.evict(userId);
+        }
+        // 通知所有节点刷新URL-权限映射
+        redisTemplate.convertAndSend(CHANNEL, "REFRESH_URL_MAP");
+    }
+
+    /**
+     * 当用户角色变更时调用
+     */
+    public void onUserRoleChanged(Long userId) {
+        permissionCache.evict(userId);
+        redisTemplate.convertAndSend(CHANNEL, "USER:" + userId);
+    }
+
+    /**
+     * 监听权限变更消息
+     */
+    @EventListener
+    public void onChangeMessage(RedisChannelMessage message) {
+        if (!CHANNEL.equals(message.getChannel())) return;
+        String msg = message.getMessage();
+        if ("REFRESH_URL_MAP".equals(msg)) {
+            permissionMatcher.loadUrlPermissionMap();
+        } else if (msg.startsWith("USER:")) {
+            Long userId = Long.parseLong(msg.substring(5));
+            permissionCache.evict(userId);
+        }
+    }
+}
+```
+
+### 10.4 定时刷新策略
+
+```java
+@Component
+public class PermissionRefreshScheduler {
+
+    @Autowired private PermissionMatcher permissionMatcher;
+    @Autowired private PermissionCacheService permissionCacheService;
+
+    /**
+     * 每小时刷新URL-权限映射
+     */
+    @Scheduled(fixedRate = 3600000)
+    public void refreshUrlPermissionMap() {
+        permissionMatcher.loadUrlPermissionMap();
+    }
+
+    /**
+     * 每天凌晨3点清理过期缓存
+     */
+    @Scheduled(cron = "0 0 3 * * ?")
+    public void cleanExpiredCache() {
+        // 清理Redis中已过期的用户权限缓存
+        Set<String> keys = redisTemplate.keys("user:permissions:*");
+        if (keys != null) {
+            for (String key : keys) {
+                Long ttl = redisTemplate.getExpire(key);
+                if (ttl != null && ttl < 0) {
+                    redisTemplate.delete(key);
+                }
+            }
+        }
+    }
+}
+```
+
+---
+
+## 11. 面试题速查
+
+### Q1: RBAC的四个核心概念是什么？
+
+**答：** 用户（User）、角色（Role）、权限（Permission）、资源（Resource）。用户被分配角色，角色拥有权限，权限作用于资源。用户不直接拥有权限，而是通过角色间接获得。
+
+### Q2: RBAC0、RBAC1、RBAC2、RBAC3分别是什么？
+
+**答：**
+- **RBAC0**：基础模型，用户-角色-权限多对多关系
+- **RBAC1**：RBAC0 + 角色继承（角色可以有父角色，继承父角色权限）
+- **RBAC2**：RBAC0 + 约束机制（职责互斥、角色基数、先决条件）
+- **RBAC3**：RBAC1 + RBAC2，最完整的RBAC模型
+
+### Q3: RBAC和ACL的区别？
+
+**答：** ACL直接在资源上维护访问控制列表，用户直接关联权限，适合用户少、资源固定的场景。RBAC通过角色间接授权，适合用户多、角色明确的系统，权限变更只需调整角色。实际项目中常混合使用：RBAC管功能权限，ACL管数据权限。
+
+### Q4: 什么是职责互斥？举例说明。
+
+**答：** 互斥的角色不能同时分配给同一用户，防止权力集中。经典场景：制单人与审核人不能是同一人，付款发起人与审批人不能是同一人。这是RBAC2的核心约束之一。
+
+### Q5: Spring Security中hasRole和hasAuthority的区别？
+
+**答：** `hasRole('ADMIN')`检查权限字符串是否包含`ROLE_ADMIN`（自动加`ROLE_`前缀），`hasAuthority('user:create')`检查权限字符串是否精确匹配`user:create`。Role是特殊的Authority，带`ROLE_`前缀。
+
+### Q6: 角色继承如何实现权限传递？
+
+**答：** 子角色继承父角色的权限，用户分配子角色后，自动获得父角色的所有权限。查询权限时需要递归查询角色链上所有角色的权限。注意防止循环继承（用visited集合检测）。
+
+### Q7: 权限缓存如何保证一致性？
+
+**答：** 方案包括：(1) Redis分布式缓存 + TTL过期；(2) 缓存失效消息广播，角色/权限变更时通知所有节点清除相关缓存；(3) 多级缓存（Caffeine本地+Redis远程），通过Redis Pub/Sub同步本地缓存失效；(4) 写操作先更新数据库再删缓存（Cache Aside Pattern）。
+
+### Q8: 动态权限如何实现？
+
+**答：** 通过自定义过滤器在每次请求时动态查询最新权限（从缓存或数据库）；URL-权限映射表存储在数据库中，可动态刷新；权限变更时通过Redis Pub/Sub通知所有节点更新本地缓存和URL映射。
+
+### Q9: 数据级权限如何实现？
+
+**答：** 在功能权限（RBAC）基础上，增加数据权限控制。常见方案：(1) MyBatis拦截器动态拼接SQL条件（如`dept_id IN (...)`）；(2) 自定义注解+AOP拦截，校验数据归属；(3) 数据权限规则表，定义不同角色可见的数据范围（全部/本部门/本部门及子部门/仅本人）。
+
+### Q10: JWT中携带权限有什么优缺点？
+
+**答：** 优点：无需查询数据库/缓存，每次请求直接从Token解析权限，性能极高。缺点：权限变更后旧Token仍携带旧权限，需要主动刷新Token或设置较短有效期。适合权限变更不频繁的场景，配合Token刷新机制使用。

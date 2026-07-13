@@ -1,0 +1,193 @@
+{
+  "scan_time": "2026-07-13 19:05",
+  "total_dirs": 26,
+  "total_files": 432,
+  "total_size_kb": 8133,
+  "thin_files": [
+    {
+      "dir": "23_技术动态",
+      "file": "月度技术综述/2026年4月技术综述.md",
+      "size_kb": 2
+    },
+    {
+      "dir": "23_技术动态",
+      "file": "月度技术综述/2026年5月技术综述.md",
+      "size_kb": 4
+    },
+    {
+      "dir": "23_技术动态",
+      "file": "月度技术综述/2026年6月技术综述.md",
+      "size_kb": 3
+    },
+    {
+      "dir": "23_技术动态",
+      "file": "月度技术综述/2026年3月技术综述.md",
+      "size_kb": 2
+    },
+    {
+      "dir": "23_技术动态",
+      "file": "月度技术综述/2025年11月技术综述.md",
+      "size_kb": 4
+    }
+  ],
+  "empty_dirs": [],
+  "naming_issues": [],
+  "dir_stats": [
+    {
+      "dir": "00_综合",
+      "files": 9,
+      "size_kb": 128,
+      "thin_count": 0
+    },
+    {
+      "dir": "01_Java核心",
+      "files": 9,
+      "size_kb": 404,
+      "thin_count": 0
+    },
+    {
+      "dir": "02_Spring生态",
+      "files": 6,
+      "size_kb": 166,
+      "thin_count": 0
+    },
+    {
+      "dir": "03_数据库",
+      "files": 8,
+      "size_kb": 147,
+      "thin_count": 0
+    },
+    {
+      "dir": "04_缓存",
+      "files": 6,
+      "size_kb": 162,
+      "thin_count": 0
+    },
+    {
+      "dir": "05_消息队列",
+      "files": 6,
+      "size_kb": 123,
+      "thin_count": 0
+    },
+    {
+      "dir": "06_微服务",
+      "files": 29,
+      "size_kb": 574,
+      "thin_count": 0
+    },
+    {
+      "dir": "07_分布式系统",
+      "files": 8,
+      "size_kb": 117,
+      "thin_count": 0
+    },
+    {
+      "dir": "08_网络通信",
+      "files": 6,
+      "size_kb": 112,
+      "thin_count": 0
+    },
+    {
+      "dir": "09_搜索引擎",
+      "files": 5,
+      "size_kb": 94,
+      "thin_count": 0
+    },
+    {
+      "dir": "10_容器化",
+      "files": 5,
+      "size_kb": 98,
+      "thin_count": 0
+    },
+    {
+      "dir": "11_性能优化",
+      "files": 8,
+      "size_kb": 226,
+      "thin_count": 0
+    },
+    {
+      "dir": "12_AI集成",
+      "files": 22,
+      "size_kb": 264,
+      "thin_count": 0
+    },
+    {
+      "dir": "13_安全认证",
+      "files": 8,
+      "size_kb": 170,
+      "thin_count": 0
+    },
+    {
+      "dir": "14_架构设计",
+      "files": 11,
+      "size_kb": 309,
+      "thin_count": 0
+    },
+    {
+      "dir": "15_MCP协议",
+      "files": 5,
+      "size_kb": 243,
+      "thin_count": 0
+    },
+    {
+      "dir": "16_设计模式",
+      "files": 28,
+      "size_kb": 367,
+      "thin_count": 0
+    },
+    {
+      "dir": "17_算法与数据结构",
+      "files": 93,
+      "size_kb": 1007,
+      "thin_count": 0
+    },
+    {
+      "dir": "18_DevOps与CICD",
+      "files": 7,
+      "size_kb": 95,
+      "thin_count": 0
+    },
+    {
+      "dir": "19_云原生技术",
+      "files": 7,
+      "size_kb": 83,
+      "thin_count": 0
+    },
+    {
+      "dir": "20_低代码开发",
+      "files": 4,
+      "size_kb": 97,
+      "thin_count": 0
+    },
+    {
+      "dir": "21_系统设计与面试",
+      "files": 22,
+      "size_kb": 427,
+      "thin_count": 0
+    },
+    {
+      "dir": "22_源码解读",
+      "files": 90,
+      "size_kb": 2354,
+      "thin_count": 0
+    },
+    {
+      "dir": "23_技术动态",
+      "files": 8,
+      "size_kb": 30,
+      "thin_count": 5
+    },
+    {
+      "dir": "24_Java AI框架",
+      "files": 9,
+      "size_kb": 133,
+      "thin_count": 0
+    },
+    {
+      "dir": "25_生产环境问题排查",
+      "files": 13,
+      "size_kb": 203,
+      "thin_count": 0
+    }
+  ]
+}
