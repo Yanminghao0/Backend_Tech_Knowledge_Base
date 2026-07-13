@@ -85,9 +85,9 @@ public void orderSyncHandler() {
 - 实践场景：数据同步、报表生成、定时清理、业务监控
 
 ## 关联主题
-- [事件驱动](../05_05_事件驱动/README.md)：事件触发的异步任务
-- [数据一致性](../04_04_数据一致性/README.md)：定时补偿任务
-- [部署运维](../08_08_部署运维/README.md)：Kubernetes CronJob
+- [事件驱动](../05_05_微服务事件驱动/README.md)：事件触发的异步任务
+- [数据一致性](../04_04_微服务数据一致性/README.md)：定时补偿任务
+- [部署运维](../08_08_微服务部署运维/README.md)：Kubernetes CronJob
 
 ---
 
