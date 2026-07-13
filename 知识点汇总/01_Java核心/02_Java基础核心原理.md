@@ -1159,7 +1159,7 @@ public String concat2(String[] words) {
 // 性能：O(n)，只创建一个StringBuilder对象
 
 // 🔥 编译器优化（JDK 9+）：
-// 对于简单的+拼接，编译器会自动优化为StringBuilder
+// 对于简单的+拼接，编译器使用invokedynamic优化(JEP 280)
 String s = "a" + "b" + "c";  // 编译时优化为常量"abc"
 String s2 = str1 + str2;     // 编译后使用StringBuilder
 ```

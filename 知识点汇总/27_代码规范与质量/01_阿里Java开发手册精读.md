@@ -785,7 +785,7 @@ SELECT * FROM t_order WHERE id > 1000000 ORDER BY id LIMIT 20;
 
 -- ❌ count(*) 在大表上很慢（InnoDB需要扫描聚簇索引）
 -- ✅ 使用估算值或维护计数表
-SELECT COUNT(*) FROM t_order;  -- 慢
+SELECT COUNT(*) FROM t_order;  -- 大表上可能较慢
 SELECT table_rows FROM information_schema.tables WHERE table_name = 't_order';  -- 估算值
 ```
 

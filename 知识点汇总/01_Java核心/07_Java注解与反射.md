@@ -508,7 +508,7 @@ public class BuilderProcessor extends AbstractProcessor {
                 }
             } catch (IOException e) {
                 processingEnv.getMessager().printMessage(
-                    Diagnostic.Message.ERROR, e.getMessage());
+                    Diagnostic.Kind.ERROR, e.getMessage());
             }
         }
         return true;
