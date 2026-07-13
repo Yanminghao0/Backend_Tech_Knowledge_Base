@@ -53,7 +53,11 @@ from langchain_core.runnables import RunnablePassthrough, RunnableParallel
 
 # 基础链: Prompt | LLM | Parser
 prompt = ChatPromptTemplate.from_template("解释{topic}的概念")
-model = ChatOpenAI(model="qwen-plus")
+model = ChatOpenAI(
+    model="qwen-plus",
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+    api_key="your-dashscope-api-key"
+)
 parser = StrOutputParser()
 
 chain = prompt | model | parser
@@ -112,7 +116,9 @@ def search_web(query: str) -> str:
 @tool
 def calculate(expression: str) -> str:
     """执行数学计算"""
-    return str(eval(expression))
+    # 注意: 生产环境不要用eval()，应使用安全的数学解析库如numexpr
+    import numexpr
+    return str(numexpr.evaluate(expression))
 
 @tool
 def query_database(sql: str) -> str:

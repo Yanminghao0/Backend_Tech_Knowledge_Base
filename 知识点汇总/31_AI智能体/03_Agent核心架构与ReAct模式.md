@@ -291,6 +291,7 @@ Plan-and-Execute = 先全局规划，再逐步执行
 
 ```python
 from langchain import OpenAI, SerpAPIWrapper
+from langchain_openai import ChatOpenAI
 from langchain.agents import initialize_agent, AgentType
 
 # 方式1: LangChain内置Plan-Execute

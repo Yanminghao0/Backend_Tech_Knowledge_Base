@@ -346,11 +346,11 @@ public class AgentService {
             .content();
     }
 
-    // 方式2: 使用Advisor自动注入工具
+    // 方式2: 使用Advisor(日志/记忆等增强)
     public String chatWithAdvisor(String userInput) {
         return chatClient.prompt()
             .user(userInput)
-            .advisors(FunctionCallbackContext)
+            .advisors(MessageChatMemoryAdvisor.builder().build())
             .call()
             .content();
     }
@@ -533,7 +533,7 @@ public class RobustAgentTools {
     public String executeCode(@P("Python代码") String code) {
         // 沙箱执行(重要! 安全)
         try {
-            return codeSandbox.execute(code, timeout=10, memoryLimit="128m");
+            return codeSandbox.execute(code, 10, "128m");
         } catch (SecurityException e) {
             return "代码执行被安全策略阻止: " + e.getMessage();
         }
