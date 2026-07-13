@@ -47,7 +47,7 @@ Spring源码解读/
 ## 📖 核心内容
 
 ### 1️⃣ IoC容器源码解析
-📄 [IoC容器源码解析.md](./6.1_IoC容器源码解析.md)
+📄 [IoC容器源码解析.md](./4.1_IoC容器源码解析.md)
 
 **核心内容**：
 - ✅ BeanFactory与ApplicationContext
@@ -66,7 +66,7 @@ BeanPostProcessor          # Bean后置处理器
 ```
 
 ### 2️⃣ AOP源码解析
-📄 [AOP源码解析.md](./6.2_AOP源码解析.md)
+📄 [AOP源码解析.md](./4.2_AOP源码解析.md)
 
 **核心内容**：
 - ✅ AOP核心概念
@@ -85,7 +85,7 @@ MethodInterceptor         # 方法拦截器
 ```
 
 ### 3️⃣ 事务管理源码解析
-📄 [事务管理源码解析.md](./6.11_事务管理源码解析.md)
+📄 [事务管理源码解析.md](./4.11_事务管理源码解析.md)
 
 **核心内容**：
 - ✅ 事务管理器
@@ -103,7 +103,7 @@ TransactionSynchronizationManager # 事务同步管理器
 ```
 
 ### 4️⃣ SpringMVC源码解析
-📄 [SpringMVC源码解析.md](./6.10_SpringMVC源码解析.md)
+📄 [SpringMVC源码解析.md](./4.10_SpringMVC源码解析.md)
 
 **核心内容**：
 - ✅ DispatcherServlet初始化
@@ -121,7 +121,7 @@ ViewResolver               # 视图解析器
 ```
 
 ### 5️⃣ SpringBoot自动配置源码
-📄 [SpringBoot自动配置源码.md](./6.6_SpringBoot自动配置源码.md)
+📄 [SpringBoot自动配置源码.md](./4.6_SpringBoot自动配置源码.md)
 
 **核心内容**：
 - ✅ @SpringBootApplication解析

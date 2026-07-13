@@ -8,17 +8,17 @@
 
 | 文档 | 核心内容 | 面试重要度 | 状态 |
 |------|----------|------------|------|
-| [AQS源码解析](./5.1_AQS源码解析.md) | 同步状态state、CLH队列、独占/共享模式 | ⭐⭐⭐⭐⭐ | ✅ |
-| [ReentrantLock源码解析](./5.2_ReentrantLock源码解析.md) | 公平锁/非公平锁、可重入、Condition条件变量 | ⭐⭐⭐⭐⭐ | ✅ |
-| [ThreadPoolExecutor源码解析](./5.3_ThreadPoolExecutor源码解析.md) | 核心参数、Worker线程、任务队列、拒绝策略 | ⭐⭐⭐⭐⭐ | ✅ |
-| [ConcurrentHashMap源码解析](./5.4_ConcurrentHashMap源码解析.md) | CAS+synchronized、分段锁演进、扩容迁移 | ⭐⭐⭐⭐⭐ | ✅ |
-| [CountDownLatch源码解析](./5.5_CountDownLatch源码解析.md) | 倒计时门闩、AQS共享模式、一次性使用 | ⭐⭐⭐⭐ | ✅ |
-| [CyclicBarrier源码解析](./5.6_CyclicBarrier源码解析.md) | 循环栅栏、ReentrantLock实现、可重用 | ⭐⭐⭐⭐ | ✅ |
-| [Semaphore源码解析](./5.7_Semaphore源码解析.md) | 信号量、AQS共享模式、限流应用 | ⭐⭐⭐⭐ | ✅ |
-| [ReentrantReadWriteLock源码解析](./5.8_ReentrantReadWriteLock源码解析.md) | 读写锁、锁降级、公平性、高16位读/低16位写 | ⭐⭐⭐⭐⭐ | ✅ |
-| [AtomicInteger源码解析](./5.9_AtomicInteger源码解析.md) | CAS、Unsafe、ABA问题、原子操作 | ⭐⭐⭐⭐⭐ | ✅ |
-| [BlockingQueue源码解析](./5.10_BlockingQueue源码解析.md) | 阻塞队列、生产者消费者、Condition实现 | ⭐⭐⭐⭐⭐ | ✅ |
-| [CompletableFuture源码解析](./5.11_CompletableFuture源码解析.md) | 异步编程、链式组合、异常处理、CompletionStage | ⭐⭐⭐⭐ | ✅ |
+| [AQS源码解析](./3.1_AQS源码解析.md) | 同步状态state、CLH队列、独占/共享模式 | ⭐⭐⭐⭐⭐ | ✅ |
+| [ReentrantLock源码解析](./3.2_ReentrantLock源码解析.md) | 公平锁/非公平锁、可重入、Condition条件变量 | ⭐⭐⭐⭐⭐ | ✅ |
+| [ThreadPoolExecutor源码解析](./3.3_ThreadPoolExecutor源码解析.md) | 核心参数、Worker线程、任务队列、拒绝策略 | ⭐⭐⭐⭐⭐ | ✅ |
+| [ConcurrentHashMap源码解析](./3.4_ConcurrentHashMap源码解析.md) | CAS+synchronized、分段锁演进、扩容迁移 | ⭐⭐⭐⭐⭐ | ✅ |
+| [CountDownLatch源码解析](./3.5_CountDownLatch源码解析.md) | 倒计时门闩、AQS共享模式、一次性使用 | ⭐⭐⭐⭐ | ✅ |
+| [CyclicBarrier源码解析](./3.6_CyclicBarrier源码解析.md) | 循环栅栏、ReentrantLock实现、可重用 | ⭐⭐⭐⭐ | ✅ |
+| [Semaphore源码解析](./3.7_Semaphore源码解析.md) | 信号量、AQS共享模式、限流应用 | ⭐⭐⭐⭐ | ✅ |
+| [ReentrantReadWriteLock源码解析](./3.8_ReentrantReadWriteLock源码解析.md) | 读写锁、锁降级、公平性、高16位读/低16位写 | ⭐⭐⭐⭐⭐ | ✅ |
+| [AtomicInteger源码解析](./3.9_AtomicInteger源码解析.md) | CAS、Unsafe、ABA问题、原子操作 | ⭐⭐⭐⭐⭐ | ✅ |
+| [BlockingQueue源码解析](./3.10_BlockingQueue源码解析.md) | 阻塞队列、生产者消费者、Condition实现 | ⭐⭐⭐⭐⭐ | ✅ |
+| [CompletableFuture源码解析](./3.11_CompletableFuture源码解析.md) | 异步编程、链式组合、异常处理、CompletionStage | ⭐⭐⭐⭐ | ✅ |
 
 ---
 
@@ -28,7 +28,7 @@
 2. **深入锁实现**：ReentrantLock公平/非公平、ReentrantReadWriteLock读写分离
 3. **理解并发容器**：ConcurrentHashMap从分段锁到CAS+synchronized的演进
 4. **掌握线程池原理**：ThreadPoolExecutor核心参数、Worker线程模型、任务调度流程
-5. **异步编程模型**：CompletableFuture的CompletionStage链式组合
+3. **异步编程模型**：CompletableFuture的CompletionStage链式组合
 6. **同步工具类**：CountDownLatch/CyclicBarrier/Semaphore的原理与使用场景
 
 ---
@@ -102,7 +102,7 @@ java.util.concurrent
       ↓
 4. AtomicInteger     — CAS原子操作基础
       ↓
-5. ConcurrentHashMap — 并发容器核心
+3. ConcurrentHashMap — 并发容器核心
       ↓
 6. ThreadPoolExecutor — 线程池原理
       ↓

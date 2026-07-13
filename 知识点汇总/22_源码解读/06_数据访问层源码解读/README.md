@@ -8,7 +8,7 @@
 
 | 文档 | 核心内容 | 面试重要度 | 状态 |
 |------|----------|------------|------|
-| [HikariCP源码解析](./10.1_HikariCP源码解析.md) | 连接池管理、ConcurrentBag、FastList、连接泄漏检测 | ⭐⭐⭐⭐⭐ | ✅ |
+| [HikariCP源码解析](./6.1_HikariCP源码解析.md) | 连接池管理、ConcurrentBag、FastList、连接泄漏检测 | ⭐⭐⭐⭐⭐ | ✅ |
 | Druid源码解析 | 阿里连接池、SQL解析、监控统计、WallFilter | ⭐⭐⭐⭐ | 📄 待补充 |
 | ShardingSphere源码解析 | 分库分表路由、SQL解析改写、读写分离 | ⭐⭐⭐⭐ | 📄 待补充 |
 

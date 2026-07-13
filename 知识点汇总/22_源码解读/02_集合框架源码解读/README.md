@@ -8,14 +8,14 @@
 
 | 文档 | 核心内容 | 面试重要度 | 状态 |
 |------|----------|------------|------|
-| [HashMap源码解析](./4.1_HashMap源码解析.md) | 哈希算法、红黑树转换、扩容机制、线程安全 | ⭐⭐⭐⭐⭐ | ✅ |
-| [ArrayList源码解析](./4.2_ArrayList源码解析.md) | 动态扩容(1.5倍)、随机访问、批量操作 | ⭐⭐⭐⭐ | ✅ |
-| [LinkedList源码解析](./4.3_LinkedList源码解析.md) | 双向链表、头尾操作、Deque实现 | ⭐⭐⭐ | ✅ |
-| [LinkedHashMap源码解析](./4.5_LinkedHashMap源码解析.md) | 有序Map、accessOrder、LRU缓存实现 | ⭐⭐⭐⭐ | ✅ |
-| [TreeMap源码解析](./4.6_TreeMap源码解析.md) | 红黑树实现、有序遍历、范围查询 | ⭐⭐⭐ | ✅ |
-| [HashSet源码解析](./4.7_HashSet源码解析.md) | 基于HashMap、去重原理、add/contains | ⭐⭐⭐ | ✅ |
-| [PriorityQueue源码解析](./4.8_PriorityQueue源码解析.md) | 堆结构、堆化调整、TopK问题 | ⭐⭐⭐⭐ | ✅ |
-| [ArrayDeque源码解析](./4.9_ArrayDeque源码解析.md) | 循环数组、双端队列、Stack替代 | ⭐⭐⭐⭐ | ✅ |
+| [HashMap源码解析](./2.1_HashMap源码解析.md) | 哈希算法、红黑树转换、扩容机制、线程安全 | ⭐⭐⭐⭐⭐ | ✅ |
+| [ArrayList源码解析](./2.2_ArrayList源码解析.md) | 动态扩容(1.5倍)、随机访问、批量操作 | ⭐⭐⭐⭐ | ✅ |
+| [LinkedList源码解析](./2.3_LinkedList源码解析.md) | 双向链表、头尾操作、Deque实现 | ⭐⭐⭐ | ✅ |
+| [LinkedHashMap源码解析](./2.5_LinkedHashMap源码解析.md) | 有序Map、accessOrder、LRU缓存实现 | ⭐⭐⭐⭐ | ✅ |
+| [TreeMap源码解析](./2.6_TreeMap源码解析.md) | 红黑树实现、有序遍历、范围查询 | ⭐⭐⭐ | ✅ |
+| [HashSet源码解析](./2.7_HashSet源码解析.md) | 基于HashMap、去重原理、add/contains | ⭐⭐⭐ | ✅ |
+| [PriorityQueue源码解析](./2.8_PriorityQueue源码解析.md) | 堆结构、堆化调整、TopK问题 | ⭐⭐⭐⭐ | ✅ |
+| [ArrayDeque源码解析](./2.9_ArrayDeque源码解析.md) | 循环数组、双端队列、Stack替代 | ⭐⭐⭐⭐ | ✅ |
 
 ---
 
@@ -24,7 +24,7 @@
 1. **深入HashMap**：put/get流程、哈希冲突解决、红黑树转换阈值、扩容rehash
 2. **掌握ArrayList**：1.5倍扩容机制、System.arraycopy、Fail-Fast机制
 3. **理解LinkedList**：双向链表Node结构、头尾O(1)操作、与ArrayList性能对比
-4. **掌握TreeMap**：红黑树平衡规则、左旋右旋、有序性保证
+2. **掌握TreeMap**：红黑树平衡规则、左旋右旋、有序性保证
 5. **理解LinkedHashMap**：双向链表维护顺序、accessOrder模式、LRU缓存实现
 6. **掌握PriorityQueue**：小顶堆结构、siftUp/siftDown、Comparator定制
 
@@ -87,7 +87,7 @@ Map（键值对）
       ↓
 3. LinkedList     — 理解链表结构，与ArrayList对比
       ↓
-4. LinkedHashMap  — 理解顺序维护，扩展到LRU
+2. LinkedHashMap  — 理解顺序维护，扩展到LRU
       ↓
 5. TreeMap        — 深入红黑树实现
       ↓
