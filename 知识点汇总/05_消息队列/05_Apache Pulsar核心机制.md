@@ -481,7 +481,7 @@ managedLedgerOffloadAutoTriggerSizeThresholdBytes=10737418240  # 10GB触发offlo
   │  BookKeeper层（5+ 节点，数据持久化）               │
   │  - 每个Bookie使用独立磁盘（journal + storage）     │
   │  - Journal用NVMe SSD，Storage用SATA SSD/HDD       │
-  │  - 建议Ensemble=3, WriteQuorum=2, AckQuorum=2     │
+  │  - 建议Ensemble=3, WriteQuorum=3, AckQuorum=2     │
   ├──────────────────────────────────────────────────┤
   │  ZooKeeper层（3或5 节点，元数据一致性）            │
   │  - 独立部署，不与Broker混部                       │
