@@ -278,7 +278,7 @@ String tableName = "order_" + tableIndex;
 
 示例：
 userId = 123456 → 123456 % 256 = 64 → order_64
-userId = 789012 → 789012 % 256 = 148 → order_148
+userId = 789012 → 789012 % 256 = 20 → order_20
 ```
 
 **优点**：
@@ -802,7 +802,7 @@ spring:
             type: SNOWFLAKE
             props:
               worker-id: 1  # 机器ID（需要唯一）
-              max-vibration-offset: 1  # 最大容忍时钟回拨毫秒数
+              max-vibration-offset: 1  # 序列号振动范围(时钟回拨用max-tolerate-time-difference-milliseconds)
 ```
 
 **使用**：
