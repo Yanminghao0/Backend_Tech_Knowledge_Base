@@ -685,7 +685,7 @@ float   IEEE 754单精度                 (4字节)
 double  IEEE 754双精度                 (8字节)
 
 char    0 ~ 65535（Unicode字符）       (2字节)
-boolean true/false                     (1位，但实际占用1字节)
+boolean true/false                     (JVM规范未明确定义，通常按1字节处理)
 ```
 
 **存储位置**：
@@ -1005,7 +1005,7 @@ public void method(int num) {
 ```java
 public final class String {
     // 字符数组被final修饰（JDK 9+改为byte[]）
-    private final char[] value;
+    private final byte[] value; // JDK 9+改为byte[]
     
     // 没有提供修改value的方法
 }

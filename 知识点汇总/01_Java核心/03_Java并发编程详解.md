@@ -2983,7 +2983,7 @@ public class ScopedValuesDemo {
    - happens-before原则
 
 2. **锁机制**
-   - synchronized：偏向锁 → 轻量级锁 → 重量级锁（注: JDK 15+已废弃偏向锁JEP 374，JDK 18+已移除）
+   - synchronized：偏向锁 → 轻量级锁 → 重量级锁（注: JDK 15+默认禁用偏向锁(JEP 374)，后续版本逐步移除）
    - volatile：可见性 + 禁止重排序
    - ReentrantLock：可中断、超时、公平锁
 

@@ -414,7 +414,7 @@ ReflectionFactory factory = ReflectionFactory.getReflectionFactory();
 ### 5.3 框架中的优化实践
 
 ```java
-// Spring的ReflectiveMethodAccessor优化策略：
+// JDK的反射调用优化策略：
 // 1. 前15次使用NativeMethodAccessorImpl（JNI调用，慢）
 // 2. 第16次后生成GeneratedMethodAccessor（字节码生成，快）
 // 阈值: -Dsun.reflect.inflationThreshold=15
