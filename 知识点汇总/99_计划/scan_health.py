@@ -9,7 +9,7 @@ import os, re, sys, json
 from datetime import datetime
 
 BASE = "/Users/ymh_sirius/001_File/003soft/Obsidian/ai_prompt/cursor_prompt/知识点汇总"
-EXCLUDE = {".idea", ".obsidian", "计划", "99_计划"}
+EXCLUDE = {".idea", ".obsidian", "99_计划"}
 
 def scan():
     dirs = sorted([d for d in os.listdir(BASE) 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
             print(f"  {n}")
     
     # 写入JSON供cron job读取
-    json_path = os.path.join(BASE, "计划", "scan_result.json")
+    json_path = os.path.join(BASE, "99_计划", "scan_result.json")
     with open(json_path, 'w') as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
     
