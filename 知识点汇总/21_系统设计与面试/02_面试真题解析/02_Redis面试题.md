@@ -302,7 +302,7 @@ BGSAVE     # 异步，fork子进程执行
 **AOF（Append Only File）**：
 ```redis
 # AOF配置
-enable appendonly yes             # 开启AOF
+appendonly yes             # 开启AOF
 appendfilename "appendonly.aof"   # AOF文件名
 dir ./                           # AOF文件存储路径
 

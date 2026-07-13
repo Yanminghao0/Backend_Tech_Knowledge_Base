@@ -229,7 +229,7 @@ static final class ForwardingNode<K,V> extends Node<K,V> {
             for (;;) {
                 int eh; K ek;
                 if ((eh = e.hash) == h &&
-                    ((ek = e.key) == k || (ek != null && k.equals(k))))
+                    ((ek = e.key) == k || (ek != null && k.equals(ek))))
                     return e;
                 if (eh < 0) {
                     if (e instanceof ForwardingNode) {
