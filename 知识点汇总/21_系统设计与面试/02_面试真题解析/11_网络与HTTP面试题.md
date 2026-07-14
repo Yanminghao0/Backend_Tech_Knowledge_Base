@@ -375,4 +375,66 @@ HATEOAS: 响应中包含相关操作的链接(自描述API)
 
 ---
 
+## 10. 更多面试题
+
+**Q: HTTP vs HTTPS性能差异？**
+
+```
+HTTPS额外开销:
+  1. TLS握手: 1-2 RTT(TLS 1.2) / 0-1 RTT(TLS 1.3)
+  2. 加密解密: AES对称加密约降低5-10% CPU(可忽略)
+  3. 证书验证: 首次连接验证证书链(几十ms)
+
+优化:
+  - TLS 1.3: 1-RTT握手(比1.2少一个RTT), 0-RTT恢复
+  - Session Resumption: 复用之前握手结果(跳过证书验证)
+  - HTTP/2: 多路复用抵消TLS握手开销
+  - 硬件加速: AES-NI指令集
+
+结论: 现代环境下HTTPS性能≈HTTP, Google全站HTTPS后无感知影响
+```
+
+**Q: Cookie的SameSite属性？**
+
+```
+SameSite控制跨站请求是否携带Cookie:
+
+Strict: 完全不携带(跨站请求一律不带)
+  安全最高, 但体验差(从Google跳转过来不保持登录)
+
+Lax(Chrome默认): 只在导航GET请求中携带
+  允许<a>链接跳转带Cookie, 但POST/ifetch不带
+  防御大部分CSRF
+
+None: 跨站请求都携带(需Secure, 即HTTPS)
+  兼容旧系统, 但有CSRF风险
+
+CSRF防御:
+  SameSite=Lax/Strict + CSRF Token + Referer校验
+```
+
+**Q: 如何优化前端加载速度？**
+
+```
+网络层:
+  1. CDN静态资源加速
+  2. HTTP/2多路复用
+  3. DNS Prefetch: <link rel="dns-prefetch" href="//cdn.example.com">
+  4. Preload关键资源: <link rel="preload" href="app.js">
+
+资源层:
+  1. 代码分割(lazy load路由)
+  2. Tree Shaking(删除未使用代码)
+  3. 图片优化(WebP/Lazy load/响应式图片)
+  4. Gzip/Brotli压缩
+
+渲染层:
+  1. CSS放头部, JS放底部(defer/async)
+  2. 关键CSS内联(首屏)
+  3. 减少重排重绘
+  4. 虚拟列表(大数据量)
+```
+
+---
+
 *最后更新: 2026-07-14*

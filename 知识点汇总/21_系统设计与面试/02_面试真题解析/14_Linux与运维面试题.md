@@ -412,4 +412,69 @@ journalctl -u nginx --since today
 
 ---
 
+## 7. 更多面试题
+
+**Q: 如何排查线上Java进程突然消失？**
+
+```
+可能原因:
+  1. OOM Killer: dmesg | grep -i "killed process"
+     → 系统内存不足, OS杀掉Java进程
+     → 解决: 增加内存/限制JVM堆/Xmx
+
+  2. 容器OOM: kubectl describe pod / docker inspect
+     → 容器内存limit太低
+     → 解决: 调整resources.limits.memory
+
+  3. 健康检查失败: K8s liveness probe连续失败 → kill
+     → kubectl describe pod看Events
+
+  4. 外部kill: 脚本/人为 kill -9
+     → 查看bash_history/审计日志
+
+排查:
+  1. dmesg | grep -i "killed process"
+  2. kubectl describe pod <name>
+  3. 应用日志最后几行(是否OOM/异常)
+  4. GC日志(是否Full GC导致STW超时)
+```
+
+**Q: Java应用在线上CPU正常但响应慢？**
+
+```
+CPU不高但慢的常见原因:
+  1. IO等待: 数据库慢查询/磁盘IO高
+     → iostat -x看%util, SHOW PROCESSLIST
+  2. 线程阻塞: 锁竞争/外部调用超时
+     → jstack看WAITING/BLOCKED线程
+  3. GC停顿: 频繁Full GC(STW)
+     → jstat -gcutil, GC日志
+  4. 网络延迟: 跨机房调用/DNS解析慢
+     → ping/mtr排查
+  5. 连接池满: 请求排队等待
+     → HikariCP监控/Druid监控
+  6. 线程池满: 任务排队
+     → 自定义线程池监控
+```
+
+**Q: 生产环境发布后出问题怎么回滚？**
+
+```
+快速回滚:
+  1. K8s: kubectl rollout undo deployment/app --to-revision=N
+  2. 虚机: 切换Nginx upstream到上一版本(蓝绿发布)
+  3. 数据库: 如有DDL需提前准备回滚SQL
+  4. 配置: Nacos配置回滚(版本历史)
+
+回滚注意事项:
+  1. 数据兼容: 新版本可能已写入新格式数据 → 回滚后不兼容
+  2. DDL: 加列可以回滚, 删列/改类型不可回滚
+  3. 消息: 已发送的消息无法撤回(需幂等)
+  4. 缓存: 新版本可能写入新格式缓存 → flush
+
+最佳实践: 金丝雀发布(先5%流量验证) → 全量
+```
+
+---
+
 *最后更新: 2026-07-14*

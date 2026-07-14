@@ -413,4 +413,58 @@ CPU单位: 1核=1000m, 500m=0.5核
 
 ---
 
+## 7. 更多面试题
+
+**Q: Docker多阶段构建的原理和好处？**
+
+```dockerfile
+# 第一阶段: 构建(用大镜像, 有Maven/JDK)
+FROM maven:3.9-eclipse-temurin-17 AS builder
+COPY src ./src
+COPY pom.xml .
+RUN mvn package -DskipTests
+
+# 第二阶段: 运行(用小镜像, 只有JRE)
+FROM eclipse-temurin:17-jre-alpine
+COPY --from=builder /target/app.jar /app/app.jar
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+```
+
+好处:
+  - 构建环境与运行环境隔离(Builder有Maven/JDK, 运行只需JRE)
+  - 镜像从800MB→200MB(去掉构建工具/源码/缓存)
+  - 安全性更高(不含编译器/源码)
+
+**Q: K8s StatefulSet vs Deployment？**
+
+```
+Deployment: 无状态应用(Web/API)
+  - Pod可替换(名称随机, IP随机)
+  - 适合: 前端/API/微服务
+  - 持久化: 通过PVC共享
+
+StatefulSet: 有状态应用(数据库/MQ)
+  - Pod有稳定标识(pod-0, pod-1, pod-2)
+  - 有序创建/删除(0→1→2启动, 2→1→0停止)
+  - 每个Pod独立PVC(数据不共享)
+  - 稳定DNS: pod-0.service.namespace.svc.cluster.local
+  - 适合: MySQL主从/Redis集群/ZooKeeper/ElasticSearch
+```
+
+**Q: K8s ConfigMap热更新？**
+
+```
+ConfigMap更新后:
+  1. 环境变量注入: 不会自动更新(需重启Pod)
+  2. Volume挂载: 自动更新(约10-60秒 kubelet同步)
+     → 但应用需要感知文件变化(如Spring Cloud的@RefreshScope)
+
+生产推荐:
+  - 配置变更: Nacos/Apollo(配置中心) 热推送
+  - K8s ConfigMap: 启动配置/不常变配置
+  - 避免依赖ConfigMap热更新(延迟不可控)
+```
+
+---
+
 *最后更新: 2026-07-14*
