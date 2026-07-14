@@ -234,4 +234,145 @@ DNS→TCP→TLS→HTTP→服务端处理→HTML解析→DOM+CSSOM→渲染树→
 
 ---
 
+## 9. 补充面试题
+
+**Q: CDN原理？**
+
+```
+CDN(Content Delivery Network)内容分发网络:
+  核心思想: 把内容缓存到离用户最近的边缘节点
+
+流程:
+  1. 用户请求 www.example.com
+  2. DNS解析: CNAME指向CDN的DNS
+  3. CDN的GSLB(全局负载均衡)返回离用户最近的边缘节点IP
+  4. 用户请求边缘节点
+  5. 边缘节点有缓存 → 直接返回(命中)
+  6. 边缘节点无缓存 → 回源站获取 → 缓存后返回(未命中)
+
+缓存策略:
+  - TTL过期: 过期后回源
+  - 主动刷新: 源站内容更新后通知CDN刷新
+  - 热点预热: 提前把热门内容推送到边缘节点
+```
+
+**Q: DNS解析过程？**
+
+```
+浏览器输入www.example.com的DNS解析:
+
+1. 浏览器DNS缓存 → 没找到
+2. OS hosts文件 → 没找到
+3. OS DNS缓存 → 没找到
+4. 本地DNS服务器(配置的DNS, 如8.8.8.8)
+   → 查根DNS(.): 返回.com的TLD DNS
+   → 查TLD DNS(.com): 返回example.com的权威DNS
+   → 查权威DNS: 返回www.example.com的A记录(IP)
+5. 本地DNS缓存结果 → 返回给OS → 返回给浏览器
+
+递归查询(客户端→本地DNS) + 迭代查询(本地DNS→各级DNS)
+```
+
+**Q: TCP如何保证可靠传输？**
+
+```
+1. 序列号和确认号: 每个字节有序列号, 接收方确认
+2. 重传机制: 超时重传(RTO) + 快速重传(3个重复ACK)
+3. 流量控制: 滑动窗口(接收方告知发送方窗口大小)
+4. 拥塞控制: 慢启动→拥塞避免→快恢复→快重传
+5. 数据校验: CRC校验和(检测传输中数据是否损坏)
+6. 有序到达: 序列号保证有序, 乱序时重新排序
+```
+
+**Q: TCP滑动窗口？**
+
+```
+发送方窗口:
+  已发送已确认 | 已发送未确认 | 未发送可发送 | 未发送不可发送
+                  ← 发送窗口 →
+
+  窗口大小 = min(拥塞窗口cwnd, 接收窗口rwnd)
+  接收方通过ACK中的窗口字段告知发送方自己的接收能力
+
+零窗口探测:
+  接收方窗口=0时, 发送方定期发零窗口探测报文
+  防止窗口更新报文丢失导致死锁
+```
+
+**Q: TCP拥塞控制算法？**
+
+```
+1. 慢启动: cwnd从1开始, 每RTT翻倍(指数增长)
+   到达ssthresh(慢启动阈值) → 进入拥塞避免
+
+2. 拥塞避免: cwnd每RTT加1(线性增长)
+   直到发生丢包 → 快恢复或慢启动
+
+3. 快重传: 收到3个重复ACK → 立即重传(不等超时)
+   ssthresh = cwnd/2, cwnd = ssthresh
+
+4. 快恢复: cwnd = ssthresh + 3(快重传后不减到1)
+   继续拥塞避免(线性增长)
+
+BBR算法(Google): 不依赖丢包判断拥塞, 测量带宽和RTT
+  → 更高效利用带宽, Linux 4.9+默认
+```
+
+**Q: HTTP长连接 vs 短连接？**
+
+```
+短连接(HTTP/1.0): 每次请求建TCP → 请求响应 → 断开
+  开销: 每次TCP握手+挥手, 高延迟
+
+长连接(HTTP/1.1 Keep-Alive): TCP建立后保持, 多个请求复用
+  优点: 减少TCP建连开销
+  缺点: 队头阻塞(一个慢请求阻塞后面的)
+
+连接复用限制:
+  - 同域名最多6个并发连接(浏览器限制)
+  - HTTP/2多路复用解决了队头阻塞(一个TCP并行多请求)
+```
+
+**Q: WebSocket vs HTTP？**
+
+```
+HTTP: 请求-响应模式, 单向(客户端发起), 每次需带Header
+WebSocket: 全双工通信, 服务端可主动推送, 只握手时用HTTP
+
+WebSocket握手:
+  GET /ws HTTP/1.1
+  Upgrade: websocket
+  Connection: Upgrade
+  Sec-WebSocket-Key: ...
+
+  服务端响应101 Switching Protocols → 升级为WebSocket
+
+适用场景: 实时聊天/股票行情/协同编辑/在线游戏
+```
+
+**Q: RESTful API设计规范？**
+
+```
+URI: 名词复数, 不含动词
+  GET    /users          # 获取用户列表
+  GET    /users/123      # 获取单个用户
+  POST   /users          # 创建用户
+  PUT    /users/123      # 全量更新
+  PATCH  /users/123      # 部分更新
+  DELETE /users/123      # 删除
+
+状态码:
+  200 OK / 201 Created / 204 No Content
+  400 Bad Request / 401 Unauthorized / 404 Not Found
+  500 Internal Error
+
+版本: URI(/v1/users) 或 Header(Accept: application/vnd.api+json;version=1)
+
+分页: /users?page=1&size=20 或 /users?cursor=xxx
+
+HATEOAS: 响应中包含相关操作的链接(自描述API)
+```
+
+---
+
 *最后更新: 2026-07-14*

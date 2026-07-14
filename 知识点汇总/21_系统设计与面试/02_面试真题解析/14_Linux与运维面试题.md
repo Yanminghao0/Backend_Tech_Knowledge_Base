@@ -267,4 +267,149 @@ jinfo -flags <PID> 或 jcmd <PID> VM.flags
 
 ---
 
+## 6. 补充面试题
+
+**Q: 文件权限rwx详解？**
+
+```
+drwxr-xr-- 2 user group 4096 Jul 14 dir/
+
+第1位: d=目录, -=文件, l=链接
+第2-4位: 所有者权限 rwx (读/写/执行)
+第5-7位: 所属组权限 r-x
+第8-10位: 其他用户 r--
+
+数字表示: r=4, w=2, x=1
+  rwx = 7, r-x = 5, r-- = 4
+  chmod 755 = rwxr-xr-x
+  chmod 644 = rw-r--r--
+
+特殊权限:
+  SUID(4): 执行时以文件所有者身份执行 (如/usr/bin/passwd)
+  SGID(2): 在目录下创建的文件继承目录的组
+  Sticky(1): 只有文件所有者能删除 (如/tmp)
+```
+
+**Q: 如何查看系统负载？**
+
+```bash
+# load average: 1分钟/5分钟/15分钟的平均负载
+uptime           # load average: 1.50, 1.20, 0.80
+# 负载 > CPU核数 → 过载
+
+# CPU核数
+nproc            # 如8
+
+# vmstat: 查看CPU/内存/IO综合状态
+vmstat 1 5       # 每秒1次共5次
+# r列: 运行队列(>CPU核数说明CPU不够)
+# us: 用户态CPU, sy: 内核态, wa: IO等待(高说明磁盘瓶颈)
+# bi/bo: 块设备读写(高说明IO密集)
+
+# iostat: 磁盘IO
+iostat -x 1      # %util高说明磁盘满载
+```
+
+**Q: 如何查看内存使用？**
+
+```bash
+free -h
+#              total        used        free      shared  buff/cache   available
+# Mem:           16G         8G        2G        512M        6G        7G
+# available = free + 可回收的buff/cache
+# Linux会把空闲内存用作文件缓存(buff/cache), 需要时自动释放
+
+# 进程内存排序
+ps aux --sort=-%mem | head -10
+
+# 查看进程的内存映射
+pmap <PID> | sort -rn | head
+```
+
+**Q: 日志分析常用命令组合？**
+
+```bash
+# 1. 统计各HTTP状态码数量
+awk '{print $9}' access.log | sort | uniq -c | sort -rn
+
+# 2. 找出4xx/5xx错误的请求
+awk '$9 >= 400 {print $7, $9}' access.log | sort | uniq -c | sort -rn | head -20
+
+# 3. 统计每秒QPS
+awk '{print $4}' access.log | cut -c2-20 | sort | uniq -c
+
+# 4. 找出响应最慢的10个请求
+awk '{print $NF, $7}' access.log | sort -rn | head -10
+
+# 5. 实时过滤错误日志并高亮
+tail -f app.log | grep --color=always "ERROR\|Exception"
+
+# 6. 多文件搜索关键字
+grep -rn "OutOfMemoryError" /app/logs/ --include="*.log"
+
+# 7. 按时间范围提取日志
+sed -n '/2026-07-14 10:00/,/2026-07-14 11:00/p' app.log
+
+# 8. 去重统计访问IP的地理分布
+awk '{print $1}' access.log | sort -u | while read ip; do
+    echo "$ip $(curl -s ipinfo.io/$ip/region)"
+done
+```
+
+**Q: 环境变量配置？**
+
+```bash
+# 临时生效(当前终端)
+export JAVA_HOME=/usr/lib/jvm/java-17
+export PATH=$JAVA_HOME/bin:$PATH
+
+# 永久生效(当前用户)
+echo 'export JAVA_HOME=/usr/lib/jvm/java-17' >> ~/.bashrc
+source ~/.bashrc
+
+# 全局生效(所有用户)
+echo 'export JAVA_HOME=/usr/lib/jvm/java-17' >> /etc/profile
+
+# 查看环境变量
+env              # 所有
+echo $JAVA_HOME  # 单个
+```
+
+**Q: crontab定时任务？**
+
+```bash
+# 格式: 分 时 日 月 周 命令
+crontab -e       # 编辑
+crontab -l       # 查看
+
+# 常用示例:
+*/5 * * * * /script/health-check.sh        # 每5分钟
+0 2 * * * /script/backup.sh                # 每天凌晨2点
+0 0 1 * * /script/cleanup.sh               # 每月1号
+0 9-18 * * 1-5 /script/workday.sh          # 工作日9-18点每小时
+
+# 注意:
+# 1. 路径用绝对路径(crontab环境变量不全)
+# 2. 日志重定向: >> /var/log/cron.log 2>&1
+# 3. 错误处理: 脚本加 set -e
+```
+
+**Q: systemd服务管理？**
+
+```bash
+systemctl status nginx          # 查看状态
+systemctl start nginx           # 启动
+systemctl stop nginx            # 停止
+systemctl restart nginx         # 重启
+systemctl enable nginx          # 开机自启
+systemctl disable nginx         # 禁用自启
+systemctl daemon-reload         # 修改service文件后重新加载
+
+# 查看日志
+journalctl -u nginx -f          # 实时日志
+journalctl -u nginx --since today
+```
+
+---
+
 *最后更新: 2026-07-14*

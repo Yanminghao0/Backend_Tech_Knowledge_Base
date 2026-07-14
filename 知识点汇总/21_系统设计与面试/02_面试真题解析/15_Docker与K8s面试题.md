@@ -263,4 +263,154 @@ Deployment逐个替换Pod, maxSurge/maxUnavailable控制速率, 支持回滚
 
 ---
 
+## 8. 补充面试题
+
+**Q: Docker镜像如何分层存储？**
+
+```
+镜像 = 多个只读层(Layer)叠加
+
+构建过程:
+  FROM openjdk:17          → 基础层(300MB)
+  COPY app.jar /app/       → 新增层(50MB)
+  RUN apt install curl     → 新增层(10MB)
+
+容器运行: 在镜像层之上加一个可写层(Container Layer)
+  修改文件时: Copy-on-Write, 复制到可写层修改
+
+为什么分层:
+  1. 复用: 多个镜像共享基础层, 节省存储
+  2. 缓存: 构建时未变化的层使用缓存, 加速构建
+  3. 传输: 只传输变化的层(docker push/pull)
+
+查看分层: docker history <image>
+```
+
+**Q: Docker Compose常用场景？**
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports: ["8080:8080"]
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    restart: always
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports: ["3306:3306"]
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+volumes:
+  mysql_data:
+
+# 命令:
+# docker-compose up -d        # 启动全部
+# docker-compose down          # 停止并删除
+# docker-compose logs -f app   # 查看日志
+# docker-compose restart app   # 重启单个服务
+```
+
+**Q: K8s中Pod内容器共享什么？**
+
+```
+Pod内多个容器共享:
+  1. 网络: 相同IP和端口空间(可通过localhost互访)
+  2. 存储: 共享Volume挂载
+  3. IPC: 共享进程间通信
+
+不共享:
+  1. PID命名空间(默认隔离, shareProcessNamespace可开启)
+  2. 文件系统(各自隔离, 除共享Volume)
+
+设计模式(Sidecar):
+  主容器: 业务应用
+  Sidecar: 日志收集/监控Agent/配置同步/Service Mesh代理
+```
+
+**Q: K8s Service负载均衡原理？**
+
+```
+Service通过Label Selector关联Pod:
+  Service(selector: app=order) → Pod(app=order)
+
+ClusterIP:
+  虚拟IP, 通过kube-proxy的iptables/IPVS规则转发到Pod
+  iptables: 随机选Pod DNAT
+  IPVS: 更高效的负载均衡(rr/wrr/lc/sh等算法)
+
+kube-proxy模式:
+  iptables(默认): 规则链, 大量Service时性能下降
+  ipvs: 内核级LB, 万级Service仍高效(推荐生产)
+  ebpf: Cilium等替代kube-proxy(最高性能)
+
+DNS: CoreDNS自动为Service创建DNS记录
+  my-service.my-namespace.svc.cluster.local
+```
+
+**Q: K8s滚动更新和回滚？**
+
+```bash
+# 滚动更新(修改镜像)
+kubectl set image deployment/app container=app:v2
+
+# 更新策略
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%         # 最多多创建25%的Pod
+      maxUnavailable: 25%   # 最多25%不可用
+
+# 查看更新状态
+kubectl rollout status deployment/app
+
+# 暂停/恢复
+kubectl rollout pause deployment/app
+kubectl rollout resume deployment/app
+
+# 回滚
+kubectl rollout undo deployment/app              # 回滚到上一版本
+kubectl rollout undo deployment/app --to-revision=2  # 回滚到指定版本
+kubectl rollout history deployment/app           # 查看历史版本
+```
+
+**Q: K8s资源限制和QoS？**
+
+```yaml
+resources:
+  requests:          # 调度依据(保证最小资源)
+    cpu: "500m"      # 0.5核
+    memory: "512Mi"
+  limits:            # 上限(超过CPU限流, 内存超过OOMKill)
+    cpu: "1000m"     # 1核
+    memory: "1Gi"
+```
+
+```
+QoS等级(决定Pod在资源不足时的驱逐顺序):
+  Guaranteed: requests=limits (最后被驱逐)
+  Burstable:   requests < limits (中间)
+  BestEffort:  没有设置requests/limits (最先被驱逐)
+
+CPU单位: 1核=1000m, 500m=0.5核
+内存: Mi/Gi(MiB/GiB), M/G(MB/GB)
+```
+
+---
+
 *最后更新: 2026-07-14*
