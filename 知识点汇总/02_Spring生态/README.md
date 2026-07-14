@@ -523,7 +523,54 @@ spring:
 
 ---
 
-*最后更新：2025-10-27*
+---
+
+## 📄 Spring MVC详解
+
+📄 [Spring MVC详解.md](./03_Spring%20MVC详解.md)
+
+**核心内容**：
+- ✅ **请求处理流程**：DispatcherServlet完整流程、核心组件
+- ✅ **HandlerMapping/Adapter**：路由匹配、参数解析、数据绑定
+- ✅ **拦截器Interceptor**：preHandle/postHandle/afterCompletion、与Filter对比
+- ✅ **异常处理**：@ControllerAdvice全局异常、统一返回格式
+- ✅ **RESTful设计**：HTTP方法语义、状态码、完整CRUD示例
+- ✅ **文件上传下载**：MultipartFile、多文件上传
+- ✅ **跨域CORS**：注解/全局/Filter三种方式
+
+---
+
+## 📄 Spring AOP详解
+
+📄 [Spring AOP详解.md](./04_Spring%20AOP详解.md)
+
+**核心内容**：
+- ✅ **AOP核心概念**：切面/切点/通知/织入/代理
+- ✅ **动态代理**：JDK vs CGLIB对比、实现原理
+- ✅ **五种通知**：@Before/@After/@AfterReturning/@AfterThrowing/@Around
+- ✅ **切点表达式**：execution/within/args/@annotation、组合切点
+- ✅ **多切面顺序**：@Order洋葱模型
+- ✅ **实战场景**：日志切面、性能监控、限流切面、权限校验
+- ✅ **代理失效**：内部调用、非public、异常吞没等坑
+
+---
+
+## 📄 Spring事务管理
+
+📄 [Spring事务管理.md](./05_Spring事务管理.md)
+
+**核心内容**：
+- ✅ **事务ACID**：原子性/一致性/隔离性/持久性
+- ✅ **Spring事务抽象**：PlatformTransactionManager体系
+- ✅ **七种传播行为**：REQUIRED/REQUIRES_NEW/NESTED等+决策树
+- ✅ **四种隔离级别**：脏读/不可重复读/幻读对应关系
+- ✅ **@Transactional失效**：6大场景+根因分析
+- ✅ **编程式事务**：TransactionTemplate vs PlatformTransactionManager
+- ✅ **分布式事务**：Seata AT模式示例
+
+---
+
+*最后更新：2026-07-13*
 
 ---
 

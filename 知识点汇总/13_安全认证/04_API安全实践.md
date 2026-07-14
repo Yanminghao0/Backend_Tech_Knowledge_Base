@@ -454,4 +454,4 @@ Timestamp + Nonce方案：
 - [02_Spring Security与JWT实战](./02_Spring Security与JWT实战.md)
 - [03_SSO单点登录方案](./03_SSO单点登录方案.md)
 - [01_OAuth2.0实战案例](./01_OAuth2.0实战案例.md)
-- [Sentinel流量控制详解](../06_微服务/服务治理/01_Sentinel流量控制详解.md)
+- [Sentinel流量控制详解](../06_微服务/03_服务治理/01_Sentinel流量控制详解.md)

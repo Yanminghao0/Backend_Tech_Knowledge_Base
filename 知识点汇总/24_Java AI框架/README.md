@@ -9,7 +9,7 @@
 | 文档 | 框架 | 核心定位 | 状态 |
 |------|------|---------|------|
 | [AI框架对比分析](./07_AI框架对比分析.md) | 综合对比 | 6大框架横向对比与选型指南 | ✅ 已完成 |
-| [00_Solon框架](./00_Solon框架.md) | Solon | 国产轻量级应用框架，AI扩展支持 | ✅ 已完成 |
+| [08_Solon框架](./08_Solon框架.md) | Solon | 国产轻量级应用框架，AI扩展支持 | ✅ 已完成 |
 | [01_LangChain4J](./01_LangChain4J.md) | LangChain4J | LLM应用开发（集成、提示工程、记忆管理） | ✅ 已完成 |
 | [02_Spring AI](./02_Spring%20AI.md) | Spring AI | Spring生态AI集成（声明式API、自动配置） | ✅ 已完成 |
 | [03_Deeplearning4j](./03_Deeplearning4j.md) | DL4J | 分布式深度学习（Hadoop/Spark集成） | ✅ 已完成 |

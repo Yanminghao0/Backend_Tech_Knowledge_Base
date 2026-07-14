@@ -283,12 +283,12 @@ public class SocialConfig extends SocialConfigurerAdapter {
 **1. 添加依赖**：
 ```xml
 <dependency>
-    <groupId>me.chanjar</groupId>
+    <groupId>com.github.binarywang</groupId>
     <artifactId>weixin-java-mp</artifactId>
     <version>4.4.0</version>
 </dependency>
 <dependency>
-    <groupId>me.chanjar</groupId>
+    <groupId>com.github.binarywang</groupId>
     <artifactId>weixin-java-open</artifactId>
     <version>4.4.0</version>
 </dependency>

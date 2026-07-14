@@ -63,9 +63,7 @@
 ```java
 @Service
 public class RecommendationService {
-    private static final String BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final int SHORT_URL_LENGTH = 6;
-    private final AiClient aiClient;
+    private final EmbeddingModel embeddingModel;
     private final MilvusClient milvusClient;
     private final ProductRepository productRepository;
     private final UserBehaviorRepository userBehaviorRepository;
@@ -73,7 +71,7 @@ public class RecommendationService {
     @Value("${milvus.collection.name}")
     private String collectionName;
     
-    public RecommendationService(AiClient aiClient, MilvusClient milvusClient, 
+    public RecommendationService(EmbeddingModel embeddingModel, MilvusClient milvusClient, 
                                ProductRepository productRepository, UserBehaviorRepository userBehaviorRepository) {
         this.aiClient = aiClient;
         this.milvusClient = milvusClient;
@@ -87,7 +85,7 @@ public class RecommendationService {
         for (Product product : products) {
             String prompt = String.format("生成商品向量: %s, 类别: %s, 描述: %s",
                 product.getName(), product.getCategory(), product.getDescription());
-            String embedding = aiClient.embed(prompt);
+            String embedding = embeddingModel.embed(prompt);
             product.setEmbedding(embedding);
             productRepository.save(product);
             // 插入Milvus向量库

@@ -55,7 +55,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
 # 链式调用
-prompt = ChatPromptTemplate.fromTemplate("翻译以下文本为英文：{text}")
+prompt = ChatPromptTemplate.from_template("翻译以下文本为英文：{text}")
 model = ChatOpenAI(model="gpt-5")
 parser = StrOutputParser()
 

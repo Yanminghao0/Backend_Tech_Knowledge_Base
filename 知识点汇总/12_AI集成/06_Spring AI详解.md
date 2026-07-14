@@ -144,14 +144,14 @@ Spring AI抽象层
     <dependency>
         <groupId>org.springframework.ai</groupId>
         <artifactId>spring-ai-core</artifactId>
-        <version>0.8.1</version>
+        <version>1.0.0</version>
     </dependency>
     
     <!-- OpenAI集成 -->
     <dependency>
         <groupId>org.springframework.ai</groupId>
         <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
-        <version>0.8.1</version>
+        <version>1.0.0</version>
     </dependency>
     
     <!-- Spring Boot -->
@@ -191,7 +191,7 @@ public class AIController {
     
     @PostMapping("/chat")
     public String chat(@RequestBody ChatRequest request) {
-        return chatClient.call(request.getMessage());
+        return chatClient.prompt().user(request.getMessage()).call().content();
     }
     
     @PostMapping("/chat/stream")
@@ -252,7 +252,7 @@ public class OpenAIService {
 <dependency>
     <groupId>org.springframework.ai</groupId>
     <artifactId>spring-ai-anthropic-spring-boot-starter</artifactId>
-    <version>0.8.1</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -274,7 +274,7 @@ spring:
 <dependency>
     <groupId>org.springframework.ai</groupId>
     <artifactId>spring-ai-alibaba-spring-boot-starter</artifactId>
-    <version>0.8.1</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -296,7 +296,7 @@ spring:
 <dependency>
     <groupId>org.springframework.ai</groupId>
     <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
-    <version>0.8.1</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -321,7 +321,7 @@ spring:
 <dependency>
     <groupId>org.springframework.ai</groupId>
     <artifactId>spring-ai-milvus-store</artifactId>
-    <version>0.8.1</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -353,7 +353,7 @@ public class MilvusConfig {
 <dependency>
     <groupId>org.springframework.ai</groupId>
     <artifactId>spring-ai-pgvector-store</artifactId>
-    <version>0.8.1</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -377,7 +377,7 @@ spring:
 <dependency>
     <groupId>org.springframework.ai</groupId>
     <artifactId>spring-ai-redis-store</artifactId>
-    <version>0.8.1</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -532,7 +532,8 @@ public class FunctionCallingService {
     public String chatWithTools(String userMessage) {
         // 创建工具列表
         List<Function> functions = List.of(
-            Function.builder()
+            // Spring AI通过@Bean+@Description注册工具
+            // 此处应使用@Bean方式定义Function
                 .name("getWeather")
                 .description("获取指定城市的天气信息")
                 .parameters(Map.of(

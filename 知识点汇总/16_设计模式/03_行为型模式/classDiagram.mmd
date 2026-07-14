@@ -1,0 +1,28 @@
+classDiagram
+    class Originator {
+        -state: String
+        +setState(state: String): void
+        +getState(): String
+        +createMemento(): Memento
+        +restoreMemento(memento: Memento): void
+    }
+    class Memento {
+        -state: String
+        +Memento(state: String)
+        +getState(): String
+    }
+    class Caretaker {
+        -memento: Memento
+        -mementoStack: Stack~Memento~
+        +saveState(originator: Originator): void
+        +restoreState(originator: Originator): void
+        +undo(originator: Originator): void
+        +redo(originator: Originator): void
+    }
+    class Client {
+    }
+
+    Originator --> Memento: creates
+    Caretaker --> Memento: stores
+    Client --> Originator
+    Client --> Caretaker

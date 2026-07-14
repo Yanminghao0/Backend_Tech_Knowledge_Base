@@ -685,7 +685,7 @@ float   IEEE 754单精度                 (4字节)
 double  IEEE 754双精度                 (8字节)
 
 char    0 ~ 65535（Unicode字符）       (2字节)
-boolean true/false                     (1位，但实际占用1字节)
+boolean true/false                     (JVM规范未明确定义，通常按1字节处理)
 ```
 
 **存储位置**：
@@ -1005,7 +1005,7 @@ public void method(int num) {
 ```java
 public final class String {
     // 字符数组被final修饰（JDK 9+改为byte[]）
-    private final char[] value;
+    private final byte[] value; // JDK 9+改为byte[]
     
     // 没有提供修改value的方法
 }
@@ -1159,7 +1159,7 @@ public String concat2(String[] words) {
 // 性能：O(n)，只创建一个StringBuilder对象
 
 // 🔥 编译器优化（JDK 9+）：
-// 对于简单的+拼接，编译器会自动优化为StringBuilder
+// 对于简单的+拼接，编译器使用invokedynamic优化(JEP 280)
 String s = "a" + "b" + "c";  // 编译时优化为常量"abc"
 String s2 = str1 + str2;     // 编译后使用StringBuilder
 ```

@@ -303,7 +303,7 @@ public interface ChatAgent {
 // 配置
 @Bean
 public ChatMemory chatMemory() {
-    return ChatMemory.builder()
+    return MessageWindowChatMemory.builder()
         .maxMessages(20)  // 短期记忆窗口
         .build();
 }
@@ -317,7 +317,7 @@ public ChatMemoryStore chatMemoryStore() {
 // 记忆提供者
 @Bean
 public ChatMemoryProvider chatMemoryProvider(ChatMemoryStore store) {
-    return memoryId -> ChatMemory.builder()
+    return memoryId -> MessageWindowChatMemory.builder()
         .id(memoryId)
         .maxMessages(20)
         .chatMemoryStore(store)

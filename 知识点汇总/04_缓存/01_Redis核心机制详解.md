@@ -391,7 +391,7 @@ graph TB
     List[List对象]
     List --> E2{元素少 且 值小?}
     E2 -->|是| ziplist[ziplist编码<br/>压缩列表]
-    E2 -->|否| linkedlist[linkedlist编码<br/>双向链表]
+    E2 -->|否| quicklist[quicklist编码<br/>快速链表]
     
     Hash[Hash对象]
     Hash --> E3{元素少 且 值小?}
@@ -419,7 +419,7 @@ graph TB
 | 数据类型 | 编码1（紧凑） | 编码2（正常） | 转换条件 |
 |---------|-------------|-------------|---------|
 | **String** | int/embstr | raw | 长度>44字节 |
-| **List** | ziplist | linkedlist | 元素>512 或 值>64字节 |
+| **List** | listpack(7.0+)/ziplist | quicklist | 元素>128 或 值>64字节 |
 | **Hash** | ziplist | hashtable | 元素>512 或 值>64字节 |
 | **Set** | intset | hashtable | 非整数 或 元素>512 |
 | **ZSet** | ziplist | skiplist+dict | 元素>128 或 值>64字节 |
@@ -936,7 +936,7 @@ sequenceDiagram
     participant Master as 主节点
     
     Note over Slave: 1. 从节点启动
-    Slave->>Slave: 配置：slaveof <master-ip> <port>
+    Slave->>Slave: 配置：replicaof <master-ip> <port>
     
     Note over Slave,Master: 2. 建立连接
     Slave->>Master: PING
@@ -1013,20 +1013,20 @@ graph TD
 **配置**：
 ```bash
 # 从节点配置
-slaveof 192.168.1.100 6379
+replicaof 192.168.1.100 6379
 masterauth <password>
 
 # 从节点只读
-slave-read-only yes
+replica-read-only yes
 
 # 复制积压缓冲区大小
 repl-backlog-size 1mb
 
 # 主节点配置
 # 最少从节点数
-min-slaves-to-write 1
+min-replicas-to-write 1
 # 从节点最大延迟（秒）
-min-slaves-max-lag 10
+min-replicas-max-lag 10
 ```
 
 ---
@@ -1126,7 +1126,7 @@ sequenceDiagram
 
 选择Slave升级为Master的优先级：
 
-1. **优先级**：`slave-priority`（越小越优先）
+1. **优先级**：`replica-priority`（越小越优先）
 2. **复制偏移量**：offset越大越优先（数据越新）
 3. **Run ID**：字典序最小的优先
 

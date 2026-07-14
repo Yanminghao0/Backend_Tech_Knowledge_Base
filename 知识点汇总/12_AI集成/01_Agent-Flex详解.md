@@ -1,6 +1,6 @@
 # Agent-Flex详解
 
-> 阿里云开源的AI Agent框架：专注于构建强大的AI智能体应用
+> Noear(MyBatis-Flex作者)开源的轻量级Java AI Agent框架：专注于构建强大的AI智能体应用
 
 ---
 
@@ -23,7 +23,7 @@
 
 ```
 Agent-Flex：
-- 阿里云开源的AI Agent框架
+- Noear(MyBatis-Flex作者)开源的轻量级Java AI Agent框架
 - 专注于构建强大的AI智能体应用
 - 支持多种LLM（通义千问、OpenAI等）
 - 提供完整的Agent开发工具链
@@ -137,14 +137,14 @@ Agent-Flex Core
 <dependencies>
     <!-- Agent-Flex核心 -->
     <dependency>
-        <groupId>com.alibaba.cloud.ai</groupId>
+        <groupId>com.agentsflex</groupId>
         <artifactId>agent-flex-spring-boot-starter</artifactId>
         <version>1.0.0</version>
     </dependency>
     
     <!-- 通义千问集成 -->
     <dependency>
-        <groupId>com.alibaba.cloud.ai</groupId>
+        <groupId>com.agentsflex</groupId>
         <artifactId>agent-flex-dashscope</artifactId>
         <version>1.0.0</version>
     </dependency>
@@ -693,7 +693,7 @@ public class PerformanceOptimizedService {
 @Component
 public class AgentLoggingAspect {
     
-    @Around("execution(* com.alibaba.cloud.ai.agent..*.*(..))")
+    @Around("execution(* com.agentsflex.agent..*.*(..))")
     public Object logAgentCalls(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         try {

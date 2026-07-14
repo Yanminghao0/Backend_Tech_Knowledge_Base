@@ -87,7 +87,7 @@ SELECT * FROM orders WHERE user_id = 100;
 SELECT * FROM orders WHERE user_id = 100 AND status = 'PAID';
 SELECT * FROM orders WHERE user_id = 100 AND status = 'PAID' AND create_time > '2026-01-01';
 
--- ✅ 走索引（范围查询在最后）
+-- ⚠️ 部分走索引（只走user_id，跳过status后create_time不走索引）
 SELECT * FROM orders WHERE user_id = 100 AND create_time > '2026-01-01';
 
 -- ❌ 不走索引（跳过了user_id）
